@@ -36,9 +36,6 @@
             position: relative;
             width: 100%;
             height: 500px;
-            background: #f8fafc;
-        }
-        .dark .chart-container {
             background: #0f172a;
         }
         @media (max-width: 768px) {
@@ -78,14 +75,14 @@
             // State Management
             const [btcPrice, setBtcPrice] = useState(0);
             const [tickerData, setTickerData] = useState({ p: 0, h: 0, l: 0, v: 0 });
-            const [isDark, setIsDark] = useState(false); // Initial State: Light Mode
+            const [isDark, setIsDark] = useState(true);
             const [leverage, setLeverage] = useState(10);
             const [activeSide, setActiveSide] = useState('long');
             const [orderAmount, setOrderAmount] = useState('');
             const [positions, setPositions] = useState([]);
             const [mobileTab, setMobileTab] = useState('trade');
             const [walletConnected, setWalletConnected] = useState(false);
-            const [shareModal, setShareModal] = useState(null); 
+            const [shareModal, setShareModal] = useState(null); // To store position for sharing
 
             // Refs for Audio
             const openAudio = useRef(new Audio("https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3"));
@@ -93,11 +90,7 @@
 
             // Theme Toggle
             useEffect(() => {
-                if (isDark) {
-                    document.documentElement.classList.add('dark');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                }
+                document.documentElement.classList.toggle('dark', isDark);
             }, [isDark]);
 
             // WebSocket: Binance Live Data
@@ -159,7 +152,7 @@
 
             const getPriceY = (price) => {
                 if (!btcPrice) return '50%';
-                const zoom = 0.05; 
+                const zoom = 0.05; // 5% visibility range
                 const offset = ((price - btcPrice) / btcPrice) * (100 / zoom);
                 const y = 50 - offset;
                 return `${Math.max(5, Math.min(95, y))}%`;
@@ -185,6 +178,7 @@
                             <button onClick={onClose} className="absolute top-4 right-4 text-white/40 hover:text-white z-10"><i data-lucide="x" className="w-5 h-5"></i></button>
                             
                             <div className="p-8 pb-12 profit-card-gradient relative overflow-hidden">
+                                {/* Decor */}
                                 <div className="absolute top-[-20%] right-[-10%] w-40 h-40 bg-sky-500/20 rounded-full blur-[80px]"></div>
                                 
                                 <div className="flex justify-between items-start mb-10">
@@ -236,7 +230,7 @@
             };
 
             if (btcPrice === 0) return (
-                <div className="h-screen w-full flex flex-col items-center justify-center bg-white dark:bg-slate-950">
+                <div className="h-screen w-full flex flex-col items-center justify-center bg-slate-950">
                     <div className="w-12 h-12 border-4 border-sky-500/20 border-t-sky-500 rounded-full animate-spin mb-6"></div>
                     <div className="text-sky-500 font-black text-[10px] tracking-[0.3em] uppercase animate-pulse">Initializing OXBIT Engine</div>
                 </div>
@@ -289,7 +283,7 @@
                         </div>
                     </div>
 
-                    {/* Main Layout */}
+                    {/* Desktop Layout */}
                     <main className="flex-1 grid grid-cols-12 gap-1 p-1 md:p-4 max-w-[1800px] mx-auto w-full pb-24 md:pb-4">
                         
                         {/* Center: Chart & Positions */}
