@@ -71,10 +71,6 @@
             Wallet, Settings, TrendingUp, BarChart3, Share2, Info, MoreHorizontal, X, ArrowDown, ArrowUp, Sun, Moon
         } = lucide;
 
-        // Sound URLs (Using clear, high-quality notification sounds)
-        const OPEN_SOUND = "https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3"; // iOS-like notification
-        const CLOSE_SOUND = "https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"; // Clean pop/click
-
         const App = () => {
             const [leverage, setLeverage] = useState(10);
             const [isWalletConnected, setIsWalletConnected] = useState(false);
@@ -84,15 +80,13 @@
             const [high24h, setHigh24h] = useState(0);
             const [low24h, setLow24h] = useState(0);
             const [volume24h, setVolume24h] = useState(0);
-            const [showPnlCard, setShowPnlCard] = useState(null); 
+            const [showPnlCard, setShowPnlCard] = useState(null); // stores position object for sharing
             const [mobileNav, setMobileNav] = useState('trade');
             const [isDark, setIsDark] = useState(false);
             const [orderAmount, setOrderAmount] = useState('');
+            
+            // In-memory positions for Paper Trading
             const [positions, setPositions] = useState([]);
-
-            // Audio objects
-            const openAudio = useRef(new Audio(OPEN_SOUND));
-            const closeAudio = useRef(new Audio(CLOSE_SOUND));
 
             // Dark Mode Toggle Logic
             useEffect(() => {
@@ -145,17 +139,6 @@
                 return () => clearTimeout(timer);
             }, [btcPrice, showPnlCard, mobileNav, isDark, positions]);
 
-            // Play sound helper
-            const playSound = (type) => {
-                try {
-                    const audio = type === 'open' ? openAudio.current : closeAudio.current;
-                    audio.currentTime = 0;
-                    audio.play().catch(e => console.log("Audio play blocked by browser policy"));
-                } catch (e) {
-                    console.error("Sound play error", e);
-                }
-            };
-
             // Trade Execution Logic
             const openPosition = () => {
                 const amount = parseFloat(orderAmount);
@@ -174,12 +157,11 @@
 
                 setPositions([newPosition, ...positions]);
                 setOrderAmount('');
-                playSound('open');
+                // Optional: show a small toast or message
             };
 
             const closePosition = (id) => {
                 setPositions(positions.filter(p => p.id !== id));
-                playSound('close');
             };
 
             // Calculated data for order book
@@ -222,7 +204,7 @@
             if (btcPrice === 0) return (
                 <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-slate-950 p-6">
                     <div className="w-12 h-12 border-4 border-sky-100 dark:border-slate-800 border-t-sky-500 rounded-full animate-spin"></div>
-                    <h1 className="text-sm font-bold text-slate-500 mt-4 tracking-tight text-center">데이터 로딩 중...</h1>
+                    <h1 className="text-sm font-bold text-slate-500 mt-4 tracking-tight text-center">동기화 중...</h1>
                 </div>
             );
 
@@ -299,9 +281,9 @@
                         
                         {/* Left Content */}
                         <div className={`col-span-12 lg:col-span-9 space-y-3 md:space-y-4 ${mobileNav !== 'trade' ? 'hidden md:block' : ''}`}>
-                            {/* Chart Container (Set to 1m interval) */}
+                            {/* Chart Container */}
                             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm relative chart-container">
-                                <iframe id="tv" title="TradingView" src={`https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=1&theme=${isDark ? 'dark' : 'light'}&style=1&timezone=Asia%2FSeoul&locale=kr`} width="100%" height="100%" frameBorder="0" className="absolute inset-0"></iframe>
+                                <iframe id="tv" title="TradingView" src={`https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=5&theme=${isDark ? 'dark' : 'light'}&style=1&timezone=Asia%2FSeoul&locale=kr`} width="100%" height="100%" frameBorder="0" className="absolute inset-0"></iframe>
                             </div>
 
                             {/* Position List */}
