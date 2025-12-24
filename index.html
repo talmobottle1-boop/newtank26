@@ -75,7 +75,7 @@
             const entryPrice = 64100.00;
             const positionSide = 'long';
 
-            // WebSocket Connection with error handling
+            // WebSocket Connection
             useEffect(() => {
                 let ws;
                 let timeoutId;
@@ -153,7 +153,6 @@
                 </div>
             );
 
-            // Loader for initial connection
             if (btcPrice === 0) return (
                 <div className="min-h-screen flex flex-col items-center justify-center bg-white p-6">
                     <div className="w-12 h-12 border-4 border-sky-100 border-t-sky-500 rounded-full animate-spin"></div>
@@ -223,10 +222,22 @@
                     </div>
 
                     <main className="flex-1 max-w-[1600px] mx-auto w-full p-2 md:p-4 grid grid-cols-12 gap-3 md:gap-4 pb-20 md:pb-4">
-                        {/* Mobile Switcher */}
-                        <div className="col-span-12 md:hidden flex bg-white p-1 rounded-xl border border-slate-200">
-                            <button onClick={() => setMobileNav('trade')} className={`flex-1 py-2 rounded-lg text-[11px] font-bold ${mobileNav === 'trade' ? 'bg-sky-500 text-white shadow-md shadow-sky-100' : 'text-slate-400'}`}>Trade</button>
-                            <button onClick={() => setMobileNav('info')} className={`flex-1 py-2 rounded-lg text-[11px] font-bold ${mobileNav === 'info' ? 'bg-sky-500 text-white shadow-md shadow-sky-100' : 'text-slate-400'}`}>Market Data</button>
+                        {/* Mobile Switcher - Refined & Smaller */}
+                        <div className="col-span-12 md:hidden flex justify-center pt-1 pb-2">
+                            <div className="inline-flex bg-slate-200/50 p-0.5 rounded-lg w-[200px] shadow-inner">
+                                <button 
+                                    onClick={() => setMobileNav('trade')} 
+                                    className={`flex-1 py-1.5 rounded-[6px] text-[10px] font-extrabold transition-all duration-200 ${mobileNav === 'trade' ? 'bg-sky-500 text-white shadow-sm' : 'text-slate-500'}`}
+                                >
+                                    Trade
+                                </button>
+                                <button 
+                                    onClick={() => setMobileNav('info')} 
+                                    className={`flex-1 py-1.5 rounded-[6px] text-[10px] font-extrabold transition-all duration-200 ${mobileNav === 'info' ? 'bg-sky-500 text-white shadow-sm' : 'text-slate-500'}`}
+                                >
+                                    Markets
+                                </button>
+                            </div>
                         </div>
 
                         {/* Left: Chart & Position */}
@@ -244,7 +255,7 @@
                                     <button className="p-1.5 text-slate-300 hover:bg-slate-50 rounded-lg transition-all"><i data-lucide="more-horizontal" className="w-4 h-4"></i></button>
                                 </div>
                                 
-                                {/* PC Position Table */}
+                                {/* PC Position Table - Maintained as requested */}
                                 <div className="hidden md:block overflow-x-auto p-2">
                                     <table className="w-full text-left">
                                         <thead>
@@ -285,7 +296,7 @@
                                     </table>
                                 </div>
 
-                                {/* Mobile Position Card */}
+                                {/* Mobile Position Card - Small & Neat */}
                                 <div className="md:hidden p-3">
                                     <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
                                         <div className="flex justify-between items-center mb-4">
