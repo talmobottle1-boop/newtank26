@@ -14,31 +14,50 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
         body { 
             font-family: 'Inter', sans-serif; 
             -webkit-tap-highlight-color: transparent;
+            background-color: #f8fafc;
         }
         /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
         
-        /* Mobile Chart Height Adjustment */
+        .transition-all { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        /* Range input styling */
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #0ea5e9;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 0 8px rgba(14, 165, 233, 0.3);
+        }
+        
+        /* Fixed Aspect Ratio for Chart */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            padding-top: 45%; /* Default for desktop */
+        }
         @media (max-width: 768px) {
-            .tradingview-container { height: 400px !important; }
+            .chart-container { padding-top: 75%; }
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased overflow-x-hidden">
+<body class="text-slate-800 antialiased overflow-x-hidden">
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useMemo } = React;
+        const { useState, useEffect, useMemo, useRef } = React;
         const { 
-            ArrowUpRight, ArrowDownRight, Wallet, Activity, Settings, 
-            ChevronDown, Menu, X, Lock, Zap, ShieldCheck, Globe, 
-            TrendingUp, BarChart3, Share2, Download, Copy, LayoutGrid, Repeat
+            Wallet, Settings, TrendingUp, BarChart3, Share2, Info, MoreHorizontal, X
         } = lucide;
 
         const App = () => {
@@ -50,39 +69,52 @@
             const [high24h, setHigh24h] = useState(0);
             const [low24h, setLow24h] = useState(0);
             const [volume24h, setVolume24h] = useState(0);
-            const [connectionStatus, setConnectionStatus] = useState('connecting');
             const [showPnlCard, setShowPnlCard] = useState(false);
             const [mobileNav, setMobileNav] = useState('trade');
 
             const entryPrice = 64100.00;
             const positionSide = 'long';
 
+            // WebSocket Connection with error handling
             useEffect(() => {
                 let ws;
+                let timeoutId;
+
                 const connectWS = () => {
-                    ws = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@ticker');
-                    ws.onopen = () => setConnectionStatus('connected');
-                    ws.onmessage = (event) => {
-                        const data = JSON.parse(event.data);
-                        setBtcPrice(parseFloat(data.c));
-                        setPriceChange(parseFloat(data.P));
-                        setHigh24h(parseFloat(data.h));
-                        setLow24h(parseFloat(data.l));
-                        setVolume24h(parseFloat(data.q));
-                    };
-                    ws.onclose = () => {
-                        setConnectionStatus('disconnected');
-                        setTimeout(connectWS, 3000);
-                    };
+                    try {
+                        ws = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@ticker');
+                        ws.onmessage = (event) => {
+                            const data = JSON.parse(event.data);
+                            setBtcPrice(parseFloat(data.c));
+                            setPriceChange(parseFloat(data.P));
+                            setHigh24h(parseFloat(data.h));
+                            setLow24h(parseFloat(data.l));
+                            setVolume24h(parseFloat(data.q));
+                        };
+                        ws.onerror = (err) => console.error("WS Error:", err);
+                        ws.onclose = () => {
+                            timeoutId = setTimeout(connectWS, 3000);
+                        };
+                    } catch (e) {
+                        console.error("Connection failed:", e);
+                    }
                 };
+
                 connectWS();
-                return () => ws && ws.close();
+                return () => {
+                    if (ws) ws.close();
+                    if (timeoutId) clearTimeout(timeoutId);
+                };
             }, []);
 
+            // Lucide icons Refresh Logic
             useEffect(() => {
-                if (typeof lucide !== 'undefined') {
-                    lucide.createIcons();
-                }
+                const timer = setTimeout(() => {
+                    if (typeof lucide !== 'undefined') {
+                        lucide.createIcons();
+                    }
+                }, 100);
+                return () => clearTimeout(timer);
             }, [btcPrice, showPnlCard, mobileNav]);
 
             const pnlData = useMemo(() => {
@@ -93,245 +125,266 @@
                 return { uPnl, roe };
             }, [btcPrice]);
 
-            const calculateLiqPrice = (price, lev, side) => {
-                if (!price || price <= 0) return 0;
-                return side === 'long' ? price * (1 - 1 / lev) : price * (1 + 1 / lev);
-            };
-
-            const currentLiqPrice = useMemo(() => calculateLiqPrice(entryPrice, 10, positionSide), []);
-            const estimatedLiqPrice = useMemo(() => calculateLiqPrice(btcPrice, leverage, activeTab), [btcPrice, leverage, activeTab]);
+            const currentLiqPrice = useMemo(() => entryPrice * (1 - 1 / 10), []);
+            const estimatedLiqPrice = useMemo(() => btcPrice * (activeTab === 'long' ? (1 - 1 / leverage) : (1 + 1 / leverage)), [btcPrice, leverage, activeTab]);
 
             const orderBookData = useMemo(() => {
                 if (btcPrice === 0) return { asks: [], bids: [] };
                 const asks = [], bids = [];
-                for (let i = 5; i >= 1; i--) asks.push({ price: btcPrice + (i * 0.5), amount: (Math.random() * 0.5 + 0.1).toFixed(3) });
-                for (let i = 1; i <= 5; i++) bids.push({ price: btcPrice - (i * 0.5), amount: (Math.random() * 0.8 + 0.2).toFixed(3) });
+                for (let i = 6; i >= 1; i--) asks.push({ price: btcPrice + (i * 0.5), amount: (Math.random() * 0.5 + 0.1).toFixed(3) });
+                for (let i = 1; i <= 6; i++) bids.push({ price: btcPrice - (i * 0.5), amount: (Math.random() * 0.8 + 0.2).toFixed(3) });
                 return { asks, bids };
             }, [btcPrice]);
 
             const OxbitLogo = ({ small = false }) => (
                 <div className="flex items-center gap-2">
-                    <div className={`${small ? 'p-0.5' : 'p-1'} bg-slate-900 rounded-lg shadow-lg shadow-sky-100`}>
-                        <div className={`grid grid-cols-3 gap-0.5`}>
+                    <div className={`${small ? 'p-1' : 'p-1.5'} bg-sky-500 rounded-lg shadow-md shadow-sky-100`}>
+                        <div className="grid grid-cols-3 gap-0.5">
                             {[...Array(9)].map((_, i) => (
-                                <div key={i} className={`${small ? 'w-1.5 h-1.5' : 'w-2 h-2'} rounded-sm ${i === 4 ? 'bg-white shadow-[0_0_8px_#38bdf8]' : 'bg-sky-500 opacity-60'}`}></div>
+                                <div key={i} className={`${small ? 'w-1 h-1' : 'w-1.5 h-1.5'} rounded-full ${i === 4 ? 'bg-white' : 'bg-white opacity-40'}`}></div>
                             ))}
                         </div>
                     </div>
                     {!small && (
-                        <span className="text-xl font-black tracking-tighter text-slate-900">
+                        <span className="text-lg font-black tracking-tighter text-slate-900">
                             OX<span className="text-sky-500">BIT</span>
                         </span>
                     )}
                 </div>
             );
 
+            // Loader for initial connection
             if (btcPrice === 0) return (
-                <div className="min-h-screen flex flex-col items-center justify-center bg-white p-6 text-center">
-                    <div className="w-16 h-16 bg-sky-50 rounded-3xl flex items-center justify-center mb-6 animate-pulse">
-                        <i data-lucide="activity" className="text-sky-500 w-8 h-8"></i>
-                    </div>
-                    <h1 className="text-xl font-black text-slate-900 mb-2">데이터 로딩 중...</h1>
-                    <p className="text-sm font-medium text-slate-400">Binance 클라우드와 보안 연결을 시도하고 있습니다.</p>
+                <div className="min-h-screen flex flex-col items-center justify-center bg-white p-6">
+                    <div className="w-12 h-12 border-4 border-sky-100 border-t-sky-500 rounded-full animate-spin"></div>
+                    <h1 className="text-sm font-bold text-slate-500 mt-4 tracking-tight">실시간 데이터 연결 중...</h1>
                 </div>
             );
 
             return (
-                <div className="min-h-screen pb-24 md:pb-16 bg-slate-50">
-                    {/* PnL Card Modal */}
+                <div className="min-h-screen bg-slate-50 flex flex-col">
+                    {/* PnL Modal */}
                     {showPnlCard && (
-                        <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center bg-slate-900/80 backdrop-blur-md p-0 md:p-4">
-                            <div className="bg-white rounded-t-[40px] md:rounded-[40px] overflow-hidden shadow-2xl max-w-sm w-full relative transform transition-transform animate-in slide-in-from-bottom duration-300">
-                                <button onClick={() => setShowPnlCard(false)} className="absolute top-6 right-6 p-2 bg-white/20 hover:bg-white/40 rounded-full text-white z-20">
-                                    <i data-lucide="x"></i>
-                                </button>
-                                <div className="p-8 bg-slate-900 text-white relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 w-64 h-64 bg-sky-500/20 blur-[80px] -mr-32 -mt-32"></div>
-                                    <div className="relative z-10">
-                                        <div className="flex justify-between items-start mb-12"><OxbitLogo /><div className="text-right text-[10px] font-black"><div className="text-sky-400 uppercase tracking-widest">Binance Live</div><div className="text-slate-400">BTCUSDT Perpetual</div></div></div>
-                                        <div className="mb-10">
-                                            <div className={`text-6xl font-black tracking-tighter ${pnlData.roe >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>{pnlData.roe >= 0 ? '+' : ''}{pnlData.roe.toFixed(2)}%</div>
-                                            <div className="text-xs font-bold text-slate-400 mt-3 flex items-center gap-2"><span className="px-2 py-0.5 bg-slate-800 rounded text-sky-400">10x</span><span>Isolated Long</span></div>
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+                            <div className="bg-white rounded-[2rem] overflow-hidden shadow-2xl max-w-sm w-full animate-in zoom-in-95 duration-200">
+                                <div className="p-8 bg-sky-500 text-white">
+                                    <div className="flex justify-between items-center mb-12">
+                                        <div className="flex items-center gap-2">
+                                            <div className="p-1 bg-white/20 rounded-md"><div className="w-4 h-4 bg-white rounded-sm"></div></div>
+                                            <span className="font-black tracking-tighter">OXBIT</span>
                                         </div>
-                                        <div className="grid grid-cols-2 gap-8 border-t border-white/10 pt-8">
-                                            <div><div className="text-[10px] font-black text-slate-500 uppercase mb-1">진입 가격</div><div className="font-mono font-bold text-lg">${entryPrice.toLocaleString()}</div></div>
-                                            <div className="text-right"><div className="text-[10px] font-black text-slate-500 uppercase mb-1">현재 가격</div><div className="font-mono font-bold text-sky-400 text-lg">${btcPrice.toLocaleString()}</div></div>
-                                        </div>
+                                        <span className="text-[10px] font-black uppercase tracking-widest opacity-80">Trading Card</span>
+                                    </div>
+                                    <div className="mb-10 text-center">
+                                        <div className="text-xs font-bold opacity-70 mb-1">BTCUSDT Long 10x</div>
+                                        <div className="text-6xl font-black tracking-tighter">{pnlData.roe >= 0 ? '+' : ''}{pnlData.roe.toFixed(2)}%</div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4 border-t border-white/20 pt-6 font-bold text-xs">
+                                        <div><div className="opacity-60 mb-1 text-[10px]">Entry Price</div><div>${entryPrice.toLocaleString()}</div></div>
+                                        <div className="text-right"><div className="opacity-60 mb-1 text-[10px]">Market Price</div><div>${btcPrice.toLocaleString()}</div></div>
                                     </div>
                                 </div>
-                                <div className="p-6 pb-10 md:pb-6 flex gap-3">
-                                    <button className="flex-1 py-4 bg-sky-500 text-white rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:shadow-lg transition-all active:scale-95"><i data-lucide="download" className="w-4 h-4"></i> 이미지 저장</button>
-                                    <button className="p-4 bg-slate-100 text-slate-600 rounded-2xl active:bg-slate-200"><i data-lucide="copy" className="w-5 h-5"></i></button>
+                                <div className="p-6 flex gap-3">
+                                    <button onClick={() => setShowPnlCard(false)} className="flex-1 py-4 bg-sky-500 text-white rounded-2xl font-bold text-xs active:scale-95 shadow-lg shadow-sky-100">이미지 저장</button>
+                                    <button onClick={() => setShowPnlCard(false)} className="px-5 py-4 bg-slate-50 text-slate-400 rounded-2xl font-bold text-xs"><i data-lucide="x" className="w-4 h-4"></i></button>
                                 </div>
                             </div>
                         </div>
                     )}
 
-                    {/* Desktop Header & Mobile Ticker */}
-                    <div className="bg-slate-900 text-white py-2 px-4 md:px-6 border-b border-sky-900/30 flex items-center justify-between overflow-hidden">
-                        <div className="flex gap-4 md:gap-8 items-center">
-                            <div className="flex gap-2 items-center">
-                                <span className="font-black text-sky-400 text-xs md:text-sm">BTC</span>
-                                <span className="font-mono text-sm md:text-base font-bold">${btcPrice.toLocaleString(undefined, { minimumFractionDigits: 1 })}</span>
-                                <span className={`text-xs font-bold ${priceChange >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>{priceChange >= 0 ? '+' : ''}{priceChange.toFixed(2)}%</span>
-                            </div>
-                            <div className="hidden md:flex gap-4 items-center opacity-60 border-l border-white/10 pl-8 font-mono text-[11px]">
-                                <span>High: ${high24h.toLocaleString()}</span>
-                                <span>Low: ${low24h.toLocaleString()}</span>
-                            </div>
+                    {/* Header */}
+                    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-100 px-4 md:px-8 h-14 flex justify-between items-center">
+                        <div className="flex items-center gap-8">
+                            <OxbitLogo />
+                            <nav className="hidden lg:flex items-center gap-6 text-[12px] font-bold text-slate-400">
+                                <a href="#" className="text-sky-500">Trade</a>
+                                <a href="#" className="hover:text-slate-600">Markets</a>
+                                <a href="#" className="hover:text-slate-600">Dashboard</a>
+                            </nav>
                         </div>
-                        <div className="text-[10px] font-black text-sky-500 uppercase tracking-widest animate-pulse">Live</div>
+                        <button onClick={() => setIsWalletConnected(!isWalletConnected)} className={`px-4 py-2 rounded-xl font-bold text-[11px] transition-all active:scale-95 flex items-center gap-2 ${isWalletConnected ? 'bg-sky-50 text-sky-600 border border-sky-100' : 'bg-sky-500 text-white shadow-lg shadow-sky-100'}`}>
+                            <i data-lucide="wallet" className="w-3.5 h-3.5"></i>
+                            {isWalletConnected ? '0x71...4f2' : '지갑 연결'}
+                        </button>
+                    </header>
+
+                    {/* PC Ticker */}
+                    <div className="hidden md:flex bg-white border-b border-slate-100 px-8 py-2.5 items-center gap-10">
+                        <div className="flex items-center gap-2 pr-6 border-r border-slate-100">
+                            <span className="font-bold text-slate-900 text-xs">BTC/USDT</span>
+                            <span className="font-bold text-sky-500 text-xs">${btcPrice.toLocaleString(undefined, { minimumFractionDigits: 1 })}</span>
+                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${priceChange >= 0 ? 'bg-emerald-50 text-emerald-500' : 'bg-rose-50 text-rose-500'}`}>{priceChange >= 0 ? '+' : ''}{priceChange.toFixed(2)}%</span>
+                        </div>
+                        <div className="flex gap-8 items-center text-[10px] font-bold text-slate-400 uppercase tracking-tight">
+                            <div className="flex gap-2"><span>24h High</span><span className="text-slate-600">${high24h.toLocaleString()}</span></div>
+                            <div className="flex gap-2"><span>24h Low</span><span className="text-slate-600">${low24h.toLocaleString()}</span></div>
+                            <div className="flex gap-2"><span>24h Volume</span><span className="text-slate-600">${(volume24h/1e6).toFixed(2)}M</span></div>
+                        </div>
                     </div>
 
-                    {/* Nav */}
-                    <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-slate-100 px-4 md:px-6 h-14 md:h-16 flex justify-between items-center">
-                        <OxbitLogo />
-                        <div className="flex items-center gap-3">
-                            <button onClick={() => setIsWalletConnected(!isWalletConnected)} className={`px-4 md:px-6 py-2 md:py-2.5 rounded-xl md:rounded-2xl font-black text-[11px] md:text-sm transition-all flex items-center gap-2 ${isWalletConnected ? 'bg-slate-100 text-slate-600' : 'bg-sky-500 text-white shadow-lg shadow-sky-100'}`}>
-                                <i data-lucide="wallet" className="w-3 h-3 md:w-4 md:h-4"></i>
-                                {isWalletConnected ? '0x71...4f2' : '지갑 연결'}
-                            </button>
-                        </div>
-                    </nav>
-
-                    <main className="max-w-[1800px] mx-auto p-4 md:p-6 grid grid-cols-12 gap-4 md:gap-6">
-                        {/* Mobile Navigation Tabs (Only Visible on Mobile) */}
-                        <div className="col-span-12 md:hidden flex bg-white p-1 rounded-2xl border border-slate-100 shadow-sm">
-                            <button onClick={() => setMobileNav('trade')} className={`flex-1 py-3 rounded-xl text-xs font-black transition-all ${mobileNav === 'trade' ? 'bg-slate-900 text-white' : 'text-slate-400'}`}>트레이딩</button>
-                            <button onClick={() => setMobileNav('info')} className={`flex-1 py-3 rounded-xl text-xs font-black transition-all ${mobileNav === 'info' ? 'bg-slate-900 text-white' : 'text-slate-400'}`}>시장 정보</button>
+                    <main className="flex-1 max-w-[1600px] mx-auto w-full p-2 md:p-4 grid grid-cols-12 gap-3 md:gap-4 pb-20 md:pb-4">
+                        {/* Mobile Switcher */}
+                        <div className="col-span-12 md:hidden flex bg-white p-1 rounded-xl border border-slate-200">
+                            <button onClick={() => setMobileNav('trade')} className={`flex-1 py-2 rounded-lg text-[11px] font-bold ${mobileNav === 'trade' ? 'bg-sky-500 text-white shadow-md shadow-sky-100' : 'text-slate-400'}`}>Trade</button>
+                            <button onClick={() => setMobileNav('info')} className={`flex-1 py-2 rounded-lg text-[11px] font-bold ${mobileNav === 'info' ? 'bg-sky-500 text-white shadow-md shadow-sky-100' : 'text-slate-400'}`}>Market Data</button>
                         </div>
 
-                        {/* Left Content (Chart & Table) */}
-                        <div className={`col-span-12 lg:col-span-9 space-y-4 md:space-y-6 ${mobileNav !== 'trade' ? 'hidden md:block' : ''}`}>
-                            {/* Chart */}
-                            <div className="bg-white rounded-[32px] md:rounded-[40px] border border-slate-100 shadow-sm overflow-hidden relative tradingview-container h-[350px] md:h-auto md:aspect-[21/10]">
-                                <iframe id="tradingview_btc_usdt" title="Binance Chart" src={`https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=1&hidesidetoolbar=1&symboledit=0&saveimage=1&toolbarbg=ffffff&theme=light&style=1&timezone=Asia%2FSeoul&withdateranges=1&showpopupbutton=1&locale=kr`} width="100%" height="100%" frameBorder="0" scrolling="no" className="absolute inset-0"></iframe>
+                        {/* Left: Chart & Position */}
+                        <div className={`col-span-12 lg:col-span-9 space-y-3 md:space-y-4 ${mobileNav !== 'trade' ? 'hidden md:block' : ''}`}>
+                            <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm relative chart-container">
+                                <iframe id="tv" title="TradingView" src={`https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=5&theme=light&style=1&timezone=Asia%2FSeoul&locale=kr`} width="100%" height="100%" frameBorder="0" className="absolute inset-0"></iframe>
                             </div>
 
-                            {/* Position Card / Mobile Optimized */}
-                            <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
-                                <div className="px-6 py-4 border-b border-slate-50 flex items-center justify-between">
-                                    <h3 className="font-black text-sm text-slate-900">내 포지션 <span className="text-sky-500 ml-1">1</span></h3>
-                                    <button onClick={() => setShowPnlCard(true)} className="md:hidden p-2 bg-sky-50 text-sky-600 rounded-lg"><i data-lucide="share-2" className="w-4 h-4"></i></button>
-                                </div>
-                                <div className="p-4 md:p-8">
-                                    {/* Desktop Table */}
-                                    <div className="hidden md:block overflow-x-auto">
-                                        <table className="w-full text-left">
-                                            <thead><tr className="text-[10px] font-black text-slate-400 uppercase tracking-widest"><th className="pb-6">자산/사이드</th><th className="pb-6 text-right">진입가</th><th className="pb-6 text-right">청산가</th><th className="pb-6 text-right">손익(ROE)</th><th className="pb-6"></th></tr></thead>
-                                            <tbody>
-                                                <tr className="text-sm font-bold border-t border-slate-50">
-                                                    <td className="py-6"><span className="text-sky-500 font-black">BTC Long</span><span className="ml-2 bg-sky-50 text-sky-600 text-[10px] px-1.5 py-0.5 rounded">10x</span></td>
-                                                    <td className="py-6 text-right font-mono">${entryPrice.toLocaleString()}</td>
-                                                    <td className="py-6 text-right font-mono text-rose-500">${currentLiqPrice.toLocaleString(undefined, { minimumFractionDigits: 1 })}</td>
-                                                    <td className="py-6 text-right"><div className={`flex flex-col items-end ${pnlData.roe >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}><span>${pnlData.uPnl.toFixed(2)}</span><span className="text-[11px] font-medium">({pnlData.roe.toFixed(2)}%)</span></div></td>
-                                                    <td className="py-6 text-right"><button onClick={() => setShowPnlCard(true)} className="hidden lg:inline-flex p-2.5 bg-sky-50 text-sky-600 rounded-xl hover:bg-sky-500 hover:text-white transition-all"><i data-lucide="share-2" className="w-4 h-4"></i></button></td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
+                            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                                <div className="px-5 py-3.5 border-b border-slate-50 flex items-center justify-between">
+                                    <div className="flex gap-5">
+                                        <button className="text-[11px] font-bold text-sky-500 border-b-2 border-sky-500 pb-3.5 -mb-3.5">포지션(1)</button>
+                                        <button className="text-[11px] font-bold text-slate-400 pb-3.5">미체결(0)</button>
                                     </div>
-                                    {/* Mobile Card */}
-                                    <div className="md:hidden space-y-4">
-                                        <div className="flex justify-between items-start">
-                                            <div className="flex items-center gap-2"><span className="font-black text-sky-500 text-lg">BTC Long</span><span className="bg-sky-50 text-sky-600 text-[10px] px-2 py-0.5 rounded-full font-bold">10x</span></div>
-                                            <div className={`text-right font-black ${pnlData.roe >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
-                                                <div className="text-lg">{pnlData.roe >= 0 ? '+' : ''}{pnlData.roe.toFixed(2)}%</div>
-                                                <div className="text-[11px] opacity-70">${pnlData.uPnl.toFixed(2)}</div>
+                                    <button className="p-1.5 text-slate-300 hover:bg-slate-50 rounded-lg transition-all"><i data-lucide="more-horizontal" className="w-4 h-4"></i></button>
+                                </div>
+                                
+                                {/* PC Position Table */}
+                                <div className="hidden md:block overflow-x-auto p-2">
+                                    <table className="w-full text-left">
+                                        <thead>
+                                            <tr className="text-[9px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-50">
+                                                <th className="px-4 py-3">자산/사이드</th>
+                                                <th className="px-4 py-3 text-right">수량</th>
+                                                <th className="px-4 py-3 text-right">진입가</th>
+                                                <th className="px-4 py-3 text-right">청산가</th>
+                                                <th className="px-4 py-3 text-right">미실현 손익</th>
+                                                <th className="px-4 py-3 text-center">액션</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="text-[11px] font-semibold text-slate-600">
+                                            <tr className="hover:bg-slate-50 transition-colors">
+                                                <td className="px-4 py-4">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <span className="text-emerald-500 font-bold">BTC Long</span>
+                                                        <span className="bg-emerald-50 text-emerald-600 text-[9px] px-1 rounded">10x</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-4 text-right font-mono">0.500 BTC</td>
+                                                <td className="px-4 py-4 text-right font-mono text-slate-400">${entryPrice.toLocaleString()}</td>
+                                                <td className="px-4 py-4 text-right font-mono text-rose-400">${currentLiqPrice.toLocaleString(undefined, { minimumFractionDigits: 1 })}</td>
+                                                <td className="px-4 py-4 text-right">
+                                                    <div className={`flex flex-col items-end ${pnlData.roe >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+                                                        <span className="font-bold text-[12px]">{pnlData.roe >= 0 ? '+' : ''}{pnlData.uPnl.toFixed(1)} USDT</span>
+                                                        <span className="text-[10px] font-medium">({pnlData.roe.toFixed(2)}%)</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-4 text-center">
+                                                    <div className="flex justify-center gap-1.5">
+                                                        <button onClick={() => setShowPnlCard(true)} className="p-1.5 bg-sky-50 text-sky-500 rounded-lg hover:bg-sky-500 hover:text-white transition-all"><i data-lucide="share-2" className="w-3.5 h-3.5"></i></button>
+                                                        <button className="px-3 py-1.5 bg-sky-500 text-white rounded-lg text-[10px] font-bold shadow-sm shadow-sky-50">종료</button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                {/* Mobile Position Card */}
+                                <div className="md:hidden p-3">
+                                    <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <div className="flex items-center gap-2">
+                                                <div className="p-1.5 bg-emerald-50 rounded-lg"><i data-lucide="trending-up" className="text-emerald-500 w-4 h-4"></i></div>
+                                                <div className="flex flex-col">
+                                                    <span className="font-bold text-xs text-slate-700">BTC Long <span className="text-[10px] text-emerald-500">10x</span></span>
+                                                    <span className="text-[10px] text-slate-400">Isolated</span>
+                                                </div>
+                                            </div>
+                                            <div className="text-right">
+                                                <div className={`text-sm font-bold ${pnlData.roe >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>{pnlData.roe >= 0 ? '+' : ''}{pnlData.roe.toFixed(2)}%</div>
+                                                <div className="text-[10px] font-medium text-slate-400">${pnlData.uPnl.toFixed(1)} USDT</div>
                                             </div>
                                         </div>
-                                        <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl">
-                                            <div><div className="text-[10px] font-black text-slate-400 uppercase mb-1">진입가</div><div className="font-mono font-bold text-sm">${entryPrice.toLocaleString()}</div></div>
-                                            <div><div className="text-[10px] font-black text-slate-400 uppercase mb-1">청산가</div><div className="font-mono font-bold text-sm text-rose-500">${currentLiqPrice.toLocaleString(undefined, { minimumFractionDigits: 1 })}</div></div>
+                                        <div className="flex justify-between items-center bg-white rounded-lg p-2.5 mb-4 border border-slate-100 text-[10px] font-bold">
+                                            <div className="flex flex-col"><span className="text-slate-300 uppercase mb-0.5">Entry</span><span className="text-slate-500">${entryPrice.toLocaleString()}</span></div>
+                                            <div className="flex flex-col text-right"><span className="text-slate-300 uppercase mb-0.5">Liq. Price</span><span className="text-rose-400">${currentLiqPrice.toLocaleString(undefined, { minimumFractionDigits: 1 })}</span></div>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button onClick={() => setShowPnlCard(true)} className="flex-1 py-2.5 bg-white border border-slate-200 text-slate-500 rounded-lg text-[10px] font-bold flex justify-center items-center gap-1.5"><i data-lucide="share-2" className="w-3 h-3 text-sky-500"></i> Share</button>
+                                            <button className="flex-1 py-2.5 bg-sky-500 text-white rounded-lg text-[10px] font-bold shadow-md shadow-sky-100">Close</button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Right Content (Orderbook & Trade) */}
-                        <div className={`col-span-12 lg:col-span-3 space-y-4 md:space-y-6 ${mobileNav === 'trade' ? 'hidden md:block' : ''}`}>
-                            {/* Orderbook Card */}
-                            <div className="bg-white rounded-[32px] p-5 border border-slate-100 shadow-sm">
-                                <h3 className="text-[10px] font-black text-slate-400 mb-4 uppercase tracking-widest flex items-center justify-between">
-                                    <span>실시간 호가</span>
-                                    <span className="text-sky-500 animate-pulse">● Live</span>
-                                </h3>
-                                <div className="space-y-1 font-mono text-[11px] font-bold">
+                        {/* Right: Orderbook & Panel */}
+                        <div className={`col-span-12 lg:col-span-3 space-y-3 md:space-y-4 ${mobileNav === 'trade' ? 'hidden md:block' : ''}`}>
+                            {/* Orderbook */}
+                            <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
+                                <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Order Book</h3>
+                                <div className="space-y-0.5 font-mono text-[10px] font-bold">
                                     {orderBookData.asks.map((item, i) => (
-                                        <div key={`ask-${i}`} className="flex justify-between text-rose-500 px-2 py-1">
-                                            <span>{item.price.toLocaleString(undefined, { minimumFractionDigits: 1 })}</span>
-                                            <span className="text-slate-300 font-medium">{item.amount}</span>
-                                        </div>
+                                        <div key={`a-${i}`} className="flex justify-between items-center py-0.5 transition-colors hover:bg-rose-50/30"><span className="text-rose-400">{item.price.toLocaleString(undefined, { minimumFractionDigits: 1 })}</span><span className="text-slate-300">{item.amount}</span></div>
                                     ))}
-                                    <div className="py-4 my-1 text-center bg-slate-900 rounded-xl text-white">
-                                        <div className="text-xl font-black">${btcPrice.toLocaleString(undefined, { minimumFractionDigits: 1 })}</div>
+                                    <div className="py-3 my-2 text-center bg-sky-50 rounded-lg border border-sky-100">
+                                        <div className="text-sm font-bold text-sky-600">${btcPrice.toLocaleString(undefined, { minimumFractionDigits: 1 })}</div>
                                     </div>
                                     {orderBookData.bids.map((item, i) => (
-                                        <div key={`bid-${i}`} className="flex justify-between text-sky-500 px-2 py-1">
-                                            <span>{item.price.toLocaleString(undefined, { minimumFractionDigits: 1 })}</span>
-                                            <span className="text-slate-300 font-medium">{item.amount}</span>
-                                        </div>
+                                        <div key={`b-${i}`} className="flex justify-between items-center py-0.5 transition-colors hover:bg-emerald-50/30"><span className="text-emerald-500">{item.price.toLocaleString(undefined, { minimumFractionDigits: 1 })}</span><span className="text-slate-300">{item.amount}</span></div>
                                     ))}
                                 </div>
                             </div>
 
                             {/* Trade Panel */}
-                            <div className="bg-white rounded-[32px] p-6 border border-slate-100 shadow-xl shadow-sky-100/30">
-                                <div className="flex bg-slate-100 p-1 rounded-2xl mb-6">
-                                    <button onClick={() => setActiveTab('long')} className={`flex-1 py-3 rounded-xl font-black text-xs transition-all ${activeTab === 'long' ? 'bg-sky-500 text-white shadow-md' : 'text-slate-400'}`}>Long</button>
-                                    <button onClick={() => setActiveTab('short')} className={`flex-1 py-3 rounded-xl font-black text-xs transition-all ${activeTab === 'short' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-400'}`}>Short</button>
+                            <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-xl shadow-slate-200/40 md:sticky md:top-20">
+                                <div className="flex bg-slate-50 p-1 rounded-xl mb-6">
+                                    <button onClick={() => setActiveTab('long')} className={`flex-1 py-2 rounded-lg font-bold text-[11px] transition-all ${activeTab === 'long' ? 'bg-sky-500 text-white shadow-md shadow-sky-100' : 'text-slate-400'}`}>Long</button>
+                                    <button onClick={() => setActiveTab('short')} className={`flex-1 py-2 rounded-lg font-bold text-[11px] transition-all ${activeTab === 'short' ? 'bg-sky-500 text-white shadow-md shadow-sky-100' : 'text-slate-400'}`}>Short</button>
                                 </div>
                                 <div className="space-y-5">
                                     <div>
-                                        <div className="flex justify-between mb-3 text-[11px] font-black text-slate-400">레버리지 <span className="text-sky-500">{leverage}x</span></div>
-                                        <input type="range" min="1" max="100" value={leverage} onChange={(e) => setLeverage(Number(e.target.value))} className="w-full h-1.5 bg-slate-100 rounded-full appearance-none accent-sky-500 cursor-pointer" />
+                                        <div className="flex justify-between text-[10px] font-bold text-slate-400 mb-2 uppercase tracking-tight">Leverage <span className="text-sky-500">{leverage}x</span></div>
+                                        <input type="range" min="1" max="100" value={leverage} onChange={(e) => setLeverage(Number(e.target.value))} className="w-full h-1 bg-slate-100 rounded-full appearance-none cursor-pointer mb-2" />
                                     </div>
-                                    <div className="bg-slate-50 rounded-2xl p-4 border border-transparent focus-within:border-sky-200 transition-all">
-                                        <div className="text-[10px] font-black text-slate-400 mb-1 uppercase">주문 수량 (BTC)</div>
-                                        <input type="number" placeholder="0.00" className="bg-transparent text-xl font-black outline-none w-full" />
+                                    <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
+                                        <div className="text-[9px] font-bold text-slate-300 uppercase mb-1">Amount (USDT)</div>
+                                        <input type="number" placeholder="0.00" className="bg-transparent text-lg font-bold outline-none w-full placeholder:text-slate-200" />
                                     </div>
-                                    <div className="bg-sky-50/50 rounded-2xl p-4 flex justify-between items-center text-[11px] font-bold">
-                                        <span className="text-slate-500">예상 청산가</span>
-                                        <span className="font-mono font-black text-rose-500">${estimatedLiqPrice.toLocaleString(undefined, { minimumFractionDigits: 1 })}</span>
+                                    <div className="space-y-1.5 text-[10px] font-bold px-1">
+                                        <div className="flex justify-between text-slate-400"><span>Est. Liq Price</span><span className="text-rose-400">${estimatedLiqPrice.toLocaleString(undefined, { minimumFractionDigits: 1 })}</span></div>
+                                        <div className="flex justify-between text-slate-400"><span>Fees</span><span className="text-slate-600">0.05%</span></div>
                                     </div>
-                                    <button className={`w-full py-4 rounded-2xl font-black text-sm shadow-lg transition-all active:scale-95 ${activeTab === 'long' ? 'bg-sky-500 text-white' : 'bg-slate-900 text-white'}`}>
-                                        {isWalletConnected ? `${activeTab === 'long' ? '매수' : '매도'} 포지션 오픈` : '지갑 연결 필요'}
+                                    <button className="w-full py-4 bg-sky-500 text-white rounded-xl font-bold text-xs shadow-lg shadow-sky-100 hover:bg-sky-600 transition-all active:scale-95">
+                                        {isWalletConnected ? '포지션 오픈' : '지갑을 먼저 연결하세요'}
                                     </button>
                                 </div>
                             </div>
                         </div>
                     </main>
 
-                    {/* Mobile Footer Navigation (Fixed) */}
-                    <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-slate-100 grid grid-cols-4 px-2 py-3 z-50">
-                        <button onClick={() => setMobileNav('trade')} className={`flex flex-col items-center gap-1 ${mobileNav === 'trade' ? 'text-sky-500' : 'text-slate-400'}`}>
-                            <i data-lucide="trending-up" className="w-5 h-5"></i>
-                            <span className="text-[9px] font-black">트레이딩</span>
+                    {/* Mobile Bottom Nav */}
+                    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 grid grid-cols-4 px-2 py-3 z-50 rounded-t-2xl shadow-lg">
+                        <button onClick={() => setMobileNav('trade')} className={`flex flex-col items-center gap-1 ${mobileNav === 'trade' ? 'text-sky-500' : 'text-slate-300'}`}>
+                            <i data-lucide="trending-up" className="w-5 h-5"></i><span className="text-[9px] font-bold uppercase tracking-tighter">Trade</span>
                         </button>
-                        <button onClick={() => setMobileNav('info')} className={`flex flex-col items-center gap-1 ${mobileNav === 'info' ? 'text-sky-500' : 'text-slate-400'}`}>
-                            <i data-lucide="bar-chart-3" className="w-5 h-5"></i>
-                            <span className="text-[9px] font-black">차트정보</span>
+                        <button onClick={() => setMobileNav('info')} className={`flex flex-col items-center gap-1 ${mobileNav === 'info' ? 'text-sky-500' : 'text-slate-300'}`}>
+                            <i data-lucide="bar-chart-3" className="w-5 h-5"></i><span className="text-[9px] font-bold uppercase tracking-tighter">Market</span>
                         </button>
-                        <button className="flex flex-col items-center gap-1 text-slate-400">
-                            <i data-lucide="repeat" className="w-5 h-5"></i>
-                            <span className="text-[9px] font-black">자산현황</span>
+                        <button className="flex flex-col items-center gap-1 text-slate-300">
+                            <i data-lucide="wallet" className="w-5 h-5"></i><span className="text-[9px] font-bold uppercase tracking-tighter">Assets</span>
                         </button>
-                        <button className="flex flex-col items-center gap-1 text-slate-400">
-                            <i data-lucide="settings" className="w-5 h-5"></i>
-                            <span className="text-[9px] font-black">설정</span>
+                        <button className="flex flex-col items-center gap-1 text-slate-300">
+                            <i data-lucide="settings" className="w-5 h-5"></i><span className="text-[9px] font-bold uppercase tracking-tighter">More</span>
                         </button>
-                    </div>
+                    </nav>
 
-                    {/* Desktop Footer Only */}
-                    <footer className="fixed bottom-0 w-full bg-white/90 backdrop-blur-md border-t border-slate-100 py-3 px-8 hidden md:flex justify-between items-center z-[40]">
-                        <div className="flex items-center gap-6">
-                            <div className="flex items-center gap-2 px-3 py-1 bg-sky-50 rounded-full border border-sky-100">
-                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                                <span className="text-[9px] font-black text-slate-600">BINANCE CLOUD CONNECTED</span>
-                            </div>
-                            <div className="text-[10px] font-bold text-slate-400">24h Vol: ${(volume24h/1e6).toFixed(2)}M USDT</div>
+                    {/* Footer */}
+                    <footer className="bg-white border-t border-slate-100 py-2 px-8 hidden md:flex justify-between items-center text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div><span>System Stable</span></div>
+                            <span>Latency: 14ms</span>
                         </div>
-                        <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{new Date().toLocaleTimeString()} (KST)</div>
+                        <div className="flex gap-6">
+                            <span>{new Date().toLocaleTimeString()} KST</span>
+                            <div className="flex items-center gap-1"><i data-lucide="info" className="w-3 h-3"></i> Support</div>
+                        </div>
                     </footer>
                 </div>
             );
