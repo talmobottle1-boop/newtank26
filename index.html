@@ -1,1 +1,265 @@
-<!-- index.html 소스코드 생략: 실제 배포 시 대화 내용의 index.html 내용을 여기에 넣으세요 -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NEWTANK26 - Command Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+KR:wght@300;400;700&display=swap');
+        
+        :root {
+            --neon-blue: #00d2ff;
+            --neon-purple: #9d50bb;
+            --danger: #ff0044;
+            --bg-dark: #050a15;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #fff;
+            font-family: 'Noto Sans KR', sans-serif;
+            margin: 0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Scanline Effect */
+        body::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 100;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        .lobby-container {
+            width: 100%;
+            max-width: 1200px;
+            height: 90vh;
+            background: rgba(10, 20, 40, 0.8);
+            border: 1px solid rgba(0, 210, 255, 0.2);
+            border-radius: 20px;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Profile Section */
+        .profile-panel {
+            border-right: 1px solid rgba(0, 210, 255, 0.1);
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .rank-insignia {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 48px;
+            font-weight: 900;
+            box-shadow: 0 0 30px rgba(0, 210, 255, 0.3);
+            margin-bottom: 20px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .pilot-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            color: var(--neon-blue);
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+        }
+
+        /* Menu Section */
+        .menu-panel {
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .menu-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(0, 210, 255, 0.2);
+            padding: 25px 40px;
+            border-radius: 12px;
+            text-align: left;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .menu-btn:hover {
+            background: rgba(0, 210, 255, 0.1);
+            border-color: var(--neon-blue);
+            transform: scale(1.02) translateX(10px);
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.2);
+        }
+
+        .menu-btn h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 28px;
+            margin: 0;
+            letter-spacing: 2px;
+        }
+
+        .menu-btn p {
+            margin: 5px 0 0;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .menu-btn.primary {
+            background: linear-gradient(90deg, var(--neon-blue), transparent);
+            border-left: 5px solid var(--neon-blue);
+        }
+
+        /* Mobile View */
+        @media (max-width: 850px) {
+            .lobby-container {
+                grid-template-columns: 1fr;
+                height: 100vh;
+                border-radius: 0;
+            }
+            .profile-panel {
+                padding: 20px;
+                border-right: none;
+                border-bottom: 1px solid rgba(0, 210, 255, 0.1);
+            }
+            .menu-panel { padding: 30px; }
+            .menu-btn h3 { font-size: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="lobby-container">
+        <!-- 파일럿 프로필 영역 -->
+        <div class="profile-panel">
+            <div id="display-rank" class="rank-insignia">C</div>
+            <div id="display-name" class="pilot-name">PILOT_LOADING</div>
+            <div class="text-xs text-slate-500 uppercase tracking-widest mb-8 font-bold">Base Operator</div>
+            
+            <div class="w-full space-y-4">
+                <div class="bg-white/5 p-4 rounded-lg border border-white/5">
+                    <span class="block text-[10px] text-cyan-400 uppercase font-bold">Total Score</span>
+                    <span id="display-score" class="text-xl font-['Orbitron'] font-bold">000,000</span>
+                </div>
+                <div class="bg-white/5 p-4 rounded-lg border border-white/5">
+                    <span class="block text-[10px] text-purple-400 uppercase font-bold">Tactical Status</span>
+                    <span id="display-status" class="text-sm font-bold">STANDBY</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 메뉴 영역 -->
+        <div class="menu-panel">
+            <div class="mb-8">
+                <h1 class="text-5xl font-black font-['Orbitron'] tracking-tighter italic">NEWTANK<span class="text-cyan-400">26</span></h1>
+                <p class="text-slate-400 text-sm mt-2">Next-Gen Armored Combat Simulation</p>
+            </div>
+
+            <div class="menu-btn primary" onclick="location.href='battle.html'">
+                <h3>BATTLE ARENA</h3>
+                <p>실시간 전투 구역에 진입하여 적을 섬멸하십시오.</p>
+            </div>
+
+            <div class="menu-btn" onclick="location.href='leaderboard.html'">
+                <h3>LEADERBOARD</h3>
+                <p>전 세계 파일럿들의 전적과 순위를 확인합니다.</p>
+            </div>
+
+            <div class="menu-btn" onclick="openSettings()">
+                <h3>PILOT CONFIG</h3>
+                <p>닉네임 및 기체 설정을 변경합니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // 환경 변수 설정
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'tank-game-v1';
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // UI 요소
+        const rankEl = document.getElementById('display-rank');
+        const nameEl = document.getElementById('display-name');
+        const scoreEl = document.getElementById('display-score');
+
+        // 인증 초기화
+        const initAuth = async () => {
+          if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+            await signInWithCustomToken(auth, __initial_auth_token);
+          } else {
+            await signInAnonymously(auth);
+          }
+        };
+
+        // 실시간 프로필 동기화
+        function syncProfile(userId) {
+            const profileRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', userId);
+            
+            onSnapshot(profileRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    nameEl.innerText = data.nickname || "NO_NAME";
+                    const score = data.score || 0;
+                    scoreEl.innerText = score.toLocaleString();
+                    
+                    // 계급 산정
+                    let rank = 'C';
+                    if (score > 10000) rank = 'SS';
+                    else if (score > 5000) rank = 'S';
+                    else if (score > 2000) rank = 'A';
+                    else if (score > 500) rank = 'B';
+                    rankEl.innerText = rank;
+                } else {
+                    nameEl.innerText = "RECRUIT_" + userId.substring(0, 4);
+                }
+            }, (err) => console.error("Profile sync error:", err));
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                syncProfile(user.uid);
+            } else {
+                initAuth();
+            }
+        });
+
+        window.openSettings = () => {
+            const newNick = prompt("새로운 파일럿 호출명을 입력하세요:");
+            if (newNick && auth.currentUser) {
+                // 이 부분은 실제 업데이트 로직을 포함한 database_system.html의 기능을 호출하거나 
+                // 해당 파일 내부에 작성할 수 있습니다.
+                alert("설정은 현재 데이터베이스 시스템에서 관리 가능합니다.");
+            }
+        };
+    </script>
+</body>
+</html>
