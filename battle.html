@@ -1,1 +1,500 @@
-<!-- battle.html 소스코드 생략: 실제 배포 시 대화 내용의 battle.html 내용을 여기에 넣으세요 -->
+
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NEWTANK26 - Battle Arena</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+KR:wght@400;700&display=swap');
+        
+        body {
+            margin: 0; padding: 0;
+            background-color: #050a15;
+            color: #fff;
+            font-family: 'Noto Sans KR', sans-serif;
+            overflow: hidden;
+            touch-action: none;
+            user-select: none;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            background-color: #0a101e;
+            display: block;
+        }
+
+        /* Top Left HUD */
+        .ui-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            pointer-events: none;
+            font-family: 'Orbitron', sans-serif;
+            z-index: 50;
+            background: linear-gradient(90deg, rgba(0, 210, 255, 0.15) 0%, transparent 100%);
+            padding: 10px 20px;
+            border-left: 4px solid #00d2ff;
+        }
+
+        .hud-label {
+            font-size: 10px;
+            color: #00d2ff;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 2px;
+        }
+
+        .hud-bar-container {
+            width: 200px;
+            height: 16px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        #hp-fill {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #ff0044, #ff4444);
+            box-shadow: 0 0 10px rgba(255, 0, 68, 0.5);
+            transition: width 0.2s ease-out;
+        }
+
+        #current-score {
+            font-size: 32px;
+            font-weight: 900;
+            line-height: 1;
+            color: #fff;
+            text-shadow: 0 0 15px rgba(0, 210, 255, 0.5);
+        }
+
+        /* Bottom Panel */
+        .bottom-panel {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(0deg, rgba(5, 10, 21, 0.9) 0%, transparent 100%);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            z-index: 40;
+            pointer-events: none;
+        }
+
+        .status-group {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            pointer-events: auto;
+        }
+
+        .status-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .status-label {
+            color: rgba(0, 210, 255, 0.6);
+            font-size: 9px;
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+        }
+
+        .status-value {
+            font-size: 14px;
+            font-weight: 700;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Virtual Joystick */
+        #mobile-controls {
+            display: none; 
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .joystick-area {
+            position: absolute;
+            bottom: 40px;
+            left: 40px;
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(0, 210, 255, 0.2);
+            border-radius: 50%;
+            pointer-events: auto;
+            touch-action: none;
+        }
+
+        .joystick-knob {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 210, 255, 0.3);
+            border: 2px solid #00d2ff;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.4);
+        }
+
+        #shoot-area {
+            position: absolute;
+            bottom: 40px;
+            right: 40px;
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 0, 68, 0.05);
+            border: 2px solid rgba(255, 0, 68, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: auto;
+            touch-action: none;
+        }
+
+        #shoot-btn {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 0, 68, 0.4);
+            border: 3px solid #ff0044;
+            border-radius: 50%;
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(255, 0, 68, 0.4);
+        }
+
+        /* Result UI */
+        #battle-result {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(5, 10, 21, 0.98);
+            border: 3px solid #ff0044;
+            padding: 30px;
+            text-align: center;
+            border-radius: 20px;
+            z-index: 200;
+            backdrop-filter: blur(20px);
+            width: 90%;
+            max-width: 400px;
+        }
+
+        @media (min-width: 1024px) {
+            .hud-bar-container { width: 300px; height: 24px; }
+            .ui-overlay { top: 30px; left: 30px; }
+            #current-score { font-size: 42px; }
+            .status-value { font-size: 18px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+
+        <div class="ui-overlay">
+            <div class="hud-label">Hull Integrity System</div>
+            <div class="hud-bar-container">
+                <div id="hp-fill"></div>
+            </div>
+            <div class="hud-label" style="color: #ffaa00;">Tactical Score</div>
+            <div id="current-score">000000</div>
+        </div>
+
+        <div id="mobile-controls">
+            <div id="joystick" class="joystick-area">
+                <div id="knob" class="joystick-knob"></div>
+            </div>
+            <div id="shoot-area">
+                <div id="shoot-btn">FIRE</div>
+            </div>
+        </div>
+
+        <div class="bottom-panel">
+            <div class="status-group">
+                <div id="pilot-rank" class="w-10 h-10 bg-cyan-500 rounded flex items-center justify-center font-bold">?</div>
+                <div class="status-item">
+                    <span class="status-label">Pilot</span>
+                    <span id="pilot-name" class="status-value truncate max-w-[100px]">...</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="battle-result">
+            <h2 class="text-3xl font-black text-red-600 mb-2 font-['Orbitron']">MISSION FAILED</h2>
+            <div class="bg-white/5 p-4 rounded-xl mb-6 border border-white/10">
+                <p id="final-score" class="text-4xl font-black text-cyan-400 font-['Orbitron']">0</p>
+            </div>
+            <div class="flex flex-col gap-2">
+                <button onclick="location.reload()" class="bg-cyan-500 text-black py-3 rounded font-bold uppercase">Re-Deploy</button>
+                <button onclick="exitBattle()" class="bg-gray-800 text-white py-3 rounded font-bold uppercase">Base</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'tank-game-v1';
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        if(isMobile) document.getElementById('mobile-controls').style.display = 'block';
+
+        let user = null;
+        let gameActive = true;
+        let score = 0;
+        let lastShootTime = 0;
+
+        const player = {
+            x: 0, y: 0, angle: 0, hp: 100,
+            bullets: [],
+            moveDir: { x: 0, y: 0 },
+            isShooting: false
+        };
+        const enemies = [];
+        const keys = {};
+
+        // Joystick Logic
+        const joystick = document.getElementById('joystick');
+        const knob = document.getElementById('knob');
+        let joyActive = false;
+        let joyOrigin = { x: 0, y: 0 };
+
+        joystick.addEventListener('touchstart', (e) => {
+            joyActive = true;
+            const rect = joystick.getBoundingClientRect();
+            joyOrigin = { x: rect.left + rect.width/2, y: rect.top + rect.height/2 };
+        });
+
+        joystick.addEventListener('touchmove', (e) => {
+            if(!joyActive) return;
+            const touch = e.touches[0];
+            let dx = touch.clientX - joyOrigin.x;
+            let dy = touch.clientY - joyOrigin.y;
+            const dist = Math.min(60, Math.sqrt(dx*dx + dy*dy));
+            const angle = Math.atan2(dy, dx);
+            
+            const moveX = Math.cos(angle) * dist;
+            const moveY = Math.sin(angle) * dist;
+            
+            knob.style.transform = `translate(calc(-50% + ${moveX}px), calc(-50% + ${moveY}px))`;
+            player.moveDir = { x: (moveX/60), y: (moveY/60) };
+        });
+
+        joystick.addEventListener('touchend', () => {
+            joyActive = false;
+            knob.style.transform = `translate(-50%, -50%)`;
+            player.moveDir = { x: 0, y: 0 };
+        });
+
+        const shootBtn = document.getElementById('shoot-area');
+        shootBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            player.isShooting = true;
+        });
+        shootBtn.addEventListener('touchend', () => {
+            player.isShooting = false;
+        });
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            player.x = canvas.width / 2;
+            player.y = canvas.height / 2;
+        }
+
+        window.addEventListener('resize', resize);
+        window.addEventListener('keydown', e => keys[e.code] = true);
+        window.addEventListener('keyup', e => keys[e.code] = false);
+        window.addEventListener('mousedown', () => { if(!isMobile) player.isShooting = true; });
+        window.addEventListener('mouseup', () => { if(!isMobile) player.isShooting = false; });
+
+        function shoot() {
+            const now = Date.now();
+            if (now - lastShootTime < 250) return;
+            lastShootTime = now;
+            
+            player.bullets.push({
+                x: player.x + Math.cos(player.angle) * 30,
+                y: player.y + Math.sin(player.angle) * 30,
+                vx: Math.cos(player.angle) * 10,
+                vy: Math.sin(player.angle) * 10,
+                life: 100
+            });
+        }
+
+        function update() {
+            if (!gameActive) return;
+
+            let mx = player.moveDir.x;
+            let my = player.moveDir.y;
+
+            if (keys['KeyW'] || keys['ArrowUp']) my = -1;
+            if (keys['KeyS'] || keys['ArrowDown']) my = 1;
+            if (keys['KeyA'] || keys['ArrowLeft']) mx = -1;
+            if (keys['KeyD'] || keys['ArrowRight']) mx = 1;
+
+            player.x += mx * 4;
+            player.y += my * 4;
+            
+            if (isMobile && (mx !== 0 || my !== 0)) {
+                player.angle = Math.atan2(my, mx);
+            }
+
+            player.x = Math.max(20, Math.min(canvas.width - 20, player.x));
+            player.y = Math.max(20, Math.min(canvas.height - 20, player.y));
+
+            if (!isMobile) {
+                window.onmousemove = (e) => {
+                    player.angle = Math.atan2(e.clientY - player.y, e.clientX - player.x);
+                };
+            }
+
+            if(player.isShooting) shoot();
+
+            player.bullets.forEach((b, i) => {
+                b.x += b.vx; b.y += b.vy; b.life--;
+                if (b.life <= 0) player.bullets.splice(i, 1);
+            });
+
+            if (Math.random() < 0.02) {
+                const angle = Math.random() * Math.PI * 2;
+                enemies.push({
+                    x: player.x + Math.cos(angle) * canvas.width,
+                    y: player.y + Math.sin(angle) * canvas.height,
+                    hp: 20
+                });
+            }
+
+            enemies.forEach((en, i) => {
+                const dx = player.x - en.x;
+                const dy = player.y - en.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                en.x += (dx/dist) * 2;
+                en.y += (dy/dist) * 2;
+
+                player.bullets.forEach((b, bi) => {
+                    if (Math.sqrt((b.x - en.x)**2 + (b.y - en.y)**2) < 25) {
+                        en.hp -= 10;
+                        player.bullets.splice(bi, 1);
+                        if (en.hp <= 0) {
+                            enemies.splice(i, 1);
+                            score += 100;
+                            document.getElementById('current-score').innerText = score.toString().padStart(6, '0');
+                        }
+                    }
+                });
+
+                if (dist < 30) {
+                    player.hp -= 0.5;
+                    document.getElementById('hp-fill').style.width = Math.max(0, player.hp) + '%';
+                    if (player.hp <= 0) gameOver();
+                }
+            });
+        }
+
+        function draw() {
+            ctx.fillStyle = '#0a101e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 1;
+            const gap = 60;
+            for(let x = player.x % gap; x < canvas.width; x += gap) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+            }
+            for(let y = player.y % gap; y < canvas.height; y += gap) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+            }
+
+            enemies.forEach(en => {
+                ctx.fillStyle = '#ff0044';
+                ctx.beginPath(); ctx.arc(en.x, en.y, 15, 0, Math.PI*2); ctx.fill();
+            });
+
+            player.bullets.forEach(b => {
+                ctx.fillStyle = '#00d2ff';
+                ctx.beginPath(); ctx.arc(b.x, b.y, 4, 0, Math.PI*2); ctx.fill();
+            });
+
+            ctx.save();
+            ctx.translate(player.x, player.y);
+            ctx.rotate(player.angle);
+            ctx.fillStyle = '#00d2ff';
+            ctx.fillRect(-20, -20, 40, 40);
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(5, -5, 25, 10);
+            ctx.restore();
+
+            requestAnimationFrame(() => {
+                update();
+                draw();
+            });
+        }
+
+        async function gameOver() {
+            if (!gameActive) return;
+            gameActive = false;
+            document.getElementById('battle-result').style.display = 'block';
+            document.getElementById('final-score').innerText = score.toLocaleString();
+        }
+
+        window.exitBattle = () => { location.href = 'index.html'; };
+
+        const initAuth = async () => {
+          if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+            await signInWithCustomToken(auth, __initial_auth_token);
+          } else {
+            await signInAnonymously(auth);
+          }
+        };
+
+        onAuthStateChanged(auth, u => {
+            if (u) {
+                user = u;
+                document.getElementById('pilot-name').innerText = u.uid.substring(0,6);
+                resize();
+                draw();
+            } else {
+                initAuth();
+            }
+        });
+    </script>
+</body>
+</html>
