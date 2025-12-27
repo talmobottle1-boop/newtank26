@@ -1,6 +1,20 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+  <style>
+    .exchange-row{position:relative;}
+    .exchange-row::before{
+      content:'';
+      position:absolute;
+      inset:-1px;
+      border-radius:0.75rem;
+      background:linear-gradient(90deg,#38bdf8,#6366f1,#38bdf8);
+      opacity:0;
+      transition:opacity .25s ease;
+      z-index:-1;
+    }
+    .exchange-row:hover::before{opacity:1;}
+  </style>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>리나닷컴 | 공식 사이트</title>
