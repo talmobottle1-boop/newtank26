@@ -6,41 +6,45 @@
   <title>리나닷컴 | 공식 사이트</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-  const exchangeRows = Array.from(document.querySelectorAll('.exchange-row'));
-  const container = exchangeRows[0].parentElement;
+  document.addEventListener('DOMContentLoaded', () => {
+    const exchangeRows = Array.from(document.querySelectorAll('.exchange-row'));
+    if (exchangeRows.length === 0) return;
 
-  // 선택 테두리 효과
-  exchangeRows.forEach(row => {
-    row.addEventListener('click', () => {
-      exchangeRows.forEach(r => r.classList.remove('border','border-sky-400'));
-      row.classList.add('border','border-sky-400');
+    const container = exchangeRows[0].parentElement;
+
+    // 선택 테두리 효과
+    exchangeRows.forEach(row => {
+      row.addEventListener('click', () => {
+        exchangeRows.forEach(r => r.classList.remove('border','border-sky-400'));
+        row.classList.add('border','border-sky-400');
+      });
     });
-  });
 
-  // 버튼
-  const buttons = document.querySelectorAll('[data-sort]');
+    // 버튼
+    const buttons = document.querySelectorAll('[data-sort]');
 
-  buttons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      buttons.forEach(b => b.classList.remove('bg-sky-500','text-black'));
-      btn.classList.add('bg-sky-500','text-black');
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        buttons.forEach(b => b.classList.remove('bg-sky-500','text-black'));
+        btn.classList.add('bg-sky-500','text-black');
 
-      let sorted;
-      const type = btn.dataset.sort;
+        let sorted;
+        const type = btn.dataset.sort;
 
-      if (type === 'all') {
-        sorted = exchangeRows;
-      } else if (type === 'score') {
-        sorted = [...exchangeRows].sort((a,b)=>{
-          return parseFloat(b.dataset.score) - parseFloat(a.dataset.score);
-        });
-      } else if (type === 'payback') {
-        sorted = [...exchangeRows].sort((a,b)=>{
-          return parseFloat(b.dataset.payback) - parseFloat(a.dataset.payback);
-        });
-      }
+        if (type === 'all') {
+          sorted = exchangeRows;
+        } else if (type === 'score') {
+          sorted = [...exchangeRows].sort((a,b)=>{
+            return parseFloat(b.children[2].textContent) - parseFloat(a.children[2].textContent);
+          });
+        } else if (type === 'payback') {
+          sorted = [...exchangeRows].sort((a,b)=>{
+            return parseFloat(b.children[3].textContent) - parseFloat(a.children[3].textContent);
+          });
+        }
 
-      sorted.forEach(row => container.appendChild(row));
+        sorted.forEach(row => container.appendChild(row));
+      });
     });
   });
 </script>
