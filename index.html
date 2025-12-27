@@ -14,6 +14,16 @@
       z-index:-1;
     }
     .exchange-row:hover::before{opacity:1;}
+    .exchange-logo{
+      transition:transform .25s ease, filter .25s ease;
+    }
+    .exchange-row:hover .exchange-logo{
+      transform:scale(1.08);
+      filter:drop-shadow(0 0 6px rgba(56,189,248,.6));
+    }
+    .light-mode .exchange-logo{
+      filter:none;
+    }
     .neon-border{
       box-shadow:
         0 0 8px rgba(56,189,248,.6),
@@ -24,6 +34,41 @@
     @keyframes neonPulse{
       0%,100%{box-shadow:0 0 8px rgba(56,189,248,.4),0 0 16px rgba(99,102,241,.4),0 0 32px rgba(56,189,248,.6)}
       50%{box-shadow:0 0 16px rgba(56,189,248,.9),0 0 32px rgba(99,102,241,.9),0 0 48px rgba(56,189,248,1)}
+    }
+    @media (max-width:640px){
+      /* 로고 */
+      .exchange-logo{width:2rem;height:2rem;}
+
+      /* 헤더 */
+      header .max-w-7xl{padding-left:1rem;padding-right:1rem;}
+      header nav{display:none;}
+
+      /* Hero */
+      section.relative.py-28{padding-top:6rem;padding-bottom:6rem;}
+      h1{font-size:1.75rem;line-height:1.4;}
+
+      /* UID 입력 */
+      input{font-size:0.875rem;}
+
+      /* 혜택 카드 */
+      section .grid{grid-template-columns:1fr;}
+
+      /* 제휴 거래소 테이블 → 카드형 */
+      .exchange-row{
+        grid-template-columns:1fr;
+        gap:0.5rem;
+      }
+      .exchange-row > div{justify-content:flex-start;}
+      .exchange-row > div:nth-child(2),
+      .exchange-row > div:nth-child(3){font-size:0.875rem;}
+
+      /* 가입 버튼 */
+      .exchange-row button{width:100%;}
+
+      /* 하단 네온 팝업 */
+      footer .fixed{bottom:0;padding:0;}
+      footer .neon-border{border-radius:0;}
+    }
     }
   </style>
   <meta charset="UTF-8" />
@@ -228,7 +273,7 @@
   <!-- Row : Bitget -->
   <div class="exchange-row grid grid-cols-5 gap-4 items-center px-4 py-5 mt-3 rounded-xl hover:bg-[#141a24] transition">
     <div class="col-span-2 flex items-center gap-3">
-      <div class="w-10 h-10 rounded-full bg-cyan-400 flex items-center justify-center font-bold text-black">B</div>
+      <img src="$1" class="exchange-logo w-10 h-10 rounded-full" alt="$2" loading="lazy" />
       <span class="font-semibold">Bitget</span>
     </div>
     <div>9.6</div>
@@ -241,7 +286,7 @@
   <!-- Row : Binance -->
   <div class="exchange-row grid grid-cols-5 gap-4 items-center px-4 py-5 mt-2 rounded-xl hover:bg-[#141a24] transition">
     <div class="col-span-2 flex items-center gap-3">
-      <div class="w-10 h-10 rounded-full bg-yellow-400 flex items-center justify-center font-bold text-black">B</div>
+      <img src="$1" class="exchange-logo w-10 h-10 rounded-full" alt="$2" loading="lazy" />
       <span class="font-semibold">Binance</span>
     </div>
     <div>9.7</div>
@@ -254,7 +299,7 @@
   <!-- Row : Gate -->
   <div class="exchange-row grid grid-cols-5 gap-4 items-center px-4 py-5 mt-2 rounded-xl hover:bg-[#141a24] transition">
     <div class="col-span-2 flex items-center gap-3">
-      <div class="w-10 h-10 rounded-full bg-blue-500"></div>
+      <img src="$1" class="exchange-logo w-10 h-10 rounded-full" alt="$2" loading="lazy" />
       <span class="font-semibold">Gate</span>
     </div>
     <div>9.2</div>
@@ -267,7 +312,7 @@
   <!-- Row : MEXC -->
   <div class="exchange-row grid grid-cols-5 gap-4 items-center px-4 py-5 mt-2 rounded-xl hover:bg-[#141a24] transition">
     <div class="col-span-2 flex items-center gap-3">
-      <div class="w-10 h-10 rounded-full bg-blue-300"></div>
+      <img src="$1" class="exchange-logo w-10 h-10 rounded-full" alt="$2" loading="lazy" />
       <span class="font-semibold">MEXC</span>
     </div>
     <div>9.1</div>
@@ -280,7 +325,7 @@
   <!-- Row : OKX -->
   <div class="exchange-row grid grid-cols-5 gap-4 items-center px-4 py-5 mt-2 rounded-xl hover:bg-[#141a24] transition">
     <div class="col-span-2 flex items-center gap-3">
-      <div class="w-10 h-10 rounded-full bg-black"></div>
+      <img src="$1" class="exchange-logo w-10 h-10 rounded-full" alt="$2" loading="lazy" />
       <span class="font-semibold">OKX</span>
     </div>
     <div>9.5</div>
