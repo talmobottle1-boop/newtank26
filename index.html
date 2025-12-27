@@ -53,16 +53,13 @@
       /* 혜택 카드 */
       section .grid{grid-template-columns:1fr;}
 
-      /* 제휴 거래소 테이블 → 카드형 */
+      /* 제휴 거래소 목록은 모바일에서도 PC와 동일한 테이블 유지 */
       .exchange-row{
-        grid-template-columns:1fr;
-        gap:0.5rem;
+        grid-template-columns: repeat(5, minmax(0,1fr));
+        gap:1rem;
       }
       .exchange-row > div{justify-content:flex-start;}
-      .exchange-row > div:nth-child(2),
-      .exchange-row > div:nth-child(3){font-size:0.875rem;}
-
-      /* 가입 버튼 */
+      .exchange-row button{width:auto;}
       .exchange-row button{width:100%;}
 
       /* 하단 네온 팝업 */
