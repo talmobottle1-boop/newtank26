@@ -14,6 +14,17 @@
       z-index:-1;
     }
     .exchange-row:hover::before{opacity:1;}
+    .neon-border{
+      box-shadow:
+        0 0 8px rgba(56,189,248,.6),
+        0 0 16px rgba(99,102,241,.6),
+        0 0 32px rgba(56,189,248,.8);
+      animation: neonPulse 2.5s ease-in-out infinite;
+    }
+    @keyframes neonPulse{
+      0%,100%{box-shadow:0 0 8px rgba(56,189,248,.4),0 0 16px rgba(99,102,241,.4),0 0 32px rgba(56,189,248,.6)}
+      50%{box-shadow:0 0 16px rgba(56,189,248,.9),0 0 32px rgba(99,102,241,.9),0 0 48px rgba(56,189,248,1)}
+    }
   </style>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -308,8 +319,8 @@
   </div>
 
   <!-- Bottom Promo Bar -->
-  <div class="relative max-w-7xl mx-auto px-6 pb-12">
-    <div class="flex flex-col md:flex-row items-center justify-between gap-4 rounded-2xl border border-sky-500/50 bg-gradient-to-r from-[#0b1220] to-[#0b1f3a] px-6 py-5 shadow-lg">
+  <div class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-7xl px-6">
+    <div class="relative flex flex-col md:flex-row items-center justify-between gap-4 rounded-2xl px-6 py-5 bg-gradient-to-r from-[#0b1220] to-[#0b1f3a] neon-border">
       <div class="flex items-center gap-4">
         <div class="w-12 h-12 rounded-xl bg-sky-500 flex items-center justify-center text-black font-bold">S</div>
         <div>
