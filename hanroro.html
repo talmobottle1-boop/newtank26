@@ -73,7 +73,7 @@
             100% { opacity: 0.6; transform: scale(0.9); }
         }
 
-        /* Hero Image Container Style */
+        /* Hero Visual Box */
         .hero-visual-box {
             background: #0c051a;
             border-radius: 2rem;
@@ -88,11 +88,6 @@
             transition: all 0.5s ease;
         }
 
-        .hero-visual-box:hover {
-            border-color: rgba(138, 79, 255, 0.2);
-            transform: scale(1.02);
-        }
-
         .pattern-overlay {
             position: absolute;
             inset: 0;
@@ -101,8 +96,8 @@
             opacity: 0.3;
         }
 
-        /* Modal & Scroll */
-        #status-modal {
+        /* Common Modal Styles */
+        .custom-modal {
             display: none;
             position: fixed;
             inset: 0;
@@ -114,33 +109,56 @@
             padding: 16px;
         }
 
-        #status-modal.active { display: flex; }
+        .custom-modal.active { display: flex; }
 
         .modal-content {
             background: #0f0a1f;
             border: 1px solid rgba(138, 79, 255, 0.3);
             width: 100%;
-            max-width: 800px;
+            max-width: 900px;
             max-height: 85vh;
             overflow-y: auto;
             border-radius: 20px;
             padding: 24px;
         }
 
-        .card-hover:hover {
-            border-color: rgba(138, 79, 255, 0.4);
-            background: rgba(255, 255, 255, 0.05);
-            transform: translateY(-4px);
-        }
+        .modal-content::-webkit-scrollbar { width: 4px; }
+        .modal-content::-webkit-scrollbar-thumb { background: rgba(138, 79, 255, 0.3); border-radius: 10px; }
 
+        /* Animation */
         @keyframes float {
             0% { transform: translateY(0px); }
             50% { transform: translateY(-15px); }
             100% { transform: translateY(0px); }
         }
 
-        .float-animation {
-            animation: float 4s ease-in-out infinite;
+        .float-animation { animation: float 4s ease-in-out infinite; }
+        
+        /* Portfolio Grid */
+        .portfolio-card {
+            aspect-ratio: 1/1.2;
+            background: linear-gradient(135deg, #1a0b2e, #05020a);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .portfolio-card:hover {
+            border-color: #8a4fff;
+            transform: scale(1.03);
+        }
+
+        .portfolio-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.9));
+            padding: 12px;
+            opacity: 0.8;
         }
     </style>
 </head>
@@ -170,7 +188,7 @@
             </div>
 
             <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
-                <button onclick="toggleModal(true)" class="flex items-center border border-white/10 text-white px-3 py-1.5 sm:px-5 sm:py-2 rounded-md text-[11px] sm:text-sm font-bold hover:bg-white/5 transition-all">
+                <button onclick="toggleModal('status-modal', true)" class="flex items-center border border-white/10 text-white px-3 py-1.5 sm:px-5 sm:py-2 rounded-md text-[11px] sm:text-sm font-bold hover:bg-white/5 transition-all">
                     현황보기
                 </button>
                 <button class="bg-purple-600 text-white px-4 py-1.5 sm:px-7 sm:py-2.5 rounded-md font-bold hover:bg-purple-700 transition-all text-[11px] sm:text-sm">
@@ -180,7 +198,7 @@
         </div>
     </nav>
 
-    <!-- Hero Section (상단 메인바이브 복구) -->
+    <!-- Hero Section -->
     <section class="hero-gradient min-h-[90vh] flex items-center pt-32 pb-20">
         <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
             <div class="text-center md:text-left">
@@ -196,11 +214,10 @@
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
                     <button class="bg-purple-600 text-white px-10 py-4 rounded-xl font-bold text-sm shadow-2xl shadow-purple-900/40 hover:bg-purple-700 transition-all">프로젝트 문의</button>
-                    <button class="border border-white/10 text-white px-10 py-4 rounded-xl font-bold text-sm hover:bg-white/5 transition-all">포트폴리오</button>
+                    <button onclick="toggleModal('portfolio-modal', true)" class="border border-white/10 text-white px-10 py-4 rounded-xl font-bold text-sm hover:bg-white/5 transition-all">포트폴리오</button>
                 </div>
             </div>
             
-            <!-- 복구된 비주얼 박스 -->
             <div class="hidden md:block relative group">
                 <div class="absolute -inset-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-[2.5rem] blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
                 <div class="hero-visual-box h-[540px]">
@@ -210,20 +227,17 @@
                             <i class="fas fa-magic text-8xl lg:text-9xl text-purple-400 mb-10 drop-shadow-[0_0_30px_rgba(167,139,250,0.5)]"></i>
                         </div>
                         <div class="text-center">
-                            <p class="text-purple-300 font-bold tracking-[0.5em] uppercase text-xs mb-2">Creative Studio</p>
+                            <p class="text-purple-300 font-bold tracking-[0.5em] uppercase text-xs mb-2"></p>
                             <p class="text-gray-500 font-mono text-[10px] uppercase">Design By HANRORO</p>
                         </div>
                     </div>
-                    <!-- 장식용 요소들 -->
-                    <div class="absolute bottom-8 left-8 w-12 h-[1px] bg-purple-500/30"></div>
-                    <div class="absolute bottom-8 right-8 w-12 h-[1px] bg-purple-500/30"></div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Main Live Status Section -->
-    <section id="main-status" class="py-24 border-t border-white/5 relative">
+    <!-- Main Status Section -->
+    <section id="main-status" class="py-24 border-t border-white/5 relative bg-black/50">
         <div class="max-w-7xl mx-auto px-6">
             <div class="flex flex-col md:flex-row justify-between items-end mb-12">
                 <div>
@@ -232,19 +246,15 @@
                     </h2>
                     <h3 class="text-3xl sm:text-4xl font-black text-white">진행 중인 프로젝트</h3>
                 </div>
-                <p class="text-gray-500 text-sm mt-4 md:mt-0">현재 <span class="text-white font-bold">12개</span>의 프로젝트가 가동 중입니다.</p>
             </div>
-            
-            <div id="main-project-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- JS 데이터 -->
-            </div>
+            <div id="main-project-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </div>
     </section>
 
-    <!-- Project Status Modal -->
-    <div id="status-modal" onclick="if(event.target === this) toggleModal(false)">
-        <div class="modal-content animate-[slideDown_0.3s_ease-out] relative">
-            <button onclick="toggleModal(false)" class="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors">
+    <!-- Status Modal -->
+    <div id="status-modal" class="custom-modal" onclick="if(event.target === this) toggleModal('status-modal', false)">
+        <div class="modal-content relative">
+            <button onclick="toggleModal('status-modal', false)" class="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors">
                 <i class="fas fa-times text-xl"></i>
             </button>
             <div class="mb-8">
@@ -253,12 +263,28 @@
                 </h2>
                 <p class="text-2xl font-black text-white">실시간 현황 팝업</p>
             </div>
-            <div id="modal-project-list" class="grid sm:grid-cols-2 gap-4">
-                <!-- JS 데이터 -->
+            <div id="modal-project-list" class="grid sm:grid-cols-2 gap-4"></div>
+        </div>
+    </div>
+
+    <!-- Portfolio Modal (15종 시안) -->
+    <div id="portfolio-modal" class="custom-modal" onclick="if(event.target === this) toggleModal('portfolio-modal', false)">
+        <div class="modal-content relative">
+            <button onclick="toggleModal('portfolio-modal', false)" class="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+            <div class="mb-8">
+                <h2 class="text-purple-400 font-bold tracking-widest uppercase text-[10px] mb-2">Selected Works</h2>
+                <p class="text-2xl font-black text-white">홈페이지 시안 15종</p>
+                <p class="text-gray-500 text-xs mt-2 font-light italic">각 시안은 한로로만의 감성으로 커스텀 가능합니다.</p>
             </div>
-            <div class="mt-8 pt-6 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-gray-500 text-[11px]">
-                <p>총 12개의 프로젝트가 안전하게 진행 중입니다.</p>
-                <button onclick="toggleModal(false)" class="w-full sm:w-auto bg-purple-600 text-white px-6 py-2.5 rounded-lg font-bold">확인 완료</button>
+            
+            <div id="portfolio-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+                <!-- JS로 15개 시안 생성 -->
+            </div>
+
+            <div class="mt-8 text-center">
+                <button onclick="toggleModal('portfolio-modal', false)" class="bg-white/5 text-white px-8 py-3 rounded-lg font-bold text-sm">닫기</button>
             </div>
         </div>
     </div>
@@ -272,12 +298,8 @@
     </footer>
 
     <script>
-        function formatDate(date) {
-            return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
-        }
-
-        function toggleModal(show) {
-            const modal = document.getElementById('status-modal');
+        function toggleModal(id, show) {
+            const modal = document.getElementById(id);
             if (show) {
                 modal.classList.add('active');
                 document.body.style.overflow = 'hidden';
@@ -296,33 +318,65 @@
             { name: "한** 고객님", progress: 80, phase: "Pub", status: "퍼블리싱" }
         ];
 
-        function renderProjects(containerId, isCompact = false) {
-            const container = document.getElementById(containerId);
-            if (!container) return;
+        // 15종 포트폴리오 시안 데이터 생성
+        const portfolioData = Array.from({ length: 15 }, (_, i) => ({
+            id: i + 1,
+            title: `시안 Concept #${String(i + 1).padStart(2, '0')}`,
+            category: i % 2 === 0 ? "Minimalist" : "Experimental",
+            color: ["#8a4fff", "#3e8dff", "#f472b6", "#10b981", "#fbbf24"][i % 5]
+        }));
 
-            container.innerHTML = projectData.map(p => `
-                <div class="bg-white/[0.03] ${isCompact ? 'p-4' : 'p-6'} rounded-2xl border border-white/5 card-hover transition-all duration-300 group">
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <span class="text-[7px] font-black text-white bg-purple-600/40 px-2 py-0.5 rounded-sm mb-2 inline-block uppercase tracking-wider">${p.phase}</span>
-                            <h4 class="${isCompact ? 'text-sm' : 'text-lg'} font-bold text-white group-hover:text-purple-300 transition-colors">${p.name}</h4>
+        function renderProjects() {
+            const containers = ['main-project-list', 'modal-project-list'];
+            containers.forEach(id => {
+                const container = document.getElementById(id);
+                if (!container) return;
+                const isCompact = id.includes('modal');
+                container.innerHTML = projectData.map(p => `
+                    <div class="bg-white/[0.03] ${isCompact ? 'p-4' : 'p-6'} rounded-2xl border border-white/5 hover:border-purple-500/30 transition-all group">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <span class="text-[7px] font-black text-white bg-purple-600/40 px-2 py-0.5 rounded-sm mb-2 inline-block uppercase tracking-wider">${p.phase}</span>
+                                <h4 class="${isCompact ? 'text-sm' : 'text-lg'} font-bold text-white group-hover:text-purple-300 transition-colors">${p.name}</h4>
+                            </div>
+                            <span class="text-purple-400 font-black ${isCompact ? 'text-[10px]' : 'text-xs'}">${p.progress}%</span>
                         </div>
-                        <span class="text-purple-400 font-black ${isCompact ? 'text-[10px]' : 'text-xs'}">${p.progress}%</span>
+                        <div class="w-full bg-white/5 h-1 rounded-full mb-4">
+                            <div class="bg-gradient-to-r from-purple-500 to-blue-500 h-full rounded-full transition-all duration-1000" style="width: ${p.progress}%"></div>
+                        </div>
+                        <div class="flex justify-between items-center text-[9px] text-gray-500">
+                            <span class="text-purple-300 font-bold">${p.status}</span>
+                        </div>
                     </div>
-                    <div class="w-full bg-white/5 h-1 rounded-full mb-4">
-                        <div class="bg-gradient-to-r from-purple-500 to-blue-500 h-full rounded-full transition-all duration-1000" style="width: ${p.progress}%"></div>
+                `).join('');
+            });
+        }
+
+        function renderPortfolio() {
+            const grid = document.getElementById('portfolio-grid');
+            if (!grid) return;
+            grid.innerHTML = portfolioData.map(p => `
+                <div class="portfolio-card group">
+                    <div class="absolute inset-0 flex items-center justify-center opacity-20 group-hover:opacity-40 transition-opacity">
+                        <i class="fas fa-magic text-4xl" style="color: ${p.color}"></i>
                     </div>
-                    <div class="flex justify-between items-center text-[9px] text-gray-500">
-                        <span class="font-medium tracking-tighter italic">DELIVERY: ${formatDate(new Date())}</span>
-                        <span class="text-purple-300 font-bold">${p.status}</span>
+                    <div class="absolute top-3 left-3">
+                        <span class="text-[8px] font-bold text-white/40 uppercase tracking-widest">${p.category}</span>
+                    </div>
+                    <div class="portfolio-overlay">
+                        <h5 class="text-[11px] font-black text-white mb-1">${p.title}</h5>
+                        <div class="w-4 h-[1px]" style="background: ${p.color}"></div>
+                    </div>
+                    <div class="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <span class="text-[10px] font-black text-white bg-purple-600 px-3 py-1 rounded">View Case</span>
                     </div>
                 </div>
             `).join('');
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            renderProjects('main-project-list');
-            renderProjects('modal-project-list', true);
+            renderProjects();
+            renderPortfolio();
         });
     </script>
 </body>
