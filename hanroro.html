@@ -69,17 +69,7 @@
 
         @media (max-width: 767px) {
             .neon-notification-wrapper {
-                position: fixed;
-                bottom: 20px;
-                left: 0;
-                right: 0;
-                padding: 0 16px;
-                pointer-events: none;
-            }
-            .neon-notification-bar {
-                pointer-events: auto;
-                max-width: none;
-                box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.8), 0 0 15px rgba(138, 79, 255, 0.3);
+                display: none; /* 상단 알림바는 모바일에서 숨기고 하단 바로 대체 */
             }
         }
 
@@ -98,6 +88,38 @@
             0% { opacity: 0.6; transform: scale(0.9); }
             50% { opacity: 1; transform: scale(1.1); }
             100% { opacity: 0.6; transform: scale(0.9); }
+        }
+
+        /* NEW: Floating Bottom Bar */
+        .bottom-floating-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: linear-gradient(to right, #0f0a1f, #1a0b35);
+            border-top: 1px solid rgba(138, 79, 255, 0.5);
+            padding: 16px 20px;
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: translateY(0);
+            animation: slideUp 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .bottom-bar-content {
+            max-width: 1280px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
         }
 
         /* Hero Visual Box */
@@ -128,7 +150,7 @@
             display: none;
             position: fixed;
             inset: 0;
-            z-index: 100;
+            z-index: 2000; /* 네비게이션과 하단바보다 높게 설정 */
             background: rgba(0, 0, 0, 0.9);
             backdrop-filter: blur(15px);
             align-items: center;
@@ -219,7 +241,7 @@
         }
     </style>
 </head>
-<body class="overflow-x-hidden">
+<body class="overflow-x-hidden pb-24"> <!-- 하단바 공간 확보를 위해 패딩 추가 -->
 
     <!-- Navigation -->
     <nav class="fixed w-full z-50 glass-nav">
@@ -254,6 +276,22 @@
             </div>
         </div>
     </nav>
+
+    <!-- NEW: Floating Bottom Bar (가로 전체 알림팝업창) -->
+    <div class="bottom-floating-bar">
+        <div class="bottom-bar-content">
+            <div class="flex items-center">
+                <span class="status-dot"></span>
+                <div class="flex flex-col sm:flex-row sm:items-center sm:gap-3">
+                    <span class="text-purple-400 font-black text-[10px] sm:text-xs uppercase tracking-widest leading-none">Limited Offer</span>
+                    <h4 class="text-white font-bold text-sm sm:text-base tracking-tight">지금! 홈페이지 저렴한 가격 원해?</h4>
+                </div>
+            </div>
+            <button onclick="toggleModal('contact-modal', true)" class="bg-purple-600 hover:bg-purple-500 text-white px-6 sm:px-10 py-3 rounded-full font-black text-xs sm:text-sm shadow-[0_0_20px_rgba(138,79,255,0.4)] transition-all transform active:scale-95 whitespace-nowrap">
+                즉시 신청 <i class="fas fa-arrow-right ml-2 hidden sm:inline"></i>
+            </button>
+        </div>
+    </div>
 
     <!-- Hero Section -->
     <section class="hero-gradient min-h-[90vh] flex items-center pt-32 pb-20">
@@ -307,7 +345,7 @@
         </div>
     </section>
 
-    <!-- Contact Modal (개선된 상담 신청 팝업) -->
+    <!-- Contact Modal -->
     <div id="contact-modal" class="custom-modal" onclick="if(event.target === this) toggleModal('contact-modal', false)">
         <div class="modal-content relative !max-w-3xl">
             <button onclick="toggleModal('contact-modal', false)" class="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors">
@@ -525,7 +563,7 @@
                     <div class="absolute inset-0 flex items-center justify-center opacity-10 group-hover:opacity-30 transition-opacity">
                         <i class="fas ${p.icon} text-6xl" style="color: ${p.color}"></i>
                     </div>
-                    <div class="portfolio-overlay">
+                    <div class="absolute inset-0 p-4 flex flex-col justify-end bg-gradient-to-t from-black/80 to-transparent">
                         <div class="flex items-center space-x-2 mb-1">
                             <span class="text-[8px] font-bold px-2 py-0.5 rounded-full bg-white/10 text-white/60 uppercase tracking-widest">${p.tag}</span>
                             <span class="text-[8px] font-bold text-purple-400 uppercase tracking-tighter">${p.type}</span>
