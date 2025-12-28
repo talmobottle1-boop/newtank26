@@ -1,0 +1,308 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { 
+  Play, 
+  X, 
+  Flame,
+  Search,
+  Home,
+  Tv,
+  Film,
+  User,
+  ChevronRight,
+  Heart,
+  Loader2,
+  Info,
+  AlertCircle
+} from 'lucide-react';
+
+const API_KEY = ""; // 환경 변수에서 제공됨
+
+const App = () => {
+  const [movies, setMovies] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedMovie, setSelectedMovie] = useState(null);
+  const [activeCategory, setActiveCategory] = useState('전체');
+  const [youtubeId, setYoutubeId] = useState(null);
+  const [playerLoading, setPlayerLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const categories = ['전체', '드라마', '영화', '예능', '애니'];
+
+  // Gemini API를 사용하여 트렌드 데이터 가져오기 (한국어 데이터 요청)
+  const fetchTrending = useCallback(async (retryCount = 0) => {
+    if (retryCount === 0) setLoading(true);
+    
+    try {
+      const prompt = `2024년 말부터 2025년까지 대한민국에서 유행하는 드라마, 영화, 예능 목록 24개를 작성해줘. 
+      JSON 형식으로 반환해: { "contents": [{ "title": "제목", "type": "드라마/영화/예능/애니", "year": "2025", "rating": "9.8", "summary": "작품에 대한 짧은 한국어 소개글" }] }`;
+      
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { responseMimeType: "application/json" }
+        })
+      });
+
+      if (!response.ok) throw new Error('API 호출 실패');
+      const data = await response.json();
+      const rawData = JSON.parse(data.candidates[0].content.parts[0].text);
+      
+      const enhancedData = rawData.contents.map((item, idx) => ({
+        ...item,
+        id: `content-${idx}`,
+        gradient: ['from-blue-600/40', 'from-indigo-600/40', 'from-rose-600/40', 'from-cyan-600/40'][idx % 4],
+        isOriginal: idx % 4 === 0
+      }));
+      
+      setMovies(enhancedData);
+      setLoading(false);
+    } catch (error) {
+      if (retryCount < 3) {
+        setTimeout(() => fetchTrending(retryCount + 1), 1000);
+      } else {
+        setLoading(false);
+        setError("콘텐츠를 불러오는 중 오류가 발생했습니다.");
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchTrending();
+  }, [fetchTrending]);
+
+  // 유튜브 예고편 ID 검색
+  const searchYoutubeTrailer = async (title) => {
+    setPlayerLoading(true);
+    setYoutubeId(null);
+    try {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: `Search Google and find the YouTube video ID for the official Korean trailer of "${title}". Return ONLY the 11-character video ID.` }] }],
+          tools: [{ google_search: {} }]
+        })
+      });
+
+      const data = await response.json();
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      const match = text.match(/[a-zA-Z0-9_-]{11}/);
+      if (match) {
+        setYoutubeId(match[0]);
+      } else {
+        setYoutubeId("dQw4w9WgXcQ"); // 폴백 ID
+      }
+    } catch (err) {
+      console.error("유튜브 검색 오류", err);
+    } finally {
+      setPlayerLoading(false);
+    }
+  };
+
+  const handleMovieClick = (movie) => {
+    setSelectedMovie(movie);
+    searchYoutubeTrailer(movie.title);
+  };
+
+  const filteredMovies = activeCategory === '전체' 
+    ? movies 
+    : movies.filter(m => m.type === activeCategory);
+
+  return (
+    <div className="min-h-screen bg-[#05070a] text-white font-sans pb-24 selection:bg-blue-500/30">
+      {/* 상단 네비게이션 */}
+      <nav className="fixed top-0 w-full z-[100] bg-[#05070a]/80 backdrop-blur-xl px-5 py-4 border-b border-white/5 flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-400 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20">
+            <Play fill="white" size={16} className="ml-0.5" />
+          </div>
+          <span className="text-xl font-black italic tracking-tighter uppercase flex items-center">
+            SSX<span className="text-blue-500 ml-1">OTT</span>
+          </span>
+        </div>
+        <div className="flex items-center space-x-5">
+          <Search className="w-5 h-5 text-gray-400 cursor-pointer hover:text-white transition-colors" />
+          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-gray-800 to-gray-950 border border-white/10 flex items-center justify-center overflow-hidden">
+            <User size={16} className="text-gray-400" />
+          </div>
+        </div>
+      </nav>
+
+      {/* 카테고리 탭 */}
+      <div className="pt-20 px-5 overflow-x-auto no-scrollbar flex space-x-2.5 pb-4">
+        {categories.map(cat => (
+          <button 
+            key={cat} 
+            onClick={() => setActiveCategory(cat)}
+            className={`px-5 py-2 rounded-xl text-xs font-bold flex-shrink-0 transition-all duration-300 border ${
+              activeCategory === cat 
+                ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-600/20 scale-105' 
+                : 'bg-white/5 border-white/5 text-gray-400 hover:bg-white/10'
+            }`}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
+      {/* 메인 배너 */}
+      <section className="px-5 mb-10 mt-2">
+        <div className="relative aspect-[16/9] rounded-3xl overflow-hidden group shadow-2xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 to-black" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#05070a] via-black/20 to-transparent z-10" />
+          
+          <div className="absolute bottom-6 left-6 z-20 space-y-2">
+            <div className="flex items-center space-x-2">
+              <span className="px-2 py-0.5 bg-blue-500 text-[10px] font-black rounded uppercase">추천</span>
+              <span className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">오늘의 인기 콘텐츠</span>
+            </div>
+            <h2 className="text-2xl font-black tracking-tight">오징어 게임 시즌 2</h2>
+            <p className="text-xs text-gray-400 font-medium max-w-[70%]">기다림은 끝났다. 전 세계가 주목하는 게임이 다시 시작됩니다.</p>
+          </div>
+          
+          <button 
+            onClick={() => handleMovieClick({title: "오징어 게임 2", year: "2024", summary: "456억 원의 상금이 걸린 서바이벌 게임의 새로운 국면"})}
+            className="absolute bottom-6 right-6 z-20 w-12 h-12 rounded-full bg-white text-black flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition-transform"
+          >
+            <Play fill="black" size={20} className="ml-1" />
+          </button>
+        </div>
+      </section>
+
+      {/* 콘텐츠 리스트 */}
+      <section className="px-5 space-y-6">
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-bold flex items-center space-x-2">
+            <Flame size={18} className="text-orange-500" />
+            <span>지금 뜨는 예고편</span>
+          </h3>
+          <button className="text-[11px] font-bold text-gray-500 flex items-center">
+            더보기 <ChevronRight size={14} />
+          </button>
+        </div>
+
+        {loading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="aspect-[2/3] bg-white/5 rounded-2xl animate-pulse" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            {filteredMovies.map((item) => (
+              <div 
+                key={item.id}
+                onClick={() => handleMovieClick(item)}
+                className="relative aspect-[2/3] rounded-2xl overflow-hidden bg-[#12161f] cursor-pointer group active:scale-95 transition-all duration-300"
+              >
+                <div className={`absolute inset-0 bg-gradient-to-br ${item.gradient} to-transparent opacity-60`} />
+                
+                {item.isOriginal && (
+                  <div className="absolute top-3 left-3 bg-blue-600/90 backdrop-blur-md text-[9px] font-black px-2 py-0.5 rounded shadow-lg z-20 border border-white/10">
+                    SSX 오리지널
+                  </div>
+                )}
+                
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Play size={32} fill="white" className="ml-1" />
+                </div>
+
+                <div className="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black via-black/60 to-transparent">
+                  <h4 className="text-[13px] font-bold truncate mb-1">{item.title}</h4>
+                  <div className="flex items-center justify-between text-[10px]">
+                    <span className="text-blue-400 font-bold">공식 예고편</span>
+                    <span className="text-yellow-400 font-black">★ {item.rating}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* 예고편 플레이어 오버레이 */}
+      {selectedMovie && (
+        <div className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-md flex flex-col items-center justify-center animate-in fade-in duration-300">
+          <div className="w-full max-w-4xl relative p-4">
+            <button 
+              onClick={() => { setSelectedMovie(null); setYoutubeId(null); }}
+              className="absolute -top-12 right-4 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+            >
+              <X size={24} />
+            </button>
+
+            <div className="aspect-video bg-zinc-900 rounded-2xl overflow-hidden shadow-2xl relative border border-white/5">
+              {playerLoading ? (
+                <div className="absolute inset-0 flex flex-col items-center justify-center space-y-4">
+                  <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
+                  <p className="text-xs font-bold text-gray-500">예고편을 불러오는 중입니다...</p>
+                </div>
+              ) : youtubeId ? (
+                <iframe
+                  width="100%"
+                  height="100%"
+                  src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&modestbranding=1&rel=0&hl=ko&cc_lang_pref=ko`}
+                  title="YouTube video player"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              ) : (
+                <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
+                  <AlertCircle className="w-12 h-12 text-gray-600 mb-2" />
+                  <p className="text-sm font-bold text-gray-400">해당 작품의 예고편 영상을 찾을 수 없습니다.</p>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-black">{selectedMovie.title}</h2>
+                  <p className="text-sm text-blue-500 font-bold">{selectedMovie.year} • 공식 예고편</p>
+                </div>
+                <button className="flex items-center space-x-2 bg-white/5 px-4 py-2 rounded-xl text-xs font-bold border border-white/10 hover:bg-white/10">
+                  <Heart size={16} />
+                  <span>찜하기</span>
+                </button>
+              </div>
+              <p className="text-sm text-gray-400 leading-relaxed font-medium">
+                {selectedMovie.summary || "선택하신 작품의 고화질 예고편입니다. 전체 감상은 SSX OTT 멤버십 가입 후 광고 없이 무제한으로 이용하실 수 있습니다."}
+              </p>
+              <button className="w-full py-4 bg-blue-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-blue-600/30 active:scale-[0.98] transition-all">
+                멤버십 구독하고 전체 감상하기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 하단 탭 바 */}
+      <div className="fixed bottom-0 w-full bg-[#05070a]/95 backdrop-blur-2xl border-t border-white/5 px-8 py-4 flex justify-between items-center z-[100] pb-8">
+        {[
+          { icon: Home, label: '홈', active: true },
+          { icon: Tv, label: '드라마' },
+          { icon: Film, label: '영화' },
+          { icon: Heart, label: '찜' },
+          { icon: User, label: '마이' }
+        ].map((item, idx) => (
+          <div key={idx} className={`flex flex-col items-center space-y-1.5 cursor-pointer transition-colors ${item.active ? 'text-blue-500' : 'text-gray-500 hover:text-gray-300'}`}>
+            <item.icon size={22} strokeWidth={item.active ? 2.5 : 2} />
+            <span className="text-[10px] font-bold">{item.label}</span>
+          </div>
+        ))}
+      </div>
+
+      <style>{`
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
+    </div>
+  );
+};
+
+export default App;
+
+
