@@ -42,16 +42,63 @@
             filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.4));
         }
 
-        /* Lina Card */
-        .card-plate {
-            aspect-ratio: 1.586 / 1;
-            position: relative;
+        /* [NEW] Dark Premium Card Banner Styles */
+        .card-premium-banner {
+            width: 360px;
+            height: 420px;
+            background: radial-gradient(circle at top left, #2b2b2b, #111);
             border-radius: 28px;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.03) 100%);
-            backdrop-filter: blur(20px);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            padding: 28px;
+            box-sizing: border-box;
+            position: relative;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+            transition: transform 0.3s ease;
+        }
+        .card-premium-banner:hover {
+            transform: translateY(-10px) rotate(1deg);
+        }
+
+        .card-premium-banner .title {
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 14px;
+            letter-spacing: -0.02em;
+        }
+
+        .card-premium-banner .subtitle {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            opacity: 0.9;
+        }
+
+        .card-premium-banner .desc {
+            font-size: 15px;
+            opacity: 0.7;
+        }
+
+        .card-premium-banner .logo {
+            position: absolute;
+            right: 36px;
+            bottom: 36px;
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(145deg, #ffb066, #ff7a2f);
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .card-premium-banner .logo span {
+            font-size: 72px;
+            font-weight: 900;
+            color: #fff;
+            transform: rotate(-8deg);
+            text-shadow: 0 6px 10px rgba(0,0,0,0.25);
         }
 
         @keyframes float {
@@ -60,7 +107,7 @@
         }
         .animate-float { animation: float 6s ease-in-out infinite; }
 
-        /* Highlight Button with Glow Animation */
+        /* Highlight Button */
         @keyframes border-glow {
             0%, 100% { border-color: rgba(168, 85, 247, 0.5); box-shadow: 0 0 15px rgba(168, 85, 247, 0.2); }
             50% { border-color: rgba(168, 85, 247, 1); box-shadow: 0 0 30px rgba(168, 85, 247, 0.6); }
@@ -74,18 +121,12 @@
         .btn-highlight::after {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
+            top: -50%; left: -50%; width: 200%; height: 200%;
             background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
             transform: rotate(45deg);
             animation: shine 3s infinite;
         }
-        @keyframes shine {
-            0% { left: -100%; }
-            100% { left: 100%; }
-        }
+        @keyframes shine { 0% { left: -100%; } 100% { left: 100%; } }
 
         .glass-panel {
             background: rgba(255, 255, 255, 0.02);
@@ -95,7 +136,7 @@
             transition: all 0.4s ease;
         }
 
-        /* Modal Base */
+        /* Modal */
         .modal-backdrop {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -108,11 +149,7 @@
             padding: 20px;
         }
         .modal-backdrop.active { display: flex; animation: fadeIn 0.3s ease; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
         .modal-content {
             width: 100%;
@@ -136,7 +173,6 @@
             background: #a855f7;
             border-radius: 50%;
             cursor: pointer;
-            box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
         }
 
         #miniPopup {
@@ -149,7 +185,7 @@
         }
         #miniPopup.show { transform: translateX(-50%) translateY(0); }
 
-        /* Custom Bitget Banner Styles */
+        /* Bitget Banner Styles */
         .bitget-banner {
             position: relative;
             width: 100%;
@@ -162,51 +198,12 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.4s ease;
         }
-        .bitget-banner:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(103, 232, 249, 0.2); }
-
-        .banner-title {
-            font-size: clamp(24px, 5vw, 42px);
-            font-weight: 800;
-            color: #111827;
-            line-height: 1.2;
-            z-index: 10;
-        }
-
-        .banner-badge {
-            display: inline-flex;
-            align-items: center;
-            align-self: flex-start;
-            margin-top: 20px;
-            padding: 8px 20px;
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 999px;
-            font-size: 14px;
-            font-weight: 800;
-            color: #111827;
-            z-index: 10;
-            letter-spacing: -0.02em;
-        }
-
-        .banner-logo-box {
-            position: absolute;
-            right: 40px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: clamp(80px, 15vw, 120px);
-            height: clamp(80px, 15vw, 120px);
-            background: #38bdf8;
-            border-radius: 28px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: clamp(36px, 8vw, 60px);
-            font-weight: 900;
-            color: #020617;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            z-index: 10;
-        }
+        .bitget-banner:hover { transform: translateY(-5px); }
+        .banner-title { font-size: clamp(24px, 5vw, 42px); font-weight: 800; color: #111827; line-height: 1.2; z-index: 10; }
+        .banner-badge { display: inline-flex; align-items: center; align-self: flex-start; margin-top: 20px; padding: 8px 20px; background: rgba(255, 255, 255, 0.8); border-radius: 999px; font-size: 14px; font-weight: 800; color: #111827; z-index: 10; }
+        .banner-logo-box { position: absolute; right: 40px; top: 50%; transform: translateY(-50%); width: 100px; height: 100px; background: #38bdf8; border-radius: 24px; display: flex; justify-content: center; align-items: center; font-size: 50px; font-weight: 900; color: #020617; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 10; }
     </style>
 </head>
 <body>
@@ -222,8 +219,7 @@
                 <span class="text-xl font-bold italic tracking-tighter text-white">리나<span class="text-purple-500">닷컴</span></span>
             </div>
             
-            <!-- 강조된 페이백 시작 버튼 -->
-            <button onclick="toggleModal('testerModal', true)" class="btn-highlight px-10 py-4 rounded-full bg-purple-600 text-[13px] font-black text-white uppercase tracking-[0.15em] hover:bg-purple-500 hover:scale-105 active:scale-95 transition-all duration-300 shadow-2xl">
+            <button onclick="toggleModal('testerModal', true)" class="btn-highlight px-10 py-4 rounded-full bg-purple-600 text-[13px] font-black text-white uppercase tracking-[0.15em] hover:bg-purple-500 transition-all duration-300 shadow-2xl">
                 페이백 시작
             </button>
         </div>
@@ -233,7 +229,6 @@
     <section id="home" class="min-h-screen flex items-center pt-24 px-8">
         <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center w-full">
             <div class="space-y-8">
-                <!-- 텍스트 수정: 거래소 공식 파트너 -->
                 <div class="inline-flex items-center px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/25 text-purple-400 text-[10px] font-bold tracking-[0.2em] uppercase">
                     거래소 공식 파트너
                 </div>
@@ -250,31 +245,21 @@
             </div>
             
             <div class="flex justify-center items-center">
-                <div class="card-plate w-full max-w-md p-10 animate-float">
-                    <div class="relative z-10 h-full flex flex-col justify-between">
-                        <div class="flex justify-between items-start">
-                            <div class="flex items-center space-x-3">
-                                <i class="fas fa-infinity text-purple-500 text-2xl"></i>
-                                <span class="font-bold tracking-tighter italic text-white text-xl">Lina Card</span>
-                            </div>
-                            <p class="text-[9px] text-purple-300 font-bold uppercase tracking-[0.3em]">Virtual Elite</p>
-                        </div>
-                        <div class="mt-12">
-                            <p class="text-2xl font-['JetBrains_Mono'] tracking-[0.15em] text-white/90 mb-6">
-                                USDT PAYBACK <span class="text-purple-400">54%</span>
-                            </p>
-                            <div class="flex justify-between items-end border-t border-white/10 pt-4">
-                                <p class="text-xs font-bold tracking-widest text-white uppercase">OFFICIAL PARTNER</p>
-                                <p class="text-xs font-bold text-white tracking-widest italic">LINADOTCOM</p>
-                            </div>
-                        </div>
+                <!-- [RESTORED] Dark Premium Banner Card placed here -->
+                <div class="card-premium-banner animate-float">
+                    <div class="title">리나닷컴 필수 페이백</div>
+                    <div class="subtitle">놓치면 손해!</div>
+                    <div class="desc">매수와 매도 수수료 돌려받기</div>
+
+                    <div class="logo">
+                        <span>b</span>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- [Banner Section] -->
+    <!-- [Banner Section] Still Kept Here -->
     <section class="py-12 px-8">
         <div class="max-w-7xl mx-auto">
             <div class="bitget-banner shadow-2xl">
@@ -294,18 +279,9 @@
     <section id="featured" class="py-20 px-8">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-16 space-y-4">
-                <div class="inline-block">
-                    <h2 class="text-4xl md:text-5xl font-bold text-white text-neon">제휴 거래소</h2>
-                    <div class="h-1 w-1/2 bg-purple-500/30 mx-auto mt-2 rounded-full"></div>
-                </div>
+                <h2 class="text-4xl md:text-5xl font-bold text-white text-neon">제휴 거래소</h2>
+                <div class="h-1 w-24 bg-purple-500/30 mx-auto mt-2 rounded-full"></div>
                 <p class="text-xs text-purple-200/30 uppercase tracking-[0.4em] font-bold">Official Certified Partners</p>
-                
-                <div class="flex justify-center gap-2 pt-6">
-                    <div class="flex gap-2 bg-white/5 p-1.5 rounded-2xl border border-white/5 backdrop-blur-md">
-                        <button onclick="sortData('default')" id="btn-default" class="px-6 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all bg-purple-600 text-white shadow-lg shadow-purple-500/20">기본순</button>
-                        <button onclick="sortData('payback')" id="btn-payback" class="px-6 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all text-white/40 hover:text-white">높은순</button>
-                    </div>
-                </div>
             </div>
 
             <div id="exchangeContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -320,7 +296,7 @@
         <p class="mt-4 text-[9px] text-white/10 uppercase tracking-[0.5em]">Premium Payback Solution © 2025</p>
     </footer>
 
-    <!-- [MODAL] 실시간 현황 -->
+    <!-- Modals -->
     <div id="statusModal" class="modal-backdrop" onclick="toggleModal('statusModal', false)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="px-8 py-6 border-b border-white/10 flex justify-between items-center">
@@ -331,7 +307,6 @@
         </div>
     </div>
 
-    <!-- [MODAL] 페이백 테스터 -->
     <div id="testerModal" class="modal-backdrop" onclick="toggleModal('testerModal', false)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="px-8 py-6 border-b border-white/10 flex justify-between items-center">
@@ -341,7 +316,7 @@
             <div class="p-8 space-y-8">
                 <div class="space-y-3">
                     <label class="text-[10px] font-bold text-purple-400 uppercase tracking-widest">거래소 선택</label>
-                    <select id="calc-ex" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm outline-none focus:border-purple-500/50" onchange="calc()">
+                    <select id="calc-ex" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm outline-none" onchange="calc()">
                         <option value="54">Bitget (54%)</option>
                         <option value="30">Binance (30%)</option>
                         <option value="25">Bybit (25%)</option>
@@ -363,84 +338,73 @@
                     </div>
                     <input type="range" id="in-lev" min="1" max="125" step="1" value="20" oninput="calc()">
                 </div>
-                <div class="pt-6 border-t border-white/5">
-                    <div class="bg-purple-600/10 p-6 rounded-2xl border border-purple-500/20 text-center">
-                        <p class="text-[10px] text-purple-300 font-bold uppercase tracking-widest mb-1">나의 예상 월 환급액</p>
-                        <p class="text-3xl font-['JetBrains_Mono'] font-bold text-white"><span id="res-monthly">0.00</span> <span class="text-xs text-purple-400">USDT</span></p>
-                    </div>
+                <div class="pt-6 border-t border-white/5 text-center">
+                    <p class="text-[10px] text-purple-300 font-bold uppercase tracking-widest mb-1">나의 예상 월 환급액</p>
+                    <p class="text-3xl font-['JetBrains_Mono'] font-bold text-white"><span id="res-monthly">0.00</span> <span class="text-xs text-purple-400">USDT</span></p>
                 </div>
-            </div>
-            <div class="p-4 bg-black/20 text-center">
-                <button class="w-full py-4 bg-purple-600 hover:bg-purple-500 rounded-xl text-xs font-bold text-white uppercase tracking-widest transition-all">지금 환급 신청하기</button>
             </div>
         </div>
     </div>
 
-    <!-- [POPUP] Floating Mini Popup -->
     <div id="miniPopup">
         <div class="p-4 bg-[#16112a]/95 border border-purple-500/30 rounded-3xl flex justify-between items-center shadow-2xl backdrop-blur-xl">
              <div class="flex items-center space-x-3">
-                 <div class="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center animate-pulse">
-                     <i class="fas fa-coins text-white text-[10px]"></i>
-                 </div>
+                 <div class="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center animate-pulse"><i class="fas fa-coins text-white text-[10px]"></i></div>
                  <div class="flex flex-col">
                      <span class="text-[10px] text-purple-400 font-bold uppercase leading-none mb-1">Check My Payback</span>
-                     <span class="text-xs font-bold text-white leading-none">나의 월 예상 환급액은?</span>
+                     <span class="text-xs font-bold text-white leading-none">월 예상 환급액 확인</span>
                  </div>
              </div>
-             <button onclick="toggleModal('testerModal', true)" class="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 rounded-2xl text-[10px] font-extrabold text-white transition-all active:scale-95 shadow-lg shadow-purple-500/20">시작하기</button>
+             <button onclick="toggleModal('testerModal', true)" class="px-5 py-2.5 bg-purple-600 rounded-2xl text-[10px] font-extrabold text-white">시작</button>
         </div>
     </div>
 
     <script>
         const exchanges = [
-            { name: '바이낸스', code: 'BINANCE', payback: 30, color: 'from-[#f3ba2f]/20', logo: 'https://upload.wikimedia.org/wikipedia/commons/e/e8/Binance_Logo.svg', desc: '글로벌 유동성 1위 거래소의 특별 페이백' },
-            { name: '바이비트', code: 'BYBIT', payback: 25, color: 'from-zinc-100/10', logo: 'https://cdn.iconscout.com/icon/free/png-256/free-bybit-logo-icon-download-in-svg-png-gif-formats--blockchain-crypto-brand-logos-pack-icons-4680415.png', desc: '트레이더 중심의 쾌적한 환경 및 리워드' },
-            { name: '비트겟', code: 'BITGET', payback: 81, color: 'from-[#00f0ff]/20', logo: 'https://cdn.worldvectorlogo.com/logos/bitget-logo.svg', desc: '리나닷컴 독점 역대 최고 81% 페이백 이벤트' },
-            { name: 'OKX', code: 'OKX', payback: 30, color: 'from-white/5', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/OKX_logo.svg/2560px-OKX_logo.svg.png', desc: '강력한 보안과 전문적인 거래 도구 지원' },
-            { name: '딥코인', code: 'DEEPCOIN', payback: 50, color: 'from-[#0052ff]/20', logo: 'https://s2.coinmarketcap.com/static/img/exchanges/64x64/1109.png', desc: '신규 가입자 대상 공격적인 환급 정책' }
+            { name: '바이낸스', code: 'BINANCE', payback: 30, color: 'from-[#f3ba2f]/20', logo: 'https://upload.wikimedia.org/wikipedia/commons/e/e8/Binance_Logo.svg' },
+            { name: '바이비트', code: 'BYBIT', payback: 25, color: 'from-zinc-100/10', logo: 'https://cdn.iconscout.com/icon/free/png-256/free-bybit-logo-icon-download-in-svg-png-gif-formats--blockchain-crypto-brand-logos-pack-icons-4680415.png' },
+            { name: '비트겟', code: 'BITGET', payback: 81, color: 'from-[#00f0ff]/20', logo: 'https://cdn.worldvectorlogo.com/logos/bitget-logo.svg' },
+            { name: 'OKX', code: 'OKX', payback: 30, color: 'from-white/5', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/OKX_logo.svg/2560px-OKX_logo.svg.png' },
+            { name: '딥코인', code: 'DEEPCOIN', payback: 50, color: 'from-[#0052ff]/20', logo: 'https://s2.coinmarketcap.com/static/img/exchanges/64x64/1109.png' }
         ];
-
-        let currentData = [...exchanges];
 
         function renderCards() {
             const container = document.getElementById('exchangeContainer');
             container.innerHTML = '';
-            currentData.forEach(ex => {
+            exchanges.forEach(ex => {
                 container.innerHTML += `
-                    <div class="glass-panel p-8 group hover:border-purple-500/40 hover:-translate-y-2 transition-all duration-300">
-                        <div class="aspect-[1.586/1] rounded-2xl bg-gradient-to-br ${ex.color} to-black/60 border border-white/10 mb-6 p-6 flex flex-col justify-between relative overflow-hidden">
-                            <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 blur-3xl -mr-16 -mt-16 rounded-full group-hover:bg-purple-500/10 transition-all duration-700"></div>
-                            <div class="flex justify-between items-start relative z-10">
-                                <div class="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center p-2 backdrop-blur-sm shadow-inner border border-white/5"><img src="${ex.logo}" class="object-contain w-full h-full"></div>
+                    <div class="glass-panel p-8 group hover:border-purple-500/40 hover:-translate-y-2 transition-all">
+                        <div class="aspect-[1.586/1] rounded-2xl bg-gradient-to-br ${ex.color} to-black/60 border border-white/10 mb-6 p-6 flex flex-col justify-between overflow-hidden">
+                            <div class="flex justify-between items-start">
+                                <div class="w-10 h-10 bg-white/10 rounded-lg p-2"><img src="${ex.logo}" class="object-contain w-full h-full"></div>
                                 <span class="text-[9px] text-white/30 font-bold uppercase tracking-widest">${ex.code}</span>
                             </div>
-                            <div class="relative z-10">
-                                <p class="text-[10px] text-purple-400 font-bold uppercase tracking-widest mb-1">Official Payback</p>
-                                <p class="text-3xl font-['JetBrains_Mono'] font-bold text-white leading-none">${ex.payback}% <span class="text-[10px] text-purple-400">P.B</span></p>
+                            <div>
+                                <p class="text-[10px] text-purple-400 font-bold uppercase mb-1">Official Payback</p>
+                                <p class="text-3xl font-bold text-white">${ex.payback}%</p>
                             </div>
                         </div>
                         <h3 class="text-xl font-bold text-white mb-2">${ex.name}</h3>
-                        <p class="text-xs text-white/30 font-light mb-8 leading-relaxed h-10 overflow-hidden">${ex.desc}</p>
-                        <button onclick="toggleModal('testerModal', true)" class="w-full py-4 bg-white/5 hover:bg-purple-600 border border-white/5 rounded-2xl text-[10px] font-bold text-white transition-all uppercase tracking-widest active:scale-95 group-hover:border-purple-500/50 group-hover:shadow-lg group-hover:shadow-purple-500/20">연결하기</button>
+                        <button onclick="toggleModal('testerModal', true)" class="w-full py-4 bg-white/5 hover:bg-purple-600 rounded-2xl text-[10px] font-bold text-white transition-all">연결하기</button>
                     </div>
                 `;
             });
         }
 
-        function sortData(type) {
-            const btnDef = document.getElementById('btn-default');
-            const btnPay = document.getElementById('btn-payback');
-            if (type === 'default') {
-                currentData = [...exchanges];
-                btnDef.className = "px-6 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all bg-purple-600 text-white shadow-lg shadow-purple-500/20";
-                btnPay.className = "px-6 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all text-white/40 hover:text-white";
-            } else {
-                currentData = [...exchanges].sort((a, b) => b.payback - a.payback);
-                btnPay.className = "px-6 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all bg-purple-600 text-white shadow-lg shadow-purple-500/20";
-                btnDef.className = "px-6 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all text-white/40 hover:text-white";
+        function generateStatus() {
+            const list = document.getElementById('statusList');
+            const names = ['바이낸스', '바이비트', '비트겟', 'OKX'];
+            list.innerHTML = '';
+            for(let i=0; i<8; i++) {
+                list.innerHTML += `
+                    <div class="flex justify-between items-center p-5 border-b border-white/5 hover:bg-white/5 transition">
+                        <div>
+                            <p class="text-xs font-bold text-white">${Math.floor(Math.random()*900+100)}*** (${names[Math.floor(Math.random()*4)]})</p>
+                            <p class="text-[9px] text-purple-400 font-bold uppercase">자동 환급 완료</p>
+                        </div>
+                        <p class="text-xs font-bold text-white">${(Math.random()*500+20).toFixed(2)} USDT</p>
+                    </div>`;
             }
-            renderCards();
         }
 
         function calc() {
@@ -449,57 +413,25 @@
             const rate = parseInt(document.getElementById('calc-ex').value) / 100;
             document.getElementById('val-seed').innerText = seed.toLocaleString();
             document.getElementById('val-lev').innerText = lev + 'x';
-
-            const fee = 0.0004; 
-            const tradesPerDay = 5;
-            const monthlyPayback = (seed * lev * 2 * tradesPerDay * 30) * fee * rate;
-            document.getElementById('res-monthly').innerText = monthlyPayback.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-        }
-
-        function generateStatus() {
-            const list = document.getElementById('statusList');
-            const names = ['바이낸스', '바이비트', '비트겟', 'OKX', '딥코인'];
-            list.innerHTML = '';
-            for(let i=0; i<10; i++) {
-                const exchangeName = names[Math.floor(Math.random()*5)];
-                list.innerHTML += `
-                    <div class="flex justify-between items-center p-5 border-b border-white/5 hover:bg-white/5 transition group">
-                        <div class="flex items-center space-x-4">
-                            <div class="w-2 h-8 bg-purple-600/30 rounded-full group-hover:bg-purple-600 transition"></div>
-                            <div>
-                                <div class="flex items-center space-x-2">
-                                    <p class="text-xs font-bold text-white group-hover:text-purple-400 transition">${Math.floor(Math.random()*900+100)}***</p>
-                                    <span class="text-[8px] bg-white/10 px-1.5 py-0.5 rounded text-white/50 font-bold uppercase tracking-tighter">${exchangeName}</span>
-                                </div>
-                                <p class="text-[9px] text-purple-400/60 font-bold uppercase tracking-tighter mt-1">자동 환급 완료</p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-xs font-['JetBrains_Mono'] font-bold text-white">${(Math.random()*500+20).toFixed(2)} USDT</p>
-                            <span class="text-[8px] px-2 py-0.5 rounded bg-green-500/10 text-green-400 font-bold uppercase">출금완료</span>
-                        </div>
-                    </div>`;
-            }
+            const monthlyPayback = (seed * lev * 2 * 5 * 30) * 0.0004 * rate;
+            document.getElementById('res-monthly').innerText = monthlyPayback.toLocaleString(undefined, {minimumFractionDigits: 2});
         }
 
         function toggleModal(id, show) {
             const m = document.getElementById(id);
-            if(show) {
+            if(show) { 
                 if(id === 'statusModal') generateStatus();
-                if(id === 'testerModal') calc();
-                m.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            } else {
-                m.classList.remove('active');
-                document.body.style.overflow = 'auto';
+                m.classList.add('active'); 
+                document.body.style.overflow = 'hidden'; 
             }
+            else { m.classList.remove('active'); document.body.style.overflow = 'auto'; }
         }
 
         window.addEventListener('scroll', () => {
             const nav = document.getElementById('navbar');
             const pop = document.getElementById('miniPopup');
-            if(window.scrollY > 50) nav.classList.add('bg-[#0f0a1e]/90', 'backdrop-blur-xl', 'py-4', 'border-b', 'border-white/5');
-            else nav.classList.remove('bg-[#0f0a1e]/90', 'backdrop-blur-xl', 'py-4', 'border-b', 'border-white/5');
+            if(window.scrollY > 50) nav.classList.add('bg-[#0f0a1e]/90', 'backdrop-blur-xl', 'py-4');
+            else nav.classList.remove('bg-[#0f0a1e]/90', 'backdrop-blur-xl', 'py-4');
             if(window.scrollY > 400) pop.classList.add('show');
             else pop.classList.remove('show');
         });
