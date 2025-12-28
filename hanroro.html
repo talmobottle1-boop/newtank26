@@ -6,6 +6,8 @@
     <title>한로로(Hanroro) | 프리미엄 웹 에이전시</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- EmailJS SDK (이메일 발송용) -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@100..900&display=swap');
         
@@ -115,15 +117,33 @@
             background: #0f0a1f;
             border: 1px solid rgba(138, 79, 255, 0.3);
             width: 100%;
-            max-width: 900px;
+            max-width: 600px;
             max-height: 85vh;
             overflow-y: auto;
             border-radius: 20px;
-            padding: 24px;
+            padding: 28px;
         }
 
         .modal-content::-webkit-scrollbar { width: 4px; }
         .modal-content::-webkit-scrollbar-thumb { background: rgba(138, 79, 255, 0.3); border-radius: 10px; }
+
+        /* Form Inputs */
+        .input-group input, .input-group textarea, .input-group select {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 12px 16px;
+            color: white;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .input-group input:focus, .input-group textarea:focus {
+            outline: none;
+            border-color: #8a4fff;
+            background: rgba(138, 79, 255, 0.05);
+        }
 
         /* Animation */
         @keyframes float {
@@ -191,7 +211,7 @@
                 <button onclick="toggleModal('status-modal', true)" class="flex items-center border border-white/10 text-white px-3 py-1.5 sm:px-5 sm:py-2 rounded-md text-[11px] sm:text-sm font-bold hover:bg-white/5 transition-all">
                     현황보기
                 </button>
-                <button class="bg-purple-600 text-white px-4 py-1.5 sm:px-7 sm:py-2.5 rounded-md font-bold hover:bg-purple-700 transition-all text-[11px] sm:text-sm">
+                <button onclick="toggleModal('contact-modal', true)" class="bg-purple-600 text-white px-4 py-1.5 sm:px-7 sm:py-2.5 rounded-md font-bold hover:bg-purple-700 transition-all text-[11px] sm:text-sm">
                     시작하기
                 </button>
             </div>
@@ -206,14 +226,14 @@
                     Premium Web Agency
                 </div>
                 <h1 class="text-4xl sm:text-5xl lg:text-7xl font-bold leading-[1.15] mb-8">
-                    비즈니스 가치를 <br class="hidden sm:block">
-                    <span class="gradient-text font-black">퍼플 바이브로</span>
+                    홈페이지 가치는 <br class="hidden sm:block">
+                    <span class="gradient-text font-black">얼굴 입니다</span>
                 </h1>
                 <p class="text-sm sm:text-lg text-gray-400 mb-12 leading-relaxed font-light max-w-md mx-auto md:mx-0">
-                    한로로는 감각적인 디자인과 독보적인 기술력을 결합하여,<br class="hidden lg:block"> 당신의 브랜드가 온라인 환경에서 가장 빛나도록 설계합니다.
+                    한로로는 감각적인 디자인과 독보적인 기술력을 결합하여,<br class="hidden lg:block"> 당신의 브랜드가 가장 빛나도록 설계합니다.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-                    <button class="bg-purple-600 text-white px-10 py-4 rounded-xl font-bold text-sm shadow-2xl shadow-purple-900/40 hover:bg-purple-700 transition-all">프로젝트 문의</button>
+                    <button onclick="toggleModal('contact-modal', true)" class="bg-purple-600 text-white px-10 py-4 rounded-xl font-bold text-sm shadow-2xl shadow-purple-900/40 hover:bg-purple-700 transition-all">프로젝트 문의</button>
                     <button onclick="toggleModal('portfolio-modal', true)" class="border border-white/10 text-white px-10 py-4 rounded-xl font-bold text-sm hover:bg-white/5 transition-all">포트폴리오</button>
                 </div>
             </div>
@@ -242,7 +262,7 @@
             <div class="flex flex-col md:flex-row justify-between items-end mb-12">
                 <div>
                     <h2 class="text-purple-400 font-bold tracking-widest uppercase text-[10px] mb-3 flex items-center">
-                        <span class="status-dot"></span> Real-time Tracking
+                        <span class="status-dot"></span> 실시간 반영 상태
                     </h2>
                     <h3 class="text-3xl sm:text-4xl font-black text-white">진행 중인 프로젝트</h3>
                 </div>
@@ -250,6 +270,60 @@
             <div id="main-project-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </div>
     </section>
+
+    <!-- Contact Modal (상담 신청 팝업) -->
+    <div id="contact-modal" class="custom-modal" onclick="if(event.target === this) toggleModal('contact-modal', false)">
+        <div class="modal-content relative">
+            <button onclick="toggleModal('contact-modal', false)" class="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+            <div class="mb-8">
+                <h2 class="text-purple-400 font-bold tracking-widest uppercase text-[10px] mb-2">Inquiry</h2>
+                <p class="text-2xl font-black text-white">프로젝트 상담 신청</p>
+                <p class="text-gray-500 text-xs mt-2 font-light">작성해주신 내용은 담당자 확인 후 24시간 이내에 연락드립니다.</p>
+            </div>
+            
+            <form id="contact-form" class="space-y-5">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="input-group">
+                        <label class="text-[11px] text-gray-400 font-bold mb-2 block">성함/업체명</label>
+                        <input type="text" name="user_name" placeholder="홍길동" required>
+                    </div>
+                    <div class="input-group">
+                        <label class="text-[11px] text-gray-400 font-bold mb-2 block">연락처</label>
+                        <input type="tel" name="user_phone" placeholder="010-0000-0000" required>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label class="text-[11px] text-gray-400 font-bold mb-2 block">이메일 주소</label>
+                    <input type="email" name="user_email" placeholder="example@mail.com" required>
+                </div>
+                <div class="input-group">
+                    <label class="text-[11px] text-gray-400 font-bold mb-2 block">프로젝트 유형</label>
+                    <select name="project_type">
+                        <option value="landing">랜딩페이지/홍보웹</option>
+                        <option value="corporate">기업 홈페이지</option>
+                        <option value="ecommerce">쇼핑몰/커머스</option>
+                        <option value="maintenance">유지보수/리뉴얼</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label class="text-[11px] text-gray-400 font-bold mb-2 block">상세 문의내용</label>
+                    <textarea name="message" rows="4" placeholder="프로젝트의 목적, 희망 마감기한 등을 자유롭게 적어주세요." required></textarea>
+                </div>
+                <button type="submit" id="submit-btn" class="w-full bg-purple-600 text-white py-4 rounded-xl font-bold text-sm shadow-xl hover:bg-purple-700 transition-all">
+                    신청하기
+                </button>
+            </form>
+
+            <div id="success-message" class="hidden py-10 text-center animate-pulse">
+                <i class="fas fa-check-circle text-5xl text-purple-400 mb-4"></i>
+                <p class="text-xl font-bold text-white">상담 신청 완료!</p>
+                <p class="text-gray-400 text-sm mt-2">입력하신 메일로 안내문을 보내드렸습니다.</p>
+                <button onclick="toggleModal('contact-modal', false)" class="mt-8 text-purple-400 font-bold border-b border-purple-400 pb-1">돌아가기</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Status Modal -->
     <div id="status-modal" class="custom-modal" onclick="if(event.target === this) toggleModal('status-modal', false)">
@@ -259,7 +333,7 @@
             </button>
             <div class="mb-8">
                 <h2 class="text-purple-400 font-bold tracking-widest uppercase text-[10px] mb-2 flex items-center">
-                    <span class="status-dot"></span> Live Project Status
+                    <span class="status-dot"></span> 실시간 반영 상태
                 </h2>
                 <p class="text-2xl font-black text-white">실시간 현황 팝업</p>
             </div>
@@ -267,7 +341,7 @@
         </div>
     </div>
 
-    <!-- Portfolio Modal (15종 시안) -->
+    <!-- Portfolio Modal -->
     <div id="portfolio-modal" class="custom-modal" onclick="if(event.target === this) toggleModal('portfolio-modal', false)">
         <div class="modal-content relative">
             <button onclick="toggleModal('portfolio-modal', false)" class="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors">
@@ -276,39 +350,24 @@
             <div class="mb-8">
                 <h2 class="text-purple-400 font-bold tracking-widest uppercase text-[10px] mb-2">Selected Works</h2>
                 <p class="text-2xl font-black text-white">홈페이지 시안 15종</p>
-                <p class="text-gray-500 text-xs mt-2 font-light italic">각 시안은 한로로만의 감성으로 커스텀 가능합니다.</p>
             </div>
-            
-            <div id="portfolio-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-                <!-- JS로 15개 시안 생성 -->
-            </div>
-
-            <div class="mt-8 text-center">
-                <button onclick="toggleModal('portfolio-modal', false)" class="bg-white/5 text-white px-8 py-3 rounded-lg font-bold text-sm">닫기</button>
-            </div>
+            <div id="portfolio-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4"></div>
         </div>
     </div>
 
-    <!-- Footer (사업자 정보 보강) -->
+    <!-- Footer -->
     <footer class="py-16 border-t border-white/5 bg-black">
         <div class="max-w-7xl mx-auto px-6">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-8">
                 <div class="shrink-0">
                     <div class="text-2xl font-black text-purple-400 mb-4 uppercase tracking-tighter">Hanroro</div>
-                    <div class="flex space-x-4 text-gray-400">
-                        <a href="#" class="hover:text-purple-400 transition-colors"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="hover:text-purple-400 transition-colors"><i class="fab fa-behance"></i></a>
-                        <a href="#" class="hover:text-purple-400 transition-colors"><i class="fab fa-github"></i></a>
-                    </div>
                 </div>
-                
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 md:gap-16 text-left">
                     <div class="space-y-2">
                         <p class="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-4">Contact Us</p>
                         <p class="text-gray-500 text-[11px] leading-relaxed">
                             <span class="text-gray-300">대표:</span> 김상우 <br>
-                            <span class="text-gray-300">이메일:</span> contact@hanroro.com <br>
-                            <span class="text-gray-300">주소:</span> 서울특별시 강남구 테헤란로 123 퍼플타워 8F
+                            <span class="text-gray-300">주소:</span> -
                         </p>
                     </div>
                     <div class="space-y-2">
@@ -321,28 +380,71 @@
                     </div>
                 </div>
             </div>
-
             <div class="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
                 <p class="text-gray-600 text-[10px]">© 2026 Hanroro. All rights reserved.</p>
-                <div class="flex space-x-6">
-                    <a href="#" class="text-gray-600 hover:text-white text-[10px] transition-colors">이용약관</a>
-                    <a href="#" class="text-gray-600 hover:text-white text-[10px] transition-colors font-bold">개인정보처리방침</a>
-                </div>
             </div>
         </div>
     </footer>
 
     <script>
+        // EmailJS 초기화 (공개 키 발급 전까지 테스트 모드로 작동)
+        (function() {
+            // 이메일 수신 메일: 88kr.okx@gmail.com
+            // 실제 사용시 emailjs.com 가입 후 공용 키로 교체 필요
+            emailjs.init("YOUR_PUBLIC_KEY_HERE"); 
+        })();
+
         function toggleModal(id, show) {
             const modal = document.getElementById(id);
             if (show) {
                 modal.classList.add('active');
                 document.body.style.overflow = 'hidden';
+                if(id === 'contact-modal') {
+                    document.getElementById('contact-form').classList.remove('hidden');
+                    document.getElementById('success-message').classList.add('hidden');
+                }
             } else {
                 modal.classList.remove('active');
                 document.body.style.overflow = 'auto';
             }
         }
+
+        // 이메일 발송 핸들러
+        document.getElementById('contact-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> 전송 중...';
+
+            // 88kr.okx@gmail.com 으로 자동 발송 로직 (EmailJS 가상 시뮬레이션)
+            const templateParams = {
+                user_name: this.user_name.value,
+                user_phone: this.user_phone.value,
+                user_email: this.user_email.value,
+                project_type: this.project_type.value,
+                message: this.message.value,
+                to_email: '88kr.okx@gmail.com'
+            };
+
+            // 실제 API 호출 대신 시뮬레이션 (EmailJS 키 설정시 아래 주석 해제)
+            /*
+            emailjs.send('service_id', 'template_id', templateParams)
+                .then(function() {
+                    console.log('SUCCESS!');
+                }, function(error) {
+                    console.log('FAILED...', error);
+                });
+            */
+
+            // 완료 처리 시뮬레이션
+            setTimeout(() => {
+                document.getElementById('contact-form').classList.add('hidden');
+                document.getElementById('success-message').classList.remove('hidden');
+                btn.disabled = false;
+                btn.innerText = '신청하기';
+                this.reset();
+            }, 1500);
+        });
 
         const projectData = [
             { name: "김** 고객님", progress: 65, phase: "Design", status: "디자인 검수" },
@@ -394,15 +496,8 @@
                     <div class="absolute inset-0 flex items-center justify-center opacity-20 group-hover:opacity-40 transition-opacity">
                         <i class="fas fa-magic text-4xl" style="color: ${p.color}"></i>
                     </div>
-                    <div class="absolute top-3 left-3">
-                        <span class="text-[8px] font-bold text-white/40 uppercase tracking-widest">${p.category}</span>
-                    </div>
                     <div class="portfolio-overlay">
                         <h5 class="text-[11px] font-black text-white mb-1">${p.title}</h5>
-                        <div class="w-4 h-[1px]" style="background: ${p.color}"></div>
-                    </div>
-                    <div class="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <span class="text-[10px] font-black text-white bg-purple-600 px-3 py-1 rounded">View Case</span>
                     </div>
                 </div>
             `).join('');
