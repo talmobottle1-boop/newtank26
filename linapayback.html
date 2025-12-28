@@ -22,6 +22,7 @@
             color: var(--text-main);
             scroll-behavior: smooth;
             overflow-x: hidden;
+            padding-top: 140px; 
         }
 
         /* Mesh Background */
@@ -42,6 +43,29 @@
             filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.4));
         }
 
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 200;
+        }
+
+        #top-exchange-popup {
+            background: rgba(168, 85, 247, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.4s ease;
+        }
+
+        #navbar {
+            background: rgba(15, 10, 30, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 1rem 2rem;
+        }
+
+        /* Hero Banner Card */
         .card-premium-banner {
             width: 360px;
             height: 420px;
@@ -59,25 +83,9 @@
             transform: translateY(-10px) rotate(1deg);
         }
 
-        .card-premium-banner .title {
-            font-size: 26px;
-            font-weight: 800;
-            margin-bottom: 14px;
-            letter-spacing: -0.02em;
-        }
-
-        .card-premium-banner .subtitle {
-            font-size: 17px;
-            font-weight: 600;
-            margin-bottom: 6px;
-            opacity: 0.9;
-        }
-
-        .card-premium-banner .desc {
-            font-size: 15px;
-            opacity: 0.7;
-        }
-
+        .card-premium-banner .title { font-size: 26px; font-weight: 800; margin-bottom: 14px; letter-spacing: -0.02em; }
+        .card-premium-banner .subtitle { font-size: 17px; font-weight: 600; margin-bottom: 6px; opacity: 0.9; }
+        .card-premium-banner .desc { font-size: 15px; opacity: 0.7; }
         .card-premium-banner .logo {
             position: absolute;
             right: 36px;
@@ -91,7 +99,6 @@
             justify-content: center;
             box-shadow: 0 20px 40px rgba(0,0,0,0.4);
         }
-
         .card-premium-banner .logo span {
             font-size: 72px;
             font-weight: 900;
@@ -106,7 +113,6 @@
         }
         .animate-float { animation: float 6s ease-in-out infinite; }
 
-        /* Highlight Button */
         @keyframes border-glow {
             0%, 100% { border-color: rgba(168, 85, 247, 0.5); box-shadow: 0 0 15px rgba(168, 85, 247, 0.2); }
             50% { border-color: rgba(168, 85, 247, 1); box-shadow: 0 0 30px rgba(168, 85, 247, 0.6); }
@@ -126,7 +132,6 @@
             transition: all 0.4s ease;
         }
 
-        /* Sort Buttons Style */
         .filter-btn {
             padding: 10px 24px;
             border-radius: 999px;
@@ -144,7 +149,6 @@
             box-shadow: 0 8px 20px rgba(168, 85, 247, 0.3);
         }
 
-        /* Modal */
         .modal-backdrop {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -192,19 +196,18 @@
         }
         #miniPopup.show { transform: translateX(-50%) translateY(0); }
 
-        /* [ADJUSTED] Bitget Skyblue Banner Styles */
         .bitget-banner-container {
-            max-width: 900px; /* 양쪽 폭 제한 */
+            max-width: 900px;
             margin: 0 auto;
             padding: 0 20px;
         }
         .bitget-banner {
             position: relative;
             width: 100%;
-            min-height: 160px; /* 높이 축소 */
+            min-height: 160px;
             background: #67e8f9;
             border-radius: 32px;
-            padding: 30px 40px; /* 내부 여백 조정 */
+            padding: 30px 40px;
             box-sizing: border-box;
             overflow: hidden;
             display: flex;
@@ -215,7 +218,7 @@
         }
         .bitget-banner:hover { transform: translateY(-5px); }
         .banner-title { 
-            font-size: clamp(20px, 4vw, 32px); /* 폰트 사이즈 소폭 축소 */
+            font-size: clamp(20px, 4vw, 32px);
             font-weight: 800; 
             color: #111827; 
             line-height: 1.25; 
@@ -239,7 +242,7 @@
             right: 30px; 
             top: 50%; 
             transform: translateY(-50%); 
-            width: 80px; /* 로고 사이즈 소폭 축소 */
+            width: 80px;
             height: 80px; 
             background: #38bdf8; 
             border-radius: 20px; 
@@ -257,30 +260,53 @@
             .banner-logo-box { display: none; }
             .bitget-banner { padding: 30px 20px; text-align: center; align-items: center; }
             .banner-badge { align-self: center; }
+            body { padding-top: 180px; }
         }
     </style>
 </head>
 <body>
     <div class="bg-mesh"></div>
 
-    <!-- Navigation -->
-    <nav class="fixed top-0 w-full z-[100] py-6 px-8 transition-all duration-300" id="navbar">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-3 group cursor-pointer" onclick="window.scrollTo({top:0, behavior:'smooth'})">
-                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-800 flex items-center justify-center shadow-xl group-hover:rotate-12 transition">
-                    <i class="fas fa-infinity text-white text-lg"></i>
+    <header>
+        <!-- Top Sticky Popup Banner -->
+        <div id="top-exchange-popup" class="py-3 px-4 shadow-xl">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-center gap-4 relative">
+                <div class="flex items-center space-x-3">
+                    <span class="bg-white text-purple-600 font-black px-2 py-0.5 rounded text-[10px] animate-bounce">지금알림</span>
+                    <p class="text-white font-bold text-sm md:text-base">너! 지금 <span class="text-yellow-300">바이낸스</span> 페이백 원해?</p>
                 </div>
-                <span class="text-xl font-bold italic tracking-tighter text-white">리나<span class="text-purple-500">닷컴</span></span>
+                <div class="flex items-center space-x-3 w-full md:w-auto">
+                    <!-- Updated: Removed English name and border -->
+                    <div class="flex items-center bg-white/10 rounded-lg px-4 py-2 text-white">
+                        <i class="fab fa-bitcoin text-yellow-400 mr-2 text-sm"></i>
+                        <span class="text-sm font-bold tracking-tight">바이낸스</span>
+                    </div>
+                    <button onclick="toggleModal('testerModal', true)" class="whitespace-nowrap bg-white text-purple-700 font-black px-5 py-2 rounded-lg text-xs hover:bg-gray-100 transition shadow-lg">지금 연결</button>
+                </div>
+                <!-- Close Button -->
+                <button onclick="closeTopPopup()" class="absolute right-0 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition px-1"><i class="fas fa-times"></i></button>
             </div>
-            
-            <button onclick="toggleModal('testerModal', true)" class="btn-highlight px-10 py-4 rounded-full bg-purple-600 text-[13px] font-black text-white uppercase tracking-[0.15em] hover:bg-purple-500 transition-all duration-300 shadow-2xl">
-                페이백 시작
-            </button>
         </div>
-    </nav>
+
+        <!-- Navigation -->
+        <nav id="navbar" class="w-full transition-all duration-300">
+            <div class="max-w-7xl mx-auto flex justify-between items-center">
+                <div class="flex items-center space-x-3 group cursor-pointer" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-800 flex items-center justify-center shadow-xl group-hover:rotate-12 transition">
+                        <i class="fas fa-infinity text-white text-lg"></i>
+                    </div>
+                    <span class="text-xl font-bold italic tracking-tighter text-white">리나<span class="text-purple-500">닷컴</span></span>
+                </div>
+                
+                <button onclick="toggleModal('testerModal', true)" class="btn-highlight px-8 py-3 rounded-full bg-purple-600 text-[12px] font-black text-white uppercase tracking-[0.1em] hover:bg-purple-500 transition-all duration-300 shadow-2xl">
+                    페이백 시작
+                </button>
+            </div>
+        </nav>
+    </header>
 
     <!-- Hero Section -->
-    <section id="home" class="min-h-screen flex items-center pt-24 px-8">
+    <section id="home" class="min-h-[80vh] flex items-center px-8">
         <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center w-full">
             <div class="space-y-8">
                 <div class="inline-flex items-center px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/25 text-purple-400 text-[10px] font-bold tracking-[0.2em] uppercase">
@@ -309,7 +335,7 @@
         </div>
     </section>
 
-    <!-- [ADJUSTED] Skyblue Banner Section -->
+    <!-- Skyblue Banner Section -->
     <section class="py-12">
         <div class="bitget-banner-container">
             <div class="bitget-banner shadow-2xl">
@@ -333,7 +359,6 @@
                 <p class="text-xs text-purple-200/30 uppercase tracking-[0.4em] font-bold">Official Certified Partners</p>
             </div>
 
-            <!-- Sort Buttons Area -->
             <div class="flex justify-center gap-3 mb-12">
                 <button onclick="sortExchanges('default', this)" class="filter-btn active">기본순</button>
                 <button onclick="sortExchanges('popular', this)" class="filter-btn">인기순</button>
@@ -373,8 +398,8 @@
                 <div class="space-y-3">
                     <label class="text-[10px] font-bold text-purple-400 uppercase tracking-widest">거래소 선택</label>
                     <select id="calc-ex" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm outline-none" onchange="calc()">
-                        <option value="54">Bitget (54%)</option>
                         <option value="30">Binance (30%)</option>
+                        <option value="54">Bitget (54%)</option>
                         <option value="25">Bybit (25%)</option>
                         <option value="30">OKX (30%)</option>
                         <option value="50">Deepcoin (50%)</option>
@@ -462,6 +487,11 @@
             renderCards();
         }
 
+        function closeTopPopup() {
+            document.getElementById('top-exchange-popup').style.display='none';
+            document.body.style.paddingTop = '80px'; 
+        }
+
         function generateStatus() {
             const list = document.getElementById('statusList');
             const names = ['바이낸스', '바이비트', '비트겟', 'OKX'];
@@ -501,8 +531,13 @@
         window.addEventListener('scroll', () => {
             const nav = document.getElementById('navbar');
             const pop = document.getElementById('miniPopup');
-            if(window.scrollY > 50) nav.classList.add('bg-[#0f0a1e]/90', 'backdrop-blur-xl', 'py-4');
-            else nav.classList.remove('bg-[#0f0a1e]/90', 'backdrop-blur-xl', 'py-4');
+            
+            if(window.scrollY > 50) {
+                nav.classList.add('bg-[#0f0a1e]/95', 'py-3');
+            } else {
+                nav.classList.remove('bg-[#0f0a1e]/95', 'py-3');
+            }
+
             if(window.scrollY > 400) pop.classList.add('show');
             else pop.classList.remove('show');
         });
