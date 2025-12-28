@@ -73,7 +73,7 @@
             transition: all 0.4s ease;
         }
 
-        /* List View Layout */
+        /* List Item Styling */
         .list-item {
             display: grid;
             grid-template-columns: 80px 1fr 120px 140px;
@@ -91,7 +91,7 @@
             transform: translateX(10px);
         }
 
-        /* Sorting & View Buttons */
+        /* Toolbar Button Styling */
         .toolbar-btn {
             padding: 10px 20px;
             font-size: 0.75rem;
@@ -101,6 +101,7 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
             color: rgba(255, 255, 255, 0.4);
             transition: all 0.3s ease;
+            cursor: pointer;
         }
         .toolbar-btn.active {
             background: rgba(168, 85, 247, 0.2);
@@ -141,6 +142,38 @@
             align-items: center;
             justify-content: center;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+        .exchange-logo-mini img {
+            width: 70%;
+            height: 70%;
+            object-fit: contain;
+        }
+
+        /* Mini Popup Styles */
+        #miniPopup {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(150%);
+            width: 95%;
+            max-width: 500px;
+            z-index: 100;
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        #miniPopup.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        .popup-content {
+            background: rgba(20, 15, 35, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(168, 85, 247, 0.2);
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
     </style>
 </head>
@@ -185,7 +218,7 @@
             </div>
 
             <div class="relative flex justify-center items-center">
-                <!-- Lina Virtual Card -->
+                <!-- Lina Card Display -->
                 <div class="card-plate w-full max-w-md p-10 animate-float">
                     <div class="relative z-10 h-full flex flex-col justify-between">
                         <div class="flex justify-between items-start">
@@ -250,7 +283,7 @@
     </section>
 
     <!-- Footer -->
-    <footer class="py-24 px-8 border-t border-white/5 bg-black/20 text-center">
+    <footer class="py-24 px-8 border-t border-white/5 bg-black/20 text-center pb-48">
         <div class="flex justify-center items-center space-x-3 opacity-50 mb-6">
             <i class="fas fa-infinity text-purple-500 text-2xl"></i>
             <span class="text-2xl font-bold italic tracking-tighter text-white">리나닷컴</span>
@@ -258,13 +291,34 @@
         <p class="text-purple-200/10 text-[10px] tracking-[0.5em] uppercase">© 2025 LinaDotCom.</p>
     </footer>
 
+    <!-- Mini Popup (Floating Action) -->
+    <div id="miniPopup">
+        <div class="popup-content">
+            <div class="flex items-center space-x-4">
+                <div class="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center animate-pulse shadow-lg shadow-purple-500/30">
+                    <i class="fas fa-coins text-white text-sm"></i>
+                </div>
+                <div>
+                    <h4 class="text-[13px] font-bold text-white">페이백 카드 신청하기</h4>
+                    <p class="text-[9px] text-purple-200/40 uppercase tracking-widest">Global Exchange Partner</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="document.getElementById('featured').scrollIntoView({behavior:'smooth'})" class="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 text-white text-[10px] font-bold rounded-full transition shadow-xl">신청하기</button>
+                <button onclick="document.getElementById('miniPopup').classList.remove('show')" class="text-white/20 hover:text-white transition">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const exchanges = [
-            { id: 1, name: '바이낸스', code: 'BINANCE', payback: 30, popularity: 98, color: 'from-[#f3ba2f]/20', icon: 'fab fa-bitcoin text-[#f3ba2f]', desc: '글로벌 유동성 1위 거래소의 안정적인 인프라와 30% 페이백.' },
-            { id: 2, name: '바이비트', code: 'BYBIT', payback: 25, popularity: 95, color: 'from-white/10', icon: 'fas fa-chart-line text-white', desc: '쾌적한 거래 환경과 리나닷컴 독점 파트너십 혜택 제공.' },
-            { id: 3, name: '비트겟', code: 'BITGET', payback: 54, popularity: 99, color: 'from-[#00f0ff]/20', icon: 'fas fa-bolt text-[#00f0ff]', desc: '업계 최강 54% 페이백 요율. 실시간 정산 시스템 완비.' },
-            { id: 4, name: 'OKX', code: 'OKX', payback: 30, popularity: 92, color: 'from-white/5', icon: 'fas fa-cube text-white', desc: '강력한 API 지원 및 전문 트레이더를 위한 최적의 솔루션.' },
-            { id: 5, name: '딥코인', code: 'DEEPCOIN', payback: 50, popularity: 88, color: 'from-[#0052ff]/20', icon: 'fas fa-dice-d20 text-[#0052ff]', desc: '신규 트레이더를 위한 공격적인 환급 정책과 다양한 이벤트.' }
+            { id: 1, name: '바이낸스', code: 'BINANCE', payback: 30, popularity: 98, color: 'from-[#f3ba2f]/20', logo: 'https://upload.wikimedia.org/wikipedia/commons/e/e8/Binance_Logo.svg', desc: '글로벌 유동성 1위 거래소의 안정적인 인프라와 30% 페이백.' },
+            { id: 2, name: '바이비트', code: 'BYBIT', payback: 25, popularity: 95, color: 'from-zinc-100/10', logo: 'https://cdn.iconscout.com/icon/free/png-256/free-bybit-logo-icon-download-in-svg-png-gif-formats--blockchain-crypto-brand-logos-pack-icons-4680415.png', desc: '쾌적한 거래 환경과 리나닷컴 독점 파트너십 혜택 제공.' },
+            { id: 3, name: '비트겟', code: 'BITGET', payback: 54, popularity: 99, color: 'from-[#00f0ff]/20', logo: 'https://cdn.worldvectorlogo.com/logos/bitget-logo.svg', desc: '업계 최강 54% 페이백 요율. 실시간 정산 시스템 완비.' },
+            { id: 4, name: 'OKX', code: 'OKX', payback: 30, popularity: 92, color: 'from-zinc-100/5', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/OKX_logo.svg/2560px-OKX_logo.svg.png', desc: '강력한 API 지원 및 전문 트레이더를 위한 최적의 솔루션.' },
+            { id: 5, name: '딥코인', code: 'DEEPCOIN', payback: 50, popularity: 88, color: 'from-[#0052ff]/20', logo: 'https://s2.coinmarketcap.com/static/img/exchanges/64x64/1109.png', desc: '신규 트레이더를 위한 공격적인 환급 정책과 다양한 이벤트.' }
         ];
 
         let currentData = [...exchanges];
@@ -281,7 +335,9 @@
                         <div class="glass-panel p-8 group hover:border-purple-500/40">
                             <div class="card-plate w-full bg-gradient-to-br ${ex.color} to-black/90 mb-8 border-white/5">
                                 <div class="p-7 h-full flex flex-col justify-between">
-                                    <div class="exchange-logo-mini"><i class="${ex.icon} text-2xl"></i></div>
+                                    <div class="exchange-logo-mini bg-white/10">
+                                        <img src="${ex.logo}" alt="${ex.name} logo">
+                                    </div>
                                     <div class="flex justify-between items-end">
                                         <span class="text-[10px] font-bold text-white/30 tracking-widest uppercase">${ex.code}</span>
                                         <p class="font-['JetBrains_Mono'] font-bold text-purple-400 text-sm">PAYBACK ${ex.payback}%</p>
@@ -291,7 +347,7 @@
                             <h3 class="text-2xl font-bold mb-4">${ex.name}</h3>
                             <p class="text-purple-200/20 text-sm leading-relaxed mb-10 font-light">${ex.desc}</p>
                             <div class="flex items-center text-xs font-bold text-purple-500 uppercase tracking-widest group-hover:translate-x-3 transition-transform cursor-pointer">
-                                More Details <i class="fas fa-arrow-right ml-3"></i>
+                                상세 혜택 보기 <i class="fas fa-arrow-right ml-3"></i>
                             </div>
                         </div>
                     `;
@@ -301,15 +357,17 @@
                 currentData.forEach((ex) => {
                     container.innerHTML += `
                         <div class="list-item">
-                            <div class="exchange-logo-mini"><i class="${ex.icon} text-2xl"></i></div>
+                            <div class="exchange-logo-mini bg-white/10">
+                                <img src="${ex.logo}" alt="${ex.name} logo">
+                            </div>
                             <div>
                                 <h3 class="font-bold text-xl">${ex.name}</h3>
-                                <p class="text-[9px] text-purple-200/20 uppercase tracking-[0.2em]">Partner</p>
+                                <p class="text-[9px] text-purple-200/20 uppercase tracking-[0.2em]">Official Partner</p>
                             </div>
                             <div class="text-right">
                                 <p class="font-['JetBrains_Mono'] font-bold text-purple-400 text-2xl">${ex.payback}%</p>
                             </div>
-                            <button class="bg-purple-600/10 hover:bg-purple-600 border border-purple-500/30 py-4 rounded-xl text-[11px] font-bold transition uppercase">신청하기</button>
+                            <button class="bg-purple-600/10 hover:bg-purple-600 border border-purple-500/30 py-4 rounded-xl text-[11px] font-bold transition uppercase tracking-widest">신청하기</button>
                         </div>
                     `;
                 });
@@ -327,14 +385,37 @@
             document.querySelectorAll('.toolbar-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`btn-${type}`).classList.add('active');
 
-            if (type === 'default') currentData = [...exchanges];
+            if (type === 'default') currentData = [...exchanges]; // 정해진 기본 순서
             else if (type === 'payback') currentData = [...exchanges].sort((a, b) => b.payback - a.payback);
             else if (type === 'popular') currentData = [...exchanges].sort((a, b) => b.popularity - a.popularity);
             
             render();
         }
 
-        window.onload = render;
+        // Scroll Interactions
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            const popup = document.getElementById('miniPopup');
+            
+            if (window.scrollY > 50) {
+                nav.classList.add('bg-[#0f0a1e]/90', 'backdrop-blur-xl', 'py-4', 'border-b', 'border-white/5');
+            } else {
+                nav.classList.remove('bg-[#0f0a1e]/90', 'backdrop-blur-xl', 'py-4', 'border-b', 'border-white/5');
+            }
+
+            // Show popup when scrolling past hero
+            if (window.scrollY > 400) {
+                popup.classList.add('show');
+            } else {
+                popup.classList.remove('show');
+            }
+        });
+
+        // Initialize with default fixed order
+        window.onload = () => {
+            currentData = [...exchanges];
+            render();
+        };
     </script>
 </body>
 </html>
