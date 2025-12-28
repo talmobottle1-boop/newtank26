@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -27,10 +27,10 @@
             transform: scale(0.92);
         }
 
-        #player-overlay, #upload-modal {
+        #player-overlay {
             display: none;
-            backdrop-filter: blur(25px);
-            background-color: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            background-color: rgba(0, 0, 0, 0.9);
         }
 
         .loading-spinner {
@@ -42,62 +42,15 @@
             to { transform: rotate(360deg); }
         }
 
-        .video-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            background: #000;
-        }
-
-        video, iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        #local-file-input, #local-image-input {
-            display: none;
-        }
-
-        .input-field {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 12px;
-            color: white;
-            width: 100%;
-            outline: none;
-        }
-        .input-field:focus {
-            border-color: #3b82f6;
-        }
-
-        .image-preview-box {
-            width: 100%;
-            aspect-ratio: 2/3;
-            background: rgba(255, 255, 255, 0.03);
-            border: 2px dashed rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
             overflow: hidden;
-            position: relative;
-        }
-        .image-preview-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
         }
     </style>
 </head>
 <body class="pb-24 select-none">
-
-    <!-- 숨김 input 요소들 -->
-    <input type="file" id="local-file-input" accept="video/*" onchange="openUploadModal(event)">
-    <input type="file" id="local-image-input" accept="image/*" onchange="previewThumbnail(event)">
 
     <!-- 상단 헤더 -->
     <nav class="fixed top-0 w-full z-[100] bg-[#05070a]/80 backdrop-blur-xl px-5 py-4 border-b border-white/5 flex items-center justify-between">
@@ -110,10 +63,6 @@
             </span>
         </div>
         <div class="flex items-center space-x-5">
-            <button onclick="triggerFileInput()" class="flex items-center space-x-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-full transition-all shadow-lg shadow-blue-600/20">
-                <i data-lucide="plus-circle" class="w-4 h-4 text-white"></i>
-                <span class="text-[10px] font-bold text-white">콘텐츠 등록</span>
-            </button>
             <i data-lucide="search" class="w-5 h-5 text-gray-400 cursor-pointer hover:text-white transition-colors"></i>
             <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-gray-800 to-gray-950 border border-white/10 flex items-center justify-center">
                 <i data-lucide="user" class="w-4 h-4 text-gray-400"></i>
@@ -128,8 +77,7 @@
 
     <!-- 메인 추천 콘텐츠 -->
     <section class="px-5 mb-8">
-        <div class="relative aspect-[16/9] rounded-3xl overflow-hidden shadow-2xl group cursor-pointer" 
-             onclick="playDriveVideo('1zHSwE_tSNhJpFTe7fkNpQGK6GT4FIZFm', '오징어 게임 시즌2', '456억 원, 다시 시작되는 서바이벌.')">
+        <div class="relative aspect-[16/9] rounded-3xl overflow-hidden shadow-2xl group cursor-pointer" onclick="playTrailer('오징어 게임 시즌2', '456억 원, 다시 시작되는 서바이벌.')">
             <div class="absolute inset-0 bg-gradient-to-br from-red-950/40 to-black"></div>
             <div class="absolute inset-0 bg-gradient-to-t from-[#05070a] via-transparent to-transparent z-10"></div>
             <div class="absolute bottom-6 left-6 z-20 space-y-1">
@@ -158,60 +106,11 @@
 
         <div id="movie-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <!-- Loading Skeleton -->
+            <div class="aspect-[2/3] bg-white/5 rounded-2xl animate-pulse"></div>
+            <div class="aspect-[2/3] bg-white/5 rounded-2xl animate-pulse"></div>
+            <div class="aspect-[2/3] bg-white/5 rounded-2xl animate-pulse"></div>
         </div>
     </section>
-
-    <!-- 업로드 모달 -->
-    <div id="upload-modal" class="fixed inset-0 z-[300] flex items-center justify-center p-4">
-        <div class="w-full max-w-4xl max-h-[90vh] bg-[#121418] rounded-3xl overflow-hidden border border-white/10 shadow-2xl flex flex-col md:flex-row">
-            <!-- 왼쪽: 이미지 미리보기/등록 -->
-            <div class="w-full md:w-1/3 p-8 border-b md:border-b-0 md:border-r border-white/5 bg-black/20">
-                <label class="text-[10px] font-bold text-gray-500 uppercase ml-1 mb-2 block">커버 이미지 등록</label>
-                <div class="image-preview-box" onclick="triggerImageInput()" id="thumbnail-preview-container">
-                    <i data-lucide="image-plus" class="w-10 h-10 text-gray-600 mb-2"></i>
-                    <p class="text-[11px] text-gray-500 font-bold">이미지 선택</p>
-                    <div id="preview-img-holder" class="absolute inset-0 hidden">
-                        <img id="preview-img" src="" alt="Thumbnail Preview">
-                    </div>
-                </div>
-                <p class="text-[9px] text-gray-600 mt-3 leading-relaxed text-center italic">포스터 형식(2:3 비율)의 이미지를 권장합니다.</p>
-            </div>
-
-            <!-- 오른쪽: 정보 입력 -->
-            <div class="flex-1 p-8 space-y-6 overflow-y-auto no-scrollbar">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-xl font-black italic">상세 정보 입력</h3>
-                    <button onclick="closeUploadModal()" class="text-gray-400 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="md:col-span-2">
-                        <label class="text-[10px] font-bold text-gray-500 uppercase ml-1">콘텐츠 제목</label>
-                        <input type="text" id="upload-title" class="input-field mt-1" placeholder="영상 제목을 입력하세요">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-500 uppercase ml-1">카테고리</label>
-                        <select id="upload-category" class="input-field mt-1">
-                            <option value="드라마">드라마</option>
-                            <option value="영화">영화</option>
-                            <option value="예능">예능</option>
-                            <option value="애니">애니</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-500 uppercase ml-1">출시 연도</label>
-                        <input type="number" id="upload-year" class="input-field mt-1" value="2025">
-                    </div>
-                    <div class="md:col-span-2">
-                        <label class="text-[10px] font-bold text-gray-500 uppercase ml-1">상세 내용</label>
-                        <textarea id="upload-desc" class="input-field mt-1 h-24 resize-none" placeholder="영상에 대한 설명을 입력하세요"></textarea>
-                    </div>
-                </div>
-                <button onclick="confirmUpload()" class="w-full py-4 bg-blue-600 rounded-2xl font-black text-white shadow-xl shadow-blue-600/20 active:scale-95 transition-all">
-                    업로드 및 등록 완료
-                </button>
-            </div>
-        </div>
-    </div>
 
     <!-- 하단 네비게이션 -->
     <div class="fixed bottom-0 w-full bg-[#05070a]/90 backdrop-blur-2xl border-t border-white/5 px-8 py-3 flex justify-between items-center z-[100] pb-8">
@@ -233,44 +132,51 @@
         </div>
     </div>
 
-    <!-- 플레이어 레이어 -->
+    <!-- 스트리밍 플레이어 레이어 -->
     <div id="player-overlay" class="fixed inset-0 z-[200] flex flex-col items-center justify-center">
-        <div class="w-full h-full max-w-5xl flex flex-col">
+        <div class="w-full h-full max-w-4xl flex flex-col">
+            <!-- 상단 바 -->
             <div class="flex justify-between items-center p-6">
                 <button onclick="closePlayer()" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white active:scale-90 transition-all">
                     <i data-lucide="chevron-left" class="w-6 h-6"></i>
                 </button>
-                <span id="player-source-type" class="text-sm font-bold text-gray-400 uppercase tracking-widest">Streaming Source</span>
+                <span class="text-sm font-bold text-gray-400">SSX STREAMING</span>
                 <div class="w-10"></div>
             </div>
+
+            <!-- 영상 영역 -->
             <div id="video-wrapper" class="relative w-full aspect-video bg-black shadow-2xl border-y border-white/5">
                 <div id="video-loader" class="absolute inset-0 flex flex-col items-center justify-center space-y-3 z-30 bg-black">
                     <div class="w-10 h-10 border-4 border-blue-500 loading-spinner rounded-full"></div>
-                    <p class="text-[11px] font-bold text-gray-500 tracking-widest">LOADING CONTENT...</p>
+                    <p class="text-[11px] font-bold text-gray-500 tracking-widest">STREMAING READY...</p>
                 </div>
-                <div id="player-target" class="w-full h-full flex items-center justify-center"></div>
+                <div id="youtube-target" class="w-full h-full"></div>
             </div>
+
+            <!-- 정보 영역 -->
             <div class="flex-1 p-6 overflow-y-auto no-scrollbar">
-                <div id="player-info" class="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500"></div>
+                <div id="player-info" class="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <!-- Dynamic Details -->
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        const apiKey = ""; 
+        const apiKey = ""; // Gemini API
         const categories = ['전체', '드라마', '영화', '예능', '애니'];
         let movies = [];
         let activeCategory = '전체';
-        
-        let pendingFile = null;
-        let pendingThumbnailUrl = null;
+        let player = null;
 
+        // 초기화
         async function init() {
             lucide.createIcons();
             renderCategories();
             await fetchMovies();
         }
 
+        // 카테고리 렌더링
         function renderCategories() {
             const bar = document.getElementById('category-bar');
             bar.innerHTML = categories.map(cat => `
@@ -288,9 +194,10 @@
             renderMovies();
         }
 
+        // 영화 데이터 로드
         async function fetchMovies() {
             try {
-                const prompt = `2024-2025년 한국 인기 콘텐츠 12개. JSON: { "contents": [{ "title": "제목", "type": "드라마/영화/예능", "year": "2025", "desc": "요약", "driveId": "ID" }] }`;
+                const prompt = `2024년-2025년 한국 인기 드라마/영화 20개 리스트. JSON: { "contents": [{ "title": "제목", "type": "드라마/영화/예능", "year": "2025", "rating": "9.9", "desc": "한 줄 요약" }] }`;
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -301,13 +208,10 @@
                 });
                 const data = await response.json();
                 const json = JSON.parse(data.candidates[0].content.parts[0].text);
-                
                 movies = json.contents.map((m, i) => ({
                     ...m,
-                    id: Date.now() + i,
-                    driveId: i === 0 ? '1zHSwE_tSNhJpFTe7fkNpQGK6GT4FIZFm' : (m.driveId && m.driveId !== "ID" ? m.driveId : '1zHSwE_tSNhJpFTe7fkNpQGK6GT4FIZFm'),
-                    color: ['#1e40af', '#3730a3', '#9f1239', '#115e59'][i % 4],
-                    isLocal: false
+                    id: i,
+                    color: ['#1e40af', '#3730a3', '#9f1239', '#115e59'][i % 4]
                 }));
                 renderMovies();
             } catch (e) {
@@ -320,160 +224,93 @@
             const filtered = activeCategory === '전체' ? movies : movies.filter(m => m.type === activeCategory);
             
             grid.innerHTML = filtered.map(m => `
-                <div onclick="${m.isLocal ? `playLocalVideo('${m.fileUrl}', '${m.title}', '${m.desc}')` : `playDriveVideo('${m.driveId}', '${m.title}', '${m.desc}')`}" 
-                     class="movie-card relative aspect-[2/3] rounded-2xl overflow-hidden bg-[#0f1218] shadow-lg group cursor-pointer">
-                    
-                    ${m.thumbnailUrl ? `
-                        <img src="${m.thumbnailUrl}" class="absolute inset-0 w-full h-full object-cover transition-transform group-hover:scale-110 duration-500">
-                    ` : `
-                        <div class="absolute inset-0 opacity-40 group-hover:opacity-60 transition-opacity" style="background: linear-gradient(135deg, ${m.color || '#3b82f6'}, transparent)"></div>
-                    `}
-
-                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-80"></div>
-                    
-                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-active:opacity-100 transition-opacity z-10">
-                        <i data-lucide="play" class="w-10 h-10 fill-white text-white"></i>
+                <div onclick="playTrailer('${m.title}', '${m.desc}')" class="movie-card relative aspect-[2/3] rounded-2xl overflow-hidden bg-[#0f1218] shadow-lg">
+                    <div class="absolute inset-0 opacity-40" style="background: linear-gradient(135deg, ${m.color}, transparent)"></div>
+                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-active:opacity-100 transition-opacity">
+                        <i data-lucide="play" class="w-8 h-8 fill-white text-white"></i>
                     </div>
-                    
-                    ${m.isLocal ? `
-                        <div class="absolute top-2 left-2 z-20">
-                            <span class="px-1.5 py-0.5 bg-blue-600 text-[8px] font-bold rounded shadow-lg">LOCAL</span>
-                        </div>
-                    ` : ''}
-
-                    <div class="absolute bottom-0 left-0 w-full p-4 z-20">
-                        <span class="text-[8px] font-bold text-blue-400 block mb-1 uppercase tracking-widest">${m.type}</span>
-                        <h4 class="text-[13px] font-black truncate">${m.title}</h4>
-                        <p class="text-[9px] text-gray-400 mt-1 line-clamp-1">${m.desc}</p>
+                    <div class="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black via-black/40 to-transparent">
+                        <h4 class="text-[12px] font-black truncate">${m.title}</h4>
+                        <p class="text-[9px] text-blue-400 font-bold mt-0.5">SSX TRAILER</p>
                     </div>
                 </div>
             `).join('');
             lucide.createIcons();
         }
 
-        // --- 업로드 로직 ---
-        function triggerFileInput() {
-            document.getElementById('local-file-input').click();
-        }
-
-        function triggerImageInput() {
-            document.getElementById('local-image-input').click();
-        }
-
-        function openUploadModal(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            pendingFile = file;
-            
-            // 초기화
-            document.getElementById('upload-title').value = file.name.split('.').slice(0, -1).join('.');
-            document.getElementById('upload-modal').style.display = 'flex';
-            document.getElementById('preview-img-holder').classList.add('hidden');
-            pendingThumbnailUrl = null;
-        }
-
-        function previewThumbnail(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            pendingThumbnailUrl = URL.createObjectURL(file);
-            document.getElementById('preview-img').src = pendingThumbnailUrl;
-            document.getElementById('preview-img-holder').classList.remove('hidden');
-        }
-
-        function closeUploadModal() {
-            document.getElementById('upload-modal').style.display = 'none';
-            pendingFile = null;
-            // 썸네일 메모리 해제는 등록 시 혹은 취소 시 신중히 (이 앱은 SPA라 유의)
-        }
-
-        function confirmUpload() {
-            const title = document.getElementById('upload-title').value;
-            const category = document.getElementById('upload-category').value;
-            const desc = document.getElementById('upload-desc').value;
-            const year = document.getElementById('upload-year').value;
-
-            if (!title) return;
-
-            const fileUrl = URL.createObjectURL(pendingFile);
-            
-            const newContent = {
-                id: Date.now(),
-                title: title,
-                type: category,
-                desc: desc || "사용자가 업로드한 로컬 콘텐츠입니다.",
-                year: year || "2025",
-                fileUrl: fileUrl,
-                thumbnailUrl: pendingThumbnailUrl,
-                isLocal: true,
-                color: '#3b82f6'
-            };
-
-            movies.unshift(newContent);
-            renderMovies();
-            closeUploadModal();
-        }
-
-        // --- 재생 로직 ---
-        function playLocalVideo(url, title, desc) {
-            openPlayerOverlay();
-            document.getElementById('player-source-type').innerText = "Local PC Storage";
-            const target = document.getElementById('player-target');
-            target.innerHTML = `<video id="main-video-player" controls autoplay class="w-full h-full"><source src="${url}" type="video/mp4"></video>`;
-            updatePlayerInfo(title, desc);
-            hideLoader();
-        }
-
-        function playDriveVideo(driveId, title, desc) {
-            openPlayerOverlay();
-            document.getElementById('player-source-type').innerText = "Google Drive Streaming";
-            const target = document.getElementById('player-target');
-            target.innerHTML = `<div class="video-container"><iframe src="https://drive.google.com/file/d/${driveId}/preview" allow="autoplay; fullscreen" allowfullscreen></iframe></div>`;
-            updatePlayerInfo(title, desc);
-            setTimeout(hideLoader, 2000);
-        }
-
-        function openPlayerOverlay() {
+        // 스트리밍 시작
+        async function playTrailer(title, desc) {
             const overlay = document.getElementById('player-overlay');
             const loader = document.getElementById('video-loader');
+            const target = document.getElementById('youtube-target');
+            const info = document.getElementById('player-info');
+
             overlay.style.display = 'flex';
             loader.style.display = 'flex';
-            loader.style.opacity = '1';
-            document.body.style.overflow = 'hidden';
-        }
-
-        function updatePlayerInfo(title, desc) {
-            const info = document.getElementById('player-info');
+            target.innerHTML = ''; // 초기화
+            
             info.innerHTML = `
                 <div class="flex items-center justify-between">
-                    <div class="space-y-1">
-                        <h2 class="text-2xl font-black tracking-tight">${title}</h2>
-                        <div class="flex items-center space-x-3 text-[11px] font-bold text-gray-400">
-                            <span class="text-blue-500 font-black">USER CONTENT</span>
-                            <span>2025</span>
-                            <span class="px-1.5 py-0.5 border border-gray-700 rounded-sm text-[8px]">LOCAL STREAMING</span>
-                        </div>
+                    <h2 class="text-2xl font-black tracking-tight">${title}</h2>
+                    <div class="flex space-x-2">
+                        <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center"><i data-lucide="plus" class="w-5 h-5"></i></div>
+                        <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center"><i data-lucide="share-2" class="w-5 h-5"></i></div>
                     </div>
                 </div>
-                <p class="text-sm text-gray-300 leading-relaxed font-medium">${desc}</p>
+                <div class="flex items-center space-x-3 text-[11px] font-bold text-gray-400">
+                    <span class="text-green-500">98% 일치</span>
+                    <span>2025</span>
+                    <span class="px-1 border border-gray-700 rounded-sm text-[9px]">15+</span>
+                    <span>에피소드 1개</span>
+                </div>
+                <p class="text-sm text-gray-300 leading-relaxed line-clamp-2">${desc}</p>
+                <div class="pt-4 grid grid-cols-2 gap-3">
+                    <button class="flex items-center justify-center space-x-2 bg-white text-black py-3 rounded-lg font-black text-sm">
+                        <i data-lucide="play" class="w-4 h-4 fill-black"></i> <span>재생</span>
+                    </button>
+                    <button class="flex items-center justify-center space-x-2 bg-white/10 text-white py-3 rounded-lg font-black text-sm border border-white/5">
+                        <i data-lucide="download" class="w-4 h-4"></i> <span>저장</span>
+                    </button>
+                </div>
             `;
             lucide.createIcons();
-        }
 
-        function hideLoader() {
-            const loader = document.getElementById('video-loader');
-            loader.style.opacity = '0';
-            setTimeout(() => loader.style.display = 'none', 500);
+            try {
+                // 비디오 ID 검색
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: `유튜브에서 "${title} 공식 예고편"의 최신 비디오 ID(11자리)만 하나 알려줘. 형식: ID값만 출력.` }] }],
+                        tools: [{ google_search: {} }]
+                    })
+                });
+                const data = await response.json();
+                const videoId = data.candidates[0].content.parts[0].text.trim().match(/[a-zA-Z0-9_-]{11}/)?.[0] || 'dQw4w9WgXcQ';
+
+                // IFrame 삽입
+                target.innerHTML = `<iframe id="yt-player" class="w-full h-full" src="https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=1&rel=0&modestbranding=1&hl=ko" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+                
+                // 로딩 완료 감지 (간이)
+                setTimeout(() => {
+                    loader.style.opacity = '0';
+                    setTimeout(() => loader.style.display = 'none', 500);
+                }, 1500);
+
+            } catch (e) {
+                console.error("Stream Error", e);
+                loader.innerHTML = `<p class="text-red-500 font-bold">스트리밍 서버 연결 실패</p>`;
+            }
         }
 
         function closePlayer() {
             const overlay = document.getElementById('player-overlay');
-            const target = document.getElementById('player-target');
+            const target = document.getElementById('youtube-target');
             overlay.style.display = 'none';
-            target.innerHTML = ''; 
-            document.body.style.overflow = 'auto';
+            target.innerHTML = ''; // 리소스 해제
         }
 
+        // 실행
         init();
     </script>
 </body>
