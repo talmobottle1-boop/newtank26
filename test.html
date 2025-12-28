@@ -2,8 +2,8 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SSX OTT - 프리미엄 스트리밍</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SSX OTT - 정주행의 시작</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -13,204 +13,177 @@
             font-family: 'Noto Sans KR', sans-serif;
             background-color: #05070a;
             color: white;
-            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior-y: contain;
         }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        .movie-card:active {
-            transform: scale(0.95);
+        .movie-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .gradient-overlay {
-            background: linear-gradient(to top, rgba(5, 7, 10, 1) 0%, rgba(5, 7, 10, 0.6) 30%, transparent 100%);
+        .movie-card:active {
+            transform: scale(0.92);
         }
 
         #player-overlay {
             display: none;
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(20px);
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+
+        .loading-spinner {
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
     </style>
 </head>
-<body class="pb-24">
+<body class="pb-24 select-none">
 
-    <!-- 상단 네비게이션 -->
+    <!-- 상단 헤더 -->
     <nav class="fixed top-0 w-full z-[100] bg-[#05070a]/80 backdrop-blur-xl px-5 py-4 border-b border-white/5 flex items-center justify-between">
         <div class="flex items-center space-x-2">
-            <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-400 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20">
+            <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-400 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/30">
                 <i data-lucide="play" class="fill-white text-white w-4 h-4 ml-0.5"></i>
             </div>
-            <span class="text-xl font-black italic tracking-tighter uppercase flex items-center">
-                SSX<span class="text-blue-500 ml-1">OTT</span>
+            <span class="text-xl font-black italic tracking-tighter uppercase">
+                SSX<span class="text-blue-500 ml-0.5">OTT</span>
             </span>
         </div>
         <div class="flex items-center space-x-5">
             <i data-lucide="search" class="w-5 h-5 text-gray-400 cursor-pointer hover:text-white transition-colors"></i>
-            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-gray-800 to-gray-950 border border-white/10 flex items-center justify-center overflow-hidden">
+            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-gray-800 to-gray-950 border border-white/10 flex items-center justify-center">
                 <i data-lucide="user" class="w-4 h-4 text-gray-400"></i>
             </div>
         </div>
     </nav>
 
-    <!-- 카테고리 탭 -->
-    <div id="category-bar" class="pt-20 px-5 overflow-x-auto no-scrollbar flex space-x-2.5 pb-4">
-        <!-- JS에서 렌더링 -->
+    <!-- 카테고리 -->
+    <div id="category-bar" class="pt-20 px-5 overflow-x-auto no-scrollbar flex space-x-2 pb-4">
+        <!-- JS Dynamic Content -->
     </div>
 
-    <!-- 메인 배너 -->
-    <section class="px-5 mb-10 mt-2">
-        <div class="relative aspect-[16/9] rounded-3xl overflow-hidden shadow-2xl group">
-            <div class="absolute inset-0 bg-gradient-to-br from-indigo-900 to-black"></div>
-            <div class="absolute inset-0 bg-gradient-to-t from-[#05070a] via-black/20 to-transparent z-10"></div>
-            <div class="absolute bottom-6 left-6 z-20 space-y-2">
-                <div class="flex items-center space-x-2">
-                    <span class="px-2 py-0.5 bg-blue-500 text-[10px] font-black rounded uppercase">추천</span>
-                    <span class="text-[10px] font-bold text-gray-300 uppercase tracking-widest text-shadow">오늘의 인기 콘텐츠</span>
+    <!-- 메인 추천 콘텐츠 -->
+    <section class="px-5 mb-8">
+        <div class="relative aspect-[16/9] rounded-3xl overflow-hidden shadow-2xl group cursor-pointer" onclick="playTrailer('오징어 게임 시즌2', '456억 원, 다시 시작되는 서바이벌.')">
+            <div class="absolute inset-0 bg-gradient-to-br from-red-950/40 to-black"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-[#05070a] via-transparent to-transparent z-10"></div>
+            <div class="absolute bottom-6 left-6 z-20 space-y-1">
+                <div class="flex items-center space-x-2 mb-1">
+                    <span class="px-2 py-0.5 bg-red-600 text-[9px] font-black rounded">HOT</span>
+                    <span class="text-[10px] font-bold text-gray-300">SSX ORIGINAL</span>
                 </div>
-                <h2 class="text-2xl font-black tracking-tight">오징어 게임 시즌 2</h2>
-                <p class="text-xs text-gray-400 font-medium max-w-[70%]">기다림은 끝났다. 전 세계가 주목하는 게임이 다시 시작됩니다.</p>
+                <h2 class="text-2xl font-black tracking-tight">오징어 게임 2</h2>
+                <p class="text-[11px] text-gray-400 font-medium">진짜 게임이 다시 시작됩니다.</p>
             </div>
-            <button onclick="playTrailer('오징어 게임 2')" class="absolute bottom-6 right-6 z-20 w-12 h-12 rounded-full bg-white text-black flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition-transform">
+            <div class="absolute bottom-6 right-6 z-20 w-12 h-12 rounded-full bg-white text-black flex items-center justify-center shadow-2xl transition-transform active:scale-90">
                 <i data-lucide="play" class="fill-black text-black w-5 h-5 ml-1"></i>
-            </button>
+            </div>
         </div>
     </section>
 
-    <!-- 콘텐츠 리스트 섹션 -->
+    <!-- 콘텐츠 리스트 -->
     <section class="px-5 space-y-6">
-        <div class="flex justify-between items-center">
-            <h3 class="text-lg font-bold flex items-center space-x-2">
-                <i data-lucide="flame" class="w-5 h-5 text-orange-500"></i>
-                <span>지금 뜨는 예고편</span>
+        <div class="flex justify-between items-center px-1">
+            <h3 class="text-md font-bold flex items-center space-x-2 tracking-tight">
+                <i data-lucide="sparkles" class="w-4 h-4 text-blue-400"></i>
+                <span>실시간 인기 트렌드</span>
             </h3>
-            <button class="text-[11px] font-bold text-gray-500 flex items-center">
-                더보기 <i data-lucide="chevron-right" class="w-4 h-4"></i>
-            </button>
+            <i data-lucide="chevron-right" class="w-4 h-4 text-gray-600"></i>
         </div>
 
-        <div id="movie-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            <!-- JS에서 렌더링 -->
+        <div id="movie-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <!-- Loading Skeleton -->
+            <div class="aspect-[2/3] bg-white/5 rounded-2xl animate-pulse"></div>
+            <div class="aspect-[2/3] bg-white/5 rounded-2xl animate-pulse"></div>
+            <div class="aspect-[2/3] bg-white/5 rounded-2xl animate-pulse"></div>
         </div>
     </section>
 
-    <!-- 하단 네비게이션 바 -->
-    <div class="fixed bottom-0 w-full bg-[#05070a]/95 backdrop-blur-2xl border-t border-white/5 px-8 py-4 flex justify-between items-center z-[100] pb-8">
-        <div class="flex flex-col items-center space-y-1.5 text-blue-500">
-            <i data-lucide="home" class="w-6 h-6"></i>
-            <span class="text-[10px] font-bold">홈</span>
+    <!-- 하단 네비게이션 -->
+    <div class="fixed bottom-0 w-full bg-[#05070a]/90 backdrop-blur-2xl border-t border-white/5 px-8 py-3 flex justify-between items-center z-[100] pb-8">
+        <div class="flex flex-col items-center space-y-1 text-blue-500 cursor-pointer">
+            <i data-lucide="home" class="w-5 h-5"></i>
+            <span class="text-[9px] font-bold">홈</span>
         </div>
-        <div class="flex flex-col items-center space-y-1.5 text-gray-500">
-            <i data-lucide="tv" class="w-6 h-6"></i>
-            <span class="text-[10px] font-bold">드라마</span>
+        <div class="flex flex-col items-center space-y-1 text-gray-500 cursor-pointer">
+            <i data-lucide="play-circle" class="w-5 h-5"></i>
+            <span class="text-[9px] font-bold">뉴&핫</span>
         </div>
-        <div class="flex flex-col items-center space-y-1.5 text-gray-500">
-            <i data-lucide="film" class="w-6 h-6"></i>
-            <span class="text-[10px] font-bold">영화</span>
+        <div class="flex flex-col items-center space-y-1 text-gray-500 cursor-pointer">
+            <i data-lucide="heart" class="w-5 h-5"></i>
+            <span class="text-[9px] font-bold">찜한목록</span>
         </div>
-        <div class="flex flex-col items-center space-y-1.5 text-gray-500">
-            <i data-lucide="heart" class="w-6 h-6"></i>
-            <span class="text-[10px] font-bold">찜</span>
-        </div>
-        <div class="flex flex-col items-center space-y-1.5 text-gray-500">
-            <i data-lucide="user" class="w-6 h-6"></i>
-            <span class="text-[10px] font-bold">마이</span>
+        <div class="flex flex-col items-center space-y-1 text-gray-500 cursor-pointer">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+            <span class="text-[9px] font-bold">더보기</span>
         </div>
     </div>
 
-    <!-- 플레이어 오버레이 -->
-    <div id="player-overlay" class="fixed inset-0 z-[200] bg-black/95 flex flex-col items-center justify-center p-4">
-        <div class="w-full max-w-4xl relative">
-            <button onclick="closePlayer()" class="absolute -top-12 right-0 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors">
-                <i data-lucide="x" class="w-6 h-6"></i>
-            </button>
-            <div id="youtube-container" class="aspect-video bg-zinc-900 rounded-2xl overflow-hidden shadow-2xl border border-white/5">
-                <!-- iframe 삽입 위치 -->
+    <!-- 스트리밍 플레이어 레이어 -->
+    <div id="player-overlay" class="fixed inset-0 z-[200] flex flex-col items-center justify-center">
+        <div class="w-full h-full max-w-4xl flex flex-col">
+            <!-- 상단 바 -->
+            <div class="flex justify-between items-center p-6">
+                <button onclick="closePlayer()" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white active:scale-90 transition-all">
+                    <i data-lucide="chevron-left" class="w-6 h-6"></i>
+                </button>
+                <span class="text-sm font-bold text-gray-400">SSX STREAMING</span>
+                <div class="w-10"></div>
             </div>
-            <div id="movie-details" class="mt-6 space-y-4">
-                <!-- 동적 텍스트 -->
+
+            <!-- 영상 영역 -->
+            <div id="video-wrapper" class="relative w-full aspect-video bg-black shadow-2xl border-y border-white/5">
+                <div id="video-loader" class="absolute inset-0 flex flex-col items-center justify-center space-y-3 z-30 bg-black">
+                    <div class="w-10 h-10 border-4 border-blue-500 loading-spinner rounded-full"></div>
+                    <p class="text-[11px] font-bold text-gray-500 tracking-widest">STREMAING READY...</p>
+                </div>
+                <div id="youtube-target" class="w-full h-full"></div>
+            </div>
+
+            <!-- 정보 영역 -->
+            <div class="flex-1 p-6 overflow-y-auto no-scrollbar">
+                <div id="player-info" class="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <!-- Dynamic Details -->
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        const apiKey = ""; // Gemini API 키
+        const apiKey = ""; // Gemini API
         const categories = ['전체', '드라마', '영화', '예능', '애니'];
         let movies = [];
         let activeCategory = '전체';
+        let player = null;
 
-        // 루사이드 아이콘 초기화
-        function initIcons() {
+        // 초기화
+        async function init() {
             lucide.createIcons();
+            renderCategories();
+            await fetchMovies();
         }
 
-        // Gemini API로 트렌드 데이터 가져오기
-        async function fetchTrending() {
-            const movieGrid = document.getElementById('movie-grid');
-            movieGrid.innerHTML = Array(6).fill(0).map(() => `
-                <div class="aspect-[2/3] bg-white/5 rounded-2xl animate-pulse"></div>
-            `).join('');
-
-            try {
-                const prompt = `2024년 말부터 2025년까지 대한민국에서 유행하는 드라마, 영화, 예능 목록 20개를 작성해줘. 
-                JSON 형식으로 반환해: { "contents": [{ "title": "제목", "type": "드라마/영화/예능/애니", "year": "2025", "rating": "9.8", "summary": "작품에 대한 짧은 한국어 소개글" }] }`;
-                
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: prompt }] }],
-                        generationConfig: { responseMimeType: "application/json" }
-                    })
-                });
-
-                const data = await response.json();
-                const rawData = JSON.parse(data.candidates[0].content.parts[0].text);
-                movies = rawData.contents.map((item, idx) => ({
-                    ...item,
-                    id: idx,
-                    gradient: ['from-blue-600/40', 'from-indigo-600/40', 'from-rose-600/40', 'from-cyan-600/40'][idx % 4],
-                    isOriginal: idx % 4 === 0
-                }));
-                renderMovies();
-            } catch (error) {
-                console.error("데이터 로드 실패", error);
-                movieGrid.innerHTML = `<div class="col-span-2 py-10 text-center text-gray-500">데이터를 불러오지 못했습니다.</div>`;
-            }
-        }
-
-        // 영화 리스트 렌더링
-        function renderMovies() {
-            const movieGrid = document.getElementById('movie-grid');
-            const filtered = activeCategory === '전체' ? movies : movies.filter(m => m.type === activeCategory);
-            
-            movieGrid.innerHTML = filtered.map(movie => `
-                <div onclick="playTrailer('${movie.title}')" class="movie-card relative aspect-[2/3] rounded-2xl overflow-hidden bg-[#12161f] cursor-pointer group transition-all duration-300">
-                    <div class="absolute inset-0 bg-gradient-to-br ${movie.gradient} to-transparent opacity-60"></div>
-                    ${movie.isOriginal ? '<div class="absolute top-3 left-3 bg-blue-600/90 backdrop-blur-md text-[9px] font-black px-2 py-0.5 rounded shadow-lg z-20 border border-white/10 text-white">SSX 오리지널</div>' : ''}
-                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <i data-lucide="play" class="w-10 h-10 fill-white text-white"></i>
-                    </div>
-                    <div class="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black via-black/60 to-transparent">
-                        <h4 class="text-[13px] font-bold truncate mb-1">${movie.title}</h4>
-                        <div class="flex items-center justify-between text-[10px]">
-                            <span class="text-blue-400 font-bold">공식 예고편</span>
-                            <span class="text-yellow-400 font-black">★ ${movie.rating}</span>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-            initIcons();
-        }
-
-        // 카테고리 바 렌더링
+        // 카테고리 렌더링
         function renderCategories() {
-            const container = document.getElementById('category-bar');
-            container.innerHTML = categories.map(cat => `
-                <button onclick="setCategory('${cat}')" class="px-5 py-2 rounded-xl text-xs font-bold flex-shrink-0 transition-all duration-300 border ${
+            const bar = document.getElementById('category-bar');
+            bar.innerHTML = categories.map(cat => `
+                <button onclick="setCategory('${cat}')" class="px-5 py-2 rounded-2xl text-[12px] font-bold flex-shrink-0 transition-all border ${
                     activeCategory === cat 
-                    ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-600/20 scale-105' 
-                    : 'bg-white/5 border-white/5 text-gray-400 hover:bg-white/10'
+                    ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-500/20 scale-105' 
+                    : 'bg-white/5 border-white/5 text-gray-500'
                 }">${cat}</button>
             `).join('');
         }
@@ -221,71 +194,124 @@
             renderMovies();
         }
 
-        // 예고편 재생 로직 (Gemini 활용하여 유튜브 ID 찾기)
-        async function playTrailer(title) {
-            const overlay = document.getElementById('player-overlay');
-            const container = document.getElementById('youtube-container');
-            const details = document.getElementById('movie-details');
-            
-            const movie = movies.find(m => m.title === title) || { title, year: "2025", summary: "SSX OTT가 추천하는 최신 기대작입니다." };
-
-            overlay.style.display = 'flex';
-            container.innerHTML = `
-                <div class="absolute inset-0 flex flex-col items-center justify-center space-y-4">
-                    <div class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                    <p class="text-xs font-bold text-gray-500">예고편 검색 중...</p>
-                </div>
-            `;
-            details.innerHTML = `
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h2 class="text-2xl font-black">${movie.title}</h2>
-                        <p class="text-sm text-blue-500 font-bold">${movie.year} • 공식 예고편</p>
-                    </div>
-                </div>
-                <p class="text-sm text-gray-400 leading-relaxed font-medium">${movie.summary}</p>
-                <button class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-blue-600/30">지금 감상하기</button>
-            `;
-
+        // 영화 데이터 로드
+        async function fetchMovies() {
             try {
+                const prompt = `2024년-2025년 한국 인기 드라마/영화 20개 리스트. JSON: { "contents": [{ "title": "제목", "type": "드라마/영화/예능", "year": "2025", "rating": "9.9", "desc": "한 줄 요약" }] }`;
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: `Search Google and find the YouTube video ID for the official Korean trailer of "${title}". Return ONLY the 11-character video ID.` }] }],
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: { responseMimeType: "application/json" }
+                    })
+                });
+                const data = await response.json();
+                const json = JSON.parse(data.candidates[0].content.parts[0].text);
+                movies = json.contents.map((m, i) => ({
+                    ...m,
+                    id: i,
+                    color: ['#1e40af', '#3730a3', '#9f1239', '#115e59'][i % 4]
+                }));
+                renderMovies();
+            } catch (e) {
+                console.error("Fetch Error", e);
+            }
+        }
+
+        function renderMovies() {
+            const grid = document.getElementById('movie-grid');
+            const filtered = activeCategory === '전체' ? movies : movies.filter(m => m.type === activeCategory);
+            
+            grid.innerHTML = filtered.map(m => `
+                <div onclick="playTrailer('${m.title}', '${m.desc}')" class="movie-card relative aspect-[2/3] rounded-2xl overflow-hidden bg-[#0f1218] shadow-lg">
+                    <div class="absolute inset-0 opacity-40" style="background: linear-gradient(135deg, ${m.color}, transparent)"></div>
+                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-active:opacity-100 transition-opacity">
+                        <i data-lucide="play" class="w-8 h-8 fill-white text-white"></i>
+                    </div>
+                    <div class="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black via-black/40 to-transparent">
+                        <h4 class="text-[12px] font-black truncate">${m.title}</h4>
+                        <p class="text-[9px] text-blue-400 font-bold mt-0.5">SSX TRAILER</p>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        // 스트리밍 시작
+        async function playTrailer(title, desc) {
+            const overlay = document.getElementById('player-overlay');
+            const loader = document.getElementById('video-loader');
+            const target = document.getElementById('youtube-target');
+            const info = document.getElementById('player-info');
+
+            overlay.style.display = 'flex';
+            loader.style.display = 'flex';
+            target.innerHTML = ''; // 초기화
+            
+            info.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <h2 class="text-2xl font-black tracking-tight">${title}</h2>
+                    <div class="flex space-x-2">
+                        <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center"><i data-lucide="plus" class="w-5 h-5"></i></div>
+                        <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center"><i data-lucide="share-2" class="w-5 h-5"></i></div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3 text-[11px] font-bold text-gray-400">
+                    <span class="text-green-500">98% 일치</span>
+                    <span>2025</span>
+                    <span class="px-1 border border-gray-700 rounded-sm text-[9px]">15+</span>
+                    <span>에피소드 1개</span>
+                </div>
+                <p class="text-sm text-gray-300 leading-relaxed line-clamp-2">${desc}</p>
+                <div class="pt-4 grid grid-cols-2 gap-3">
+                    <button class="flex items-center justify-center space-x-2 bg-white text-black py-3 rounded-lg font-black text-sm">
+                        <i data-lucide="play" class="w-4 h-4 fill-black"></i> <span>재생</span>
+                    </button>
+                    <button class="flex items-center justify-center space-x-2 bg-white/10 text-white py-3 rounded-lg font-black text-sm border border-white/5">
+                        <i data-lucide="download" class="w-4 h-4"></i> <span>저장</span>
+                    </button>
+                </div>
+            `;
+            lucide.createIcons();
+
+            try {
+                // 비디오 ID 검색
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: `유튜브에서 "${title} 공식 예고편"의 최신 비디오 ID(11자리)만 하나 알려줘. 형식: ID값만 출력.` }] }],
                         tools: [{ google_search: {} }]
                     })
                 });
                 const data = await response.json();
-                const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-                const match = text.match(/[a-zA-Z0-9_-]{11}/);
-                const videoId = match ? match[0] : "dQw4w9WgXcQ";
+                const videoId = data.candidates[0].content.parts[0].text.trim().match(/[a-zA-Z0-9_-]{11}/)?.[0] || 'dQw4w9WgXcQ';
 
-                container.innerHTML = `
-                    <iframe width="100%" height="100%" 
-                        src="https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0&hl=ko" 
-                        frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
-                    </iframe>
-                `;
-            } catch (error) {
-                container.innerHTML = `<div class="absolute inset-0 flex items-center justify-center text-gray-500">영상을 찾을 수 없습니다.</div>`;
+                // IFrame 삽입
+                target.innerHTML = `<iframe id="yt-player" class="w-full h-full" src="https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=1&rel=0&modestbranding=1&hl=ko" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+                
+                // 로딩 완료 감지 (간이)
+                setTimeout(() => {
+                    loader.style.opacity = '0';
+                    setTimeout(() => loader.style.display = 'none', 500);
+                }, 1500);
+
+            } catch (e) {
+                console.error("Stream Error", e);
+                loader.innerHTML = `<p class="text-red-500 font-bold">스트리밍 서버 연결 실패</p>`;
             }
         }
 
         function closePlayer() {
             const overlay = document.getElementById('player-overlay');
-            const container = document.getElementById('youtube-container');
+            const target = document.getElementById('youtube-target');
             overlay.style.display = 'none';
-            container.innerHTML = ''; // iframe 중지
+            target.innerHTML = ''; // 리소스 해제
         }
 
-        // 초기화 실행
-        window.onload = () => {
-            renderCategories();
-            fetchTrending();
-            initIcons();
-        };
+        // 실행
+        init();
     </script>
 </body>
 </html>
-
