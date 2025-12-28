@@ -1,8 +1,8 @@
-
+<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>한로로(Hanroro) | 프리미엄 웹 에이전시</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -21,25 +21,19 @@
             scroll-behavior: smooth;
             background-color: var(--vibe-deep);
             color: #ffffff;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* 내비게이션 바 */
+        /* Glassmorphism Navigation */
         .glass-nav {
             background: rgba(5, 2, 10, 0.85);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .hero-gradient {
             background: radial-gradient(circle at 50% 50%, #150b2e 0%, #05020a 100%);
-        }
-
-        .card-hover:hover {
-            transform: translateY(-8px);
-            border-color: rgba(138, 79, 255, 0.3);
-            background: rgba(255, 255, 255, 0.05);
-            transition: all 0.4s cubic-bezier(0.2, 1, 0.3, 1);
         }
 
         .gradient-text {
@@ -48,48 +42,28 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* 퍼플 네온 알림창 스타일 */
+        /* Neon UI Elements */
         .neon-notification-bar {
-            background: rgba(13, 5, 25, 0.8);
+            background: rgba(13, 5, 25, 0.9);
             border: 1px solid #8a4fff;
-            box-shadow: 0 0 15px rgba(138, 79, 255, 0.4), inset 0 0 5px rgba(138, 79, 255, 0.2);
+            box-shadow: 0 0 15px rgba(138, 79, 255, 0.3);
             border-radius: 8px;
-            padding: 8px 16px;
+            padding: 6px 12px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            min-width: 480px;
-            animation: slideDown 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .neon-btn {
-            background: #8a4fff;
-            color: white;
-            padding: 4px 14px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 800;
-            transition: all 0.3s;
-        }
-
-        .neon-btn:hover {
-            background: #a78bfa;
-            box-shadow: 0 0 15px #8a4fff;
-        }
-
-        @keyframes slideDown {
-            from { transform: translateY(-20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            width: 100%;
+            max-width: 450px;
         }
 
         .status-dot {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
             background: #8a4fff;
-            box-shadow: 0 0 10px #8a4fff;
+            box-shadow: 0 0 8px #8a4fff;
             display: inline-block;
-            margin-right: 8px;
+            margin-right: 6px;
             animation: pulse-purple 2s infinite;
         }
 
@@ -98,105 +72,202 @@
             50% { opacity: 1; transform: scale(1.1); }
             100% { opacity: 0.6; transform: scale(0.9); }
         }
+
+        /* Hero Image Container Style */
+        .hero-visual-box {
+            background: #0c051a;
+            border-radius: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.5s ease;
+        }
+
+        .hero-visual-box:hover {
+            border-color: rgba(138, 79, 255, 0.2);
+            transform: scale(1.02);
+        }
+
+        .pattern-overlay {
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(rgba(138, 79, 255, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            opacity: 0.3;
+        }
+
+        /* Modal & Scroll */
+        #status-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(15px);
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        #status-modal.active { display: flex; }
+
+        .modal-content {
+            background: #0f0a1f;
+            border: 1px solid rgba(138, 79, 255, 0.3);
+            width: 100%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+            border-radius: 20px;
+            padding: 24px;
+        }
+
+        .card-hover:hover {
+            border-color: rgba(138, 79, 255, 0.4);
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-4px);
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .float-animation {
+            animation: float 4s ease-in-out infinite;
+        }
     </style>
 </head>
 <body class="overflow-x-hidden">
 
     <!-- Navigation -->
     <nav class="fixed w-full z-50 glass-nav">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <!-- 로고 -->
-            <div class="flex items-center space-x-3 shrink-0 cursor-pointer">
-                <i class="fas fa-magic text-2xl text-purple-400 drop-shadow-[0_0_8px_rgba(167,139,250,0.5)]"></i>
-                <div class="text-2xl font-black tracking-tighter gradient-text uppercase">HANRORO</div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-2 shrink-0 cursor-pointer">
+                <i class="fas fa-magic text-xl text-purple-400"></i>
+                <div class="text-xl font-black tracking-tighter gradient-text uppercase">HANRORO</div>
             </div>
             
-            <!-- 네온 알림창 (중앙) -->
-            <div class="hidden lg:flex items-center">
+            <div class="hidden md:flex items-center px-4 flex-1 justify-center">
                 <div class="neon-notification-bar">
-                    <div class="flex items-center space-x-3">
-                        <i class="fas fa-infinity text-purple-400 text-lg"></i>
-                        <span class="text-sm font-black text-white tracking-tighter">60% CASH!</span>
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-infinity text-purple-400 text-sm"></i>
+                        <span class="text-[11px] font-black text-white tracking-tighter">60% CASH!</span>
                     </div>
-                    <div class="h-8 w-[1px] bg-purple-500/30 mx-4"></div>
-                    <div class="flex flex-col flex-1">
-                        <span class="text-[10px] text-purple-300 font-bold uppercase tracking-widest leading-none mb-1">Limited Offer</span>
-                        <span class="text-xs font-medium text-gray-200">단순 웹제작 <span class="text-purple-400 font-bold">60% 다운!</span></span>
+                    <div class="h-6 w-[1px] bg-purple-500/20 mx-3"></div>
+                    <div class="flex flex-col">
+                        <span class="text-[9px] text-purple-300 font-bold uppercase tracking-wider">Event</span>
+                        <span class="text-[11px] font-medium text-gray-200">단순 웹제작 <span class="text-purple-400 font-bold">60% 다운!</span></span>
                     </div>
-                    <button class="neon-btn ml-4">확인</button>
+                    <button class="bg-purple-600 text-white px-3 py-1 rounded text-[10px] font-bold ml-3">확인</button>
                 </div>
             </div>
 
-            <!-- 우측 액션 -->
-            <div class="flex items-center space-x-4 shrink-0">
-                <a href="#status" class="hidden md:flex items-center border border-white/10 text-white px-5 py-2 rounded-md text-sm font-bold hover:bg-white/5 transition-all">
+            <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
+                <button onclick="toggleModal(true)" class="flex items-center border border-white/10 text-white px-3 py-1.5 sm:px-5 sm:py-2 rounded-md text-[11px] sm:text-sm font-bold hover:bg-white/5 transition-all">
                     현황보기
-                </a>
-                <button class="bg-purple-600 text-white px-7 py-2.5 rounded-md font-bold hover:bg-purple-700 transition-all shadow-lg shadow-purple-900/40 text-sm">
+                </button>
+                <button class="bg-purple-600 text-white px-4 py-1.5 sm:px-7 sm:py-2.5 rounded-md font-bold hover:bg-purple-700 transition-all text-[11px] sm:text-sm">
                     시작하기
                 </button>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section id="home" class="hero-gradient min-h-screen flex items-center pt-20">
+    <!-- Hero Section (상단 메인바이브 복구) -->
+    <section class="hero-gradient min-h-[90vh] flex items-center pt-32 pb-20">
         <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
-            <div>
-                <div class="inline-flex items-center px-4 py-1.5 mb-8 rounded-md border border-purple-500/30 bg-purple-500/10 text-purple-300 text-[11px] font-black uppercase tracking-[0.2em]">
+            <div class="text-center md:text-left">
+                <div class="inline-flex items-center px-3 py-1 mb-8 rounded-md border border-purple-500/30 bg-purple-500/10 text-purple-300 text-[10px] font-black uppercase tracking-[0.2em]">
                     Premium Web Agency
                 </div>
-                <h1 class="text-5xl md:text-7xl font-bold leading-[1.1] mb-8">
-                    비즈니스의 가치를 <br>
-                    <span class="gradient-text font-black text-white">퍼플 바이브로</span>
+                <h1 class="text-4xl sm:text-5xl lg:text-7xl font-bold leading-[1.15] mb-8">
+                    비즈니스 가치를 <br class="hidden sm:block">
+                    <span class="gradient-text font-black">퍼플 바이브로</span>
                 </h1>
-                <p class="text-lg md:text-xl text-gray-400 mb-12 leading-relaxed font-light">
-                    한로로는 감각적인 디자인과 견고한 기술력을 결합하여, <br class="hidden md:block">
-                    당신의 브랜드가 온라인에서 가장 빛나도록 설계합니다.
+                <p class="text-sm sm:text-lg text-gray-400 mb-12 leading-relaxed font-light max-w-md mx-auto md:mx-0">
+                    한로로는 감각적인 디자인과 독보적인 기술력을 결합하여,<br class="hidden lg:block"> 당신의 브랜드가 온라인 환경에서 가장 빛나도록 설계합니다.
                 </p>
-                <div class="flex flex-col sm:flex-row gap-4">
-                    <a href="#contact" class="bg-purple-600 text-white px-10 py-4 rounded-md font-bold hover:bg-purple-700 transition-all text-center shadow-xl shadow-purple-900/20">프로젝트 문의</a>
-                    <a href="#portfolio" class="border border-white/10 text-white px-10 py-4 rounded-md font-bold hover:bg-white/5 transition-all text-center">포트폴리오</a>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+                    <button class="bg-purple-600 text-white px-10 py-4 rounded-xl font-bold text-sm shadow-2xl shadow-purple-900/40 hover:bg-purple-700 transition-all">프로젝트 문의</button>
+                    <button class="border border-white/10 text-white px-10 py-4 rounded-xl font-bold text-sm hover:bg-white/5 transition-all">포트폴리오</button>
                 </div>
             </div>
             
-            <div class="relative hidden md:block group">
-                <div class="absolute -inset-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-3xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
-                <div class="relative w-full h-[540px] bg-[#0c051a] rounded-3xl border border-white/5 flex flex-col items-center justify-center overflow-hidden">
-                   <div class="absolute w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
-                   <div class="relative z-10 text-center">
-                       <i class="fas fa-magic text-8xl text-purple-400 mb-8 drop-shadow-[0_0_20px_rgba(167,139,250,0.4)]"></i>
-                       <p class="text-purple-300/40 font-mono tracking-[0.4em] uppercase text-xs">Design & By HANRORO</p>
-                   </div>
+            <!-- 복구된 비주얼 박스 -->
+            <div class="hidden md:block relative group">
+                <div class="absolute -inset-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-[2.5rem] blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+                <div class="hero-visual-box h-[540px]">
+                    <div class="pattern-overlay"></div>
+                    <div class="relative z-10 flex flex-col items-center">
+                        <div class="float-animation">
+                            <i class="fas fa-magic text-8xl lg:text-9xl text-purple-400 mb-10 drop-shadow-[0_0_30px_rgba(167,139,250,0.5)]"></i>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-purple-300 font-bold tracking-[0.5em] uppercase text-xs mb-2">Creative Studio</p>
+                            <p class="text-gray-500 font-mono text-[10px] uppercase">Design By HANRORO</p>
+                        </div>
+                    </div>
+                    <!-- 장식용 요소들 -->
+                    <div class="absolute bottom-8 left-8 w-12 h-[1px] bg-purple-500/30"></div>
+                    <div class="absolute bottom-8 right-8 w-12 h-[1px] bg-purple-500/30"></div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Project Status Section -->
-    <section id="status" class="py-32 border-t border-white/5">
+    <!-- Main Live Status Section -->
+    <section id="main-status" class="py-24 border-t border-white/5 relative">
         <div class="max-w-7xl mx-auto px-6">
-            <div class="flex flex-col md:flex-row justify-between items-end mb-16">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-12">
                 <div>
-                    <h2 class="text-purple-400 font-bold tracking-widest uppercase text-sm mb-4 flex items-center">
-                        <span class="status-dot"></span> Live Status
+                    <h2 class="text-purple-400 font-bold tracking-widest uppercase text-[10px] mb-3 flex items-center">
+                        <span class="status-dot"></span> Real-time Tracking
                     </h2>
-                    <p class="text-4xl md:text-5xl font-black text-white">진행 중인 프로젝트</p>
+                    <h3 class="text-3xl sm:text-4xl font-black text-white">진행 중인 프로젝트</h3>
                 </div>
-                <p class="text-gray-500 mt-6 md:mt-0 font-medium">현재 실시간으로 <span class="text-white">12개</span>의 프로젝트가 가동 중입니다.</p>
+                <p class="text-gray-500 text-sm mt-4 md:mt-0">현재 <span class="text-white font-bold">12개</span>의 프로젝트가 가동 중입니다.</p>
             </div>
-
-            <div id="project-container" class="grid md:grid-cols-3 gap-8">
-                <!-- JS Data -->
+            
+            <div id="main-project-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- JS 데이터 -->
             </div>
         </div>
     </section>
+
+    <!-- Project Status Modal -->
+    <div id="status-modal" onclick="if(event.target === this) toggleModal(false)">
+        <div class="modal-content animate-[slideDown_0.3s_ease-out] relative">
+            <button onclick="toggleModal(false)" class="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+            <div class="mb-8">
+                <h2 class="text-purple-400 font-bold tracking-widest uppercase text-[10px] mb-2 flex items-center">
+                    <span class="status-dot"></span> Live Project Status
+                </h2>
+                <p class="text-2xl font-black text-white">실시간 현황 팝업</p>
+            </div>
+            <div id="modal-project-list" class="grid sm:grid-cols-2 gap-4">
+                <!-- JS 데이터 -->
+            </div>
+            <div class="mt-8 pt-6 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-gray-500 text-[11px]">
+                <p>총 12개의 프로젝트가 안전하게 진행 중입니다.</p>
+                <button onclick="toggleModal(false)" class="w-full sm:w-auto bg-purple-600 text-white px-6 py-2.5 rounded-lg font-bold">확인 완료</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Footer -->
-    <footer class="py-20 border-t border-white/5 bg-black">
+    <footer class="py-12 border-t border-white/5 bg-black">
         <div class="max-w-7xl mx-auto px-6 text-center">
-            <div class="text-2xl font-black text-purple-400 mb-6 uppercase tracking-tighter">Hanroro</div>
-            <p class="text-gray-600 text-sm">© 2024 Hanroro Digital Agency. 모든 권리는 한로로에게 있습니다.</p>
+            <div class="text-xl font-black text-purple-400 mb-4 uppercase tracking-tighter">Hanroro</div>
+            <p class="text-gray-600 text-[10px]">© 2025 Hanroro Creative. All rights reserved.</p>
         </div>
     </footer>
 
@@ -205,36 +276,54 @@
             return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
         }
 
-        function initStatus() {
-            const container = document.getElementById('project-container');
-            // 프로젝트 진행 대상을 한국인 이름 형식으로 변경하고 ** 마스킹 처리 적용
-            const data = [
-                { name: "김** 고객님 웹사이트", progress: 65, phase: "Design", status: "디자인 검수" },
-                { name: "이** 고객님 브랜드몰", progress: 30, phase: "Dev", status: "서버 구축" },
-                { name: "박** 고객님 랜딩페이지", progress: 95, phase: "Test", status: "최종 배포 전" }
-            ];
+        function toggleModal(show) {
+            const modal = document.getElementById('status-modal');
+            if (show) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            } else {
+                modal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        }
 
-            container.innerHTML = data.map(p => `
-                <div class="bg-white/[0.02] p-10 rounded-2xl border border-white/5 card-hover transition-all">
-                    <div class="flex justify-between items-start mb-8">
+        const projectData = [
+            { name: "김** 고객님", progress: 65, phase: "Design", status: "디자인 검수" },
+            { name: "이** 고객님", progress: 30, phase: "Dev", status: "서버 구축" },
+            { name: "박** 고객님", progress: 95, phase: "Test", status: "배포 준비" },
+            { name: "최** 고객님", progress: 45, phase: "Dev", status: "기능 개발" },
+            { name: "정** 고객님", progress: 20, phase: "Plan", status: "기획 컨펌" },
+            { name: "한** 고객님", progress: 80, phase: "Pub", status: "퍼블리싱" }
+        ];
+
+        function renderProjects(containerId, isCompact = false) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            container.innerHTML = projectData.map(p => `
+                <div class="bg-white/[0.03] ${isCompact ? 'p-4' : 'p-6'} rounded-2xl border border-white/5 card-hover transition-all duration-300 group">
+                    <div class="flex justify-between items-start mb-4">
                         <div>
-                            <span class="text-[9px] font-black text-white bg-purple-600/40 px-3 py-1 rounded-sm mb-3 inline-block uppercase tracking-widest">${p.phase}</span>
-                            <h4 class="text-xl font-bold text-white">${p.name}</h4>
+                            <span class="text-[7px] font-black text-white bg-purple-600/40 px-2 py-0.5 rounded-sm mb-2 inline-block uppercase tracking-wider">${p.phase}</span>
+                            <h4 class="${isCompact ? 'text-sm' : 'text-lg'} font-bold text-white group-hover:text-purple-300 transition-colors">${p.name}</h4>
                         </div>
-                        <span class="text-purple-400 font-black text-sm">${p.progress}%</span>
+                        <span class="text-purple-400 font-black ${isCompact ? 'text-[10px]' : 'text-xs'}">${p.progress}%</span>
                     </div>
-                    <div class="w-full bg-white/5 h-1 rounded-full mb-8">
-                        <div class="bg-gradient-to-r from-purple-500 to-blue-500 h-full rounded-full" style="width: ${p.progress}%"></div>
+                    <div class="w-full bg-white/5 h-1 rounded-full mb-4">
+                        <div class="bg-gradient-to-r from-purple-500 to-blue-500 h-full rounded-full transition-all duration-1000" style="width: ${p.progress}%"></div>
                     </div>
-                    <div class="flex justify-between items-center text-[11px] text-gray-500">
-                        <span class="font-medium tracking-tighter">EST. DELIVERY: ${formatDate(new Date())}</span>
+                    <div class="flex justify-between items-center text-[9px] text-gray-500">
+                        <span class="font-medium tracking-tighter italic">DELIVERY: ${formatDate(new Date())}</span>
                         <span class="text-purple-300 font-bold">${p.status}</span>
                     </div>
                 </div>
             `).join('');
         }
 
-        document.addEventListener('DOMContentLoaded', initStatus);
+        document.addEventListener('DOMContentLoaded', () => {
+            renderProjects('main-project-list');
+            renderProjects('modal-project-list', true);
+        });
     </script>
 </body>
 </html>
