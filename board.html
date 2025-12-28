@@ -1,0 +1,208 @@
+import React, { useState, useEffect } from 'react';
+import { initializeApp } from 'firebase/app';
+import { 
+  getAuth, 
+  signInAnonymously, 
+  onAuthStateChanged 
+} from 'firebase/auth';
+import { 
+  getFirestore, 
+  collection, 
+  addDoc, 
+  onSnapshot, 
+  serverTimestamp 
+} from 'firebase/firestore';
+import { MessageSquare, Send, User, Ghost, Hash } from 'lucide-react';
+
+// Firebase configuration from environment
+const firebaseConfig = JSON.parse(__firebase_config);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const appId = typeof __app_id !== 'undefined' ? __app_id : 'pure-anon-board';
+
+// Helper to generate a consistent color based on user ID
+const getUserColor = (uid) => {
+  const colors = [
+    'bg-red-400', 'bg-blue-400', 'bg-green-400', 'bg-yellow-400', 
+    'bg-purple-400', 'bg-pink-400', 'bg-indigo-400', 'bg-teal-400'
+  ];
+  let hash = 0;
+  for (let i = 0; i < uid.length; i++) {
+    hash = uid.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return colors[Math.abs(hash) % colors.length];
+};
+
+export default function App() {
+  const [user, setUser] = useState(null);
+  const [posts, setPosts] = useState([]);
+  const [newPost, setNewPost] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Auto-login anonymously on load
+  useEffect(() => {
+    const login = async () => {
+      try {
+        await signInAnonymously(auth);
+      } catch (error) {
+        console.error("로그인 오류:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    login();
+
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Fetch posts
+  useEffect(() => {
+    if (!user) return;
+
+    const postsRef = collection(db, 'artifacts', appId, 'public', 'data', 'posts');
+    const unsubscribe = onSnapshot(postsRef, (snapshot) => {
+      const postsData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      // Newest first
+      postsData.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+      setPosts(postsData);
+    }, (error) => {
+      console.error("데이터 읽기 오류:", error);
+    });
+
+    return () => unsubscribe();
+  }, [user]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!newPost.trim() || isSubmitting) return;
+
+    setIsSubmitting(true);
+    try {
+      await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'posts'), {
+        content: newPost,
+        userId: user.uid,
+        createdAt: serverTimestamp()
+      });
+      setNewPost('');
+    } catch (error) {
+      console.error("게시 오류:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-bounce p-3 bg-white rounded-full shadow-lg">
+            <Ghost className="w-8 h-8 text-indigo-500" />
+          </div>
+          <p className="text-gray-500 font-medium">익명 연결 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
+      {/* Top Header */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-20">
+        <div className="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="bg-indigo-600 p-1.5 rounded-lg">
+              <MessageSquare className="w-5 h-5 text-white" />
+            </div>
+            <h1 className="text-xl font-extrabold tracking-tight">대나무숲</h1>
+          </div>
+          <div className="flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-full">
+            <div className={`w-2 h-2 rounded-full ${user ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></div>
+            <span className="text-xs font-bold text-gray-600 uppercase">익명 모드 활성화</span>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-2xl mx-auto px-4 py-8">
+        {/* Input Area */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 mb-8 overflow-hidden">
+          <div className="flex gap-4">
+            <div className={`w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-white ${user ? getUserColor(user.uid) : 'bg-gray-200'}`}>
+              <User className="w-6 h-6" />
+            </div>
+            <form onSubmit={handleSubmit} className="flex-1">
+              <textarea
+                value={newPost}
+                onChange={(e) => setNewPost(e.target.value)}
+                placeholder="지금 무슨 일이 일어나고 있나요?"
+                className="w-full text-lg bg-transparent border-none focus:ring-0 placeholder-gray-400 resize-none min-h-[100px] py-2"
+              />
+              <div className="mt-4 pt-4 border-t border-gray-100 flex justify-end">
+                <button
+                  type="submit"
+                  disabled={!newPost.trim() || isSubmitting}
+                  className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white px-6 py-2 rounded-full font-bold transition-all flex items-center gap-2 shadow-md shadow-indigo-100"
+                >
+                  <Send className="w-4 h-4" />
+                  게시
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        {/* Feed */}
+        <div className="space-y-6">
+          {posts.length === 0 ? (
+            <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-300">
+              <Ghost className="w-12 h-12 text-gray-200 mx-auto mb-3" />
+              <p className="text-gray-400">아직 아무도 이야기를 시작하지 않았습니다.</p>
+            </div>
+          ) : (
+            posts.map((post) => (
+              <article key={post.id} className="bg-white rounded-2xl border border-gray-200 p-6 transition-all hover:border-indigo-200">
+                <div className="flex gap-4">
+                  <div className={`w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-white ${getUserColor(post.userId)}`}>
+                    <User className="w-6 h-6" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-bold text-gray-900">익명 사용자</span>
+                      <span className="text-gray-400 text-sm">·</span>
+                      <span className="text-gray-400 text-sm">
+                        {post.createdAt ? new Date(post.createdAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '방금 전'}
+                      </span>
+                    </div>
+                    <p className="text-gray-800 text-[17px] leading-relaxed whitespace-pre-wrap break-words">
+                      {post.content}
+                    </p>
+                    <div className="mt-4 flex items-center gap-1 text-gray-300">
+                      <Hash className="w-3 h-3" />
+                      <span className="text-[10px] font-mono tracking-tighter">
+                        {post.userId.substring(0, 12)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            ))
+          )}
+        </div>
+      </main>
+
+      <footer className="max-w-2xl mx-auto px-4 pb-12 text-center">
+        <p className="text-gray-400 text-xs">
+          모든 글은 익명으로 기록되며 데이터베이스에 실시간으로 저장됩니다.
+        </p>
+      </footer>
+    </div>
+  );
+}
+
