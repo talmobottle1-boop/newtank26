@@ -42,7 +42,6 @@
             filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.4));
         }
 
-        /* [NEW] Dark Premium Card Banner Styles */
         .card-premium-banner {
             width: 360px;
             height: 420px;
@@ -118,15 +117,6 @@
             position: relative;
             overflow: hidden;
         }
-        .btn-highlight::after {
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%; width: 200%; height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
-            transform: rotate(45deg);
-            animation: shine 3s infinite;
-        }
-        @keyframes shine { 0% { left: -100%; } 100% { left: 100%; } }
 
         .glass-panel {
             background: rgba(255, 255, 255, 0.02);
@@ -134,6 +124,24 @@
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 32px;
             transition: all 0.4s ease;
+        }
+
+        /* Sort Buttons Style */
+        .filter-btn {
+            padding: 10px 24px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .filter-btn.active {
+            background: #a855f7;
+            color: white;
+            border-color: #a855f7;
+            box-shadow: 0 8px 20px rgba(168, 85, 247, 0.3);
         }
 
         /* Modal */
@@ -149,7 +157,6 @@
             padding: 20px;
         }
         .modal-backdrop.active { display: flex; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
         .modal-content {
             width: 100%;
@@ -185,7 +192,7 @@
         }
         #miniPopup.show { transform: translateX(-50%) translateY(0); }
 
-        /* Bitget Banner Styles */
+        /* [RESTORED] Bitget Skyblue Banner Styles */
         .bitget-banner {
             position: relative;
             width: 100%;
@@ -202,8 +209,37 @@
         }
         .bitget-banner:hover { transform: translateY(-5px); }
         .banner-title { font-size: clamp(24px, 5vw, 42px); font-weight: 800; color: #111827; line-height: 1.2; z-index: 10; }
-        .banner-badge { display: inline-flex; align-items: center; align-self: flex-start; margin-top: 20px; padding: 8px 20px; background: rgba(255, 255, 255, 0.8); border-radius: 999px; font-size: 14px; font-weight: 800; color: #111827; z-index: 10; }
-        .banner-logo-box { position: absolute; right: 40px; top: 50%; transform: translateY(-50%); width: 100px; height: 100px; background: #38bdf8; border-radius: 24px; display: flex; justify-content: center; align-items: center; font-size: 50px; font-weight: 900; color: #020617; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 10; }
+        .banner-badge { 
+            display: inline-flex; 
+            align-items: center; 
+            align-self: flex-start; 
+            margin-top: 20px; 
+            padding: 8px 20px; 
+            background: rgba(255, 255, 255, 0.8); 
+            border-radius: 999px; 
+            font-size: 14px; 
+            font-weight: 800; 
+            color: #111827; 
+            z-index: 10; 
+        }
+        .banner-logo-box { 
+            position: absolute; 
+            right: 40px; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            width: 100px; 
+            height: 100px; 
+            background: #38bdf8; 
+            border-radius: 24px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            font-size: 50px; 
+            font-weight: 900; 
+            color: #020617; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            z-index: 10; 
+        }
     </style>
 </head>
 <body>
@@ -245,21 +281,17 @@
             </div>
             
             <div class="flex justify-center items-center">
-                <!-- [RESTORED] Dark Premium Banner Card placed here -->
                 <div class="card-premium-banner animate-float">
                     <div class="title">리나닷컴 필수 페이백</div>
                     <div class="subtitle">놓치면 손해!</div>
                     <div class="desc">매수와 매도 수수료 돌려받기</div>
-
-                    <div class="logo">
-                        <span>b</span>
-                    </div>
+                    <div class="logo"><span>b</span></div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- [Banner Section] Still Kept Here -->
+    <!-- [RESTORED] Skyblue Banner Section -->
     <section class="py-12 px-8">
         <div class="max-w-7xl mx-auto">
             <div class="bitget-banner shadow-2xl">
@@ -278,10 +310,16 @@
     <!-- Exchange Cards Grid -->
     <section id="featured" class="py-20 px-8">
         <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-16 space-y-4">
+            <div class="text-center mb-10 space-y-4">
                 <h2 class="text-4xl md:text-5xl font-bold text-white text-neon">제휴 거래소</h2>
-                <div class="h-1 w-24 bg-purple-500/30 mx-auto mt-2 rounded-full"></div>
                 <p class="text-xs text-purple-200/30 uppercase tracking-[0.4em] font-bold">Official Certified Partners</p>
+            </div>
+
+            <!-- Sort Buttons Area -->
+            <div class="flex justify-center gap-3 mb-12">
+                <button onclick="sortExchanges('default', this)" class="filter-btn active">기본순</button>
+                <button onclick="sortExchanges('popular', this)" class="filter-btn">인기순</button>
+                <button onclick="sortExchanges('payback', this)" class="filter-btn">페이백 높은순</button>
             </div>
 
             <div id="exchangeContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -360,12 +398,12 @@
     </div>
 
     <script>
-        const exchanges = [
-            { name: '바이낸스', code: 'BINANCE', payback: 30, color: 'from-[#f3ba2f]/20', logo: 'https://upload.wikimedia.org/wikipedia/commons/e/e8/Binance_Logo.svg' },
-            { name: '바이비트', code: 'BYBIT', payback: 25, color: 'from-zinc-100/10', logo: 'https://cdn.iconscout.com/icon/free/png-256/free-bybit-logo-icon-download-in-svg-png-gif-formats--blockchain-crypto-brand-logos-pack-icons-4680415.png' },
-            { name: '비트겟', code: 'BITGET', payback: 81, color: 'from-[#00f0ff]/20', logo: 'https://cdn.worldvectorlogo.com/logos/bitget-logo.svg' },
-            { name: 'OKX', code: 'OKX', payback: 30, color: 'from-white/5', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/OKX_logo.svg/2560px-OKX_logo.svg.png' },
-            { name: '딥코인', code: 'DEEPCOIN', payback: 50, color: 'from-[#0052ff]/20', logo: 'https://s2.coinmarketcap.com/static/img/exchanges/64x64/1109.png' }
+        let exchanges = [
+            { id: 1, name: '바이낸스', code: 'BINANCE', payback: 30, popularity: 95, color: 'from-[#f3ba2f]/20', logo: 'https://upload.wikimedia.org/wikipedia/commons/e/e8/Binance_Logo.svg' },
+            { id: 2, name: '바이비트', code: 'BYBIT', payback: 25, popularity: 90, color: 'from-zinc-100/10', logo: 'https://cdn.iconscout.com/icon/free/png-256/free-bybit-logo-icon-download-in-svg-png-gif-formats--blockchain-crypto-brand-logos-pack-icons-4680415.png' },
+            { id: 3, name: '비트겟', code: 'BITGET', payback: 81, popularity: 100, color: 'from-[#00f0ff]/20', logo: 'https://cdn.worldvectorlogo.com/logos/bitget-logo.svg' },
+            { id: 4, name: 'OKX', code: 'OKX', payback: 30, popularity: 85, color: 'from-white/5', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/OKX_logo.svg/2560px-OKX_logo.svg.png' },
+            { id: 5, name: '딥코인', code: 'DEEPCOIN', payback: 50, popularity: 70, color: 'from-[#0052ff]/20', logo: 'https://s2.coinmarketcap.com/static/img/exchanges/64x64/1109.png' }
         ];
 
         function renderCards() {
@@ -389,6 +427,21 @@
                     </div>
                 `;
             });
+        }
+
+        function sortExchanges(type, btn) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            if (type === 'default') {
+                exchanges.sort((a, b) => a.id - b.id);
+            } else if (type === 'popular') {
+                exchanges.sort((a, b) => b.popularity - a.popularity);
+            } else if (type === 'payback') {
+                exchanges.sort((a, b) => b.payback - a.payback);
+            }
+
+            renderCards();
         }
 
         function generateStatus() {
