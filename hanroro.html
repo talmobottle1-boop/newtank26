@@ -289,11 +289,46 @@
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="py-12 border-t border-white/5 bg-black">
-        <div class="max-w-7xl mx-auto px-6 text-center">
-            <div class="text-xl font-black text-purple-400 mb-4 uppercase tracking-tighter">Hanroro</div>
-            <p class="text-gray-600 text-[10px]">© 2025 Hanroro Creative. All rights reserved.</p>
+    <!-- Footer (사업자 정보 보강) -->
+    <footer class="py-16 border-t border-white/5 bg-black">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-8">
+                <div class="shrink-0">
+                    <div class="text-2xl font-black text-purple-400 mb-4 uppercase tracking-tighter">Hanroro</div>
+                    <div class="flex space-x-4 text-gray-400">
+                        <a href="#" class="hover:text-purple-400 transition-colors"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="hover:text-purple-400 transition-colors"><i class="fab fa-behance"></i></a>
+                        <a href="#" class="hover:text-purple-400 transition-colors"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 md:gap-16 text-left">
+                    <div class="space-y-2">
+                        <p class="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-4">Contact Us</p>
+                        <p class="text-gray-500 text-[11px] leading-relaxed">
+                            <span class="text-gray-300">대표:</span> 김상우 <br>
+                            <span class="text-gray-300">이메일:</span> contact@hanroro.com <br>
+                            <span class="text-gray-300">주소:</span> 서울특별시 강남구 테헤란로 123 퍼플타워 8F
+                        </p>
+                    </div>
+                    <div class="space-y-2">
+                        <p class="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-4">Business Info</p>
+                        <p class="text-gray-500 text-[11px] leading-relaxed">
+                            <span class="text-gray-300">사업자 등록번호:</span> 540-40-00028<br>
+                            <span class="text-gray-300">통신판매업 신고:</span> 제 2015-안양만안-00105호 <br>
+                            <span class="text-gray-300">고객센터:</span> 0507-1354-9107 (평일 10:30 - 18:00)
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-gray-600 text-[10px]">© 2026 Hanroro. All rights reserved.</p>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-600 hover:text-white text-[10px] transition-colors">이용약관</a>
+                    <a href="#" class="text-gray-600 hover:text-white text-[10px] transition-colors font-bold">개인정보처리방침</a>
+                </div>
+            </div>
         </div>
     </footer>
 
@@ -318,7 +353,6 @@
             { name: "한** 고객님", progress: 80, phase: "Pub", status: "퍼블리싱" }
         ];
 
-        // 15종 포트폴리오 시안 데이터 생성
         const portfolioData = Array.from({ length: 15 }, (_, i) => ({
             id: i + 1,
             title: `시안 Concept #${String(i + 1).padStart(2, '0')}`,
