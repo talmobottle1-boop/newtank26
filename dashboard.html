@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>리나닷컴 대시보드 | 마이 페이백</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains_Mono:wght@400;700&display=swap');
+
+        :root {
+            --bg-deep: #0f0a1e;
+            --brand-primary: #a855f7;
+            --text-main: #f5f3ff;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        .bg-mesh {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                radial-gradient(circle at 10% 10%, rgba(168, 85, 247, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(139, 92, 246, 0.08) 0%, transparent 40%);
+            z-index: -1;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+        }
+
+        .admin-section {
+            background: rgba(168, 85, 247, 0.05);
+            border: 1px dashed rgba(168, 85, 247, 0.3);
+            border-radius: 24px;
+        }
+
+        .stat-value {
+            font-family: 'JetBrains_Mono', monospace;
+            letter-spacing: -0.05em;
+        }
+
+        .sidebar-item.active {
+            background: rgba(168, 85, 247, 0.15);
+            border-left: 3px solid #a855f7;
+            color: #d8b4fe;
+        }
+
+        .input-dark {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 10px 14px;
+            color: white;
+            font-size: 13px;
+            outline: none;
+            width: 100%;
+            transition: all 0.2s;
+        }
+
+        .input-dark:focus {
+            border-color: #a855f7;
+            background: rgba(168, 85, 247, 0.1);
+        }
+
+        .btn-save {
+            background: #a855f7;
+            color: white;
+            font-weight: 700;
+            padding: 12px;
+            border-radius: 12px;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-save:hover { background: #9333ea; transform: translateY(-2px); shadow: 0 4px 15px rgba(168, 85, 247, 0.4); }
+        .btn-save:active { transform: translateY(0); }
+
+        /* Notification Toast */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #a855f7;
+            color: #fff;
+            text-align: center;
+            border-radius: 12px;
+            padding: 16px;
+            position: fixed;
+            z-index: 100;
+            right: 30px;
+            bottom: 30px;
+            font-weight: bold;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        #toast.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
+        @media (max-width: 1024px) {
+            .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
+            .sidebar.open { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex">
+    <div class="bg-mesh"></div>
+    <div id="toast">설정이 저장되었습니다!</div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar fixed inset-y-0 left-0 w-64 bg-[#0a0515]/90 border-r border-white/5 z-50 lg:static lg:transform-none">
+        <div class="p-6">
+            <div class="flex items-center space-x-2.5 mb-10 cursor-pointer" onclick="location.href='index.html'">
+                <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-purple-500 to-purple-800 flex items-center justify-center shadow-lg">
+                    <i class="fas fa-infinity text-white text-xs"></i>
+                </div>
+                <span class="text-lg font-bold italic tracking-tighter text-white">리나<span class="text-purple-500">닷컴</span></span>
+            </div>
+
+            <nav class="space-y-1">
+                <a href="#summary" class="sidebar-item active flex items-center space-x-3 px-4 py-3.5 rounded-xl text-sm font-medium transition-all">
+                    <i class="fas fa-th-large w-5"></i>
+                    <span>종합 현황</span>
+                </a>
+                <a href="#admin-home" class="sidebar-item flex items-center space-x-3 px-4 py-3.5 rounded-xl text-sm font-medium text-white/40 hover:text-white transition-all">
+                    <i class="fas fa-tools w-5"></i>
+                    <span>홈페이지 관리</span>
+                </a>
+                <a href="#admin-exchange" class="sidebar-item flex items-center space-x-3 px-4 py-3.5 rounded-xl text-sm font-medium text-white/40 hover:text-white transition-all">
+                    <i class="fas fa-list w-5"></i>
+                    <span>거래소 목록 관리</span>
+                </a>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col min-w-0">
+        <header class="h-16 border-b border-white/5 flex items-center justify-between px-6 lg:px-10 bg-[#0f0a1e]/50 backdrop-blur-md sticky top-0 z-40">
+            <div class="flex items-center">
+                <button onclick="toggleSidebar()" class="lg:hidden text-white mr-4"><i class="fas fa-bars"></i></button>
+                <h1 class="text-sm font-bold text-white/80 uppercase tracking-widest">Admin Control Panel</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="text-[10px] bg-red-500/20 text-red-400 px-2 py-1 rounded font-bold border border-red-500/30">관리자 모드 활성</div>
+            </div>
+        </header>
+
+        <div class="p-6 lg:p-10 space-y-12 max-w-7xl mx-auto w-full">
+            
+            <!-- Summary Stats -->
+            <section id="summary" class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+                <div class="glass-card p-6 border-l-4 border-l-purple-500">
+                    <p class="text-[11px] font-bold text-white/40 uppercase tracking-widest mb-2">총 환급액 관리</p>
+                    <div class="flex items-baseline space-x-2">
+                        <span id="stat-total" class="text-3xl font-bold stat-value text-white">12,450.50</span>
+                        <span class="text-xs font-bold text-purple-400">USDT</span>
+                    </div>
+                </div>
+                <div class="glass-card p-6">
+                    <p class="text-[11px] font-bold text-white/40 uppercase tracking-widest mb-2">활성 연결 유저</p>
+                    <div class="flex items-baseline space-x-2">
+                        <span id="stat-users" class="text-3xl font-bold stat-value text-white">1,204</span>
+                        <span class="text-xs font-bold text-emerald-400">명</span>
+                    </div>
+                </div>
+                <div class="glass-card p-6">
+                    <p class="text-[11px] font-bold text-white/40 uppercase tracking-widest mb-2">미처리 출금</p>
+                    <div class="flex items-baseline space-x-2">
+                        <span id="stat-withdraws" class="text-3xl font-bold stat-value text-white">3</span>
+                        <span class="text-xs font-bold text-purple-400">건</span>
+                    </div>
+                </div>
+            </section>
+
+            <hr class="border-white/5">
+
+            <!-- [1] 상단 팝업 및 헤더 관리 -->
+            <section id="admin-home" class="admin-section p-8 space-y-8">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center shadow-[0_0_15px_rgba(168,85,247,0.5)]"><i class="fas fa-bullhorn text-white"></i></div>
+                    <h2 class="text-xl font-bold">상단 팝업 및 메인 헤더 설정</h2>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-4">
+                        <h3 class="text-xs font-black text-purple-400 uppercase tracking-widest">팝업 문구 및 버튼</h3>
+                        <div class="space-y-3">
+                            <label class="text-[11px] text-white/50">메인 팝업 텍스트</label>
+                            <input type="text" id="top-popup-text" class="input-dark" value="지금 바이낸스 페이백 원해?">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="text-[11px] text-white/50">거래소 버튼명</label>
+                                    <input type="text" id="top-popup-exchange" class="input-dark" value="바이낸스">
+                                </div>
+                                <div>
+                                    <label class="text-[11px] text-white/50">액션 버튼명</label>
+                                    <input type="text" id="top-popup-action" class="input-dark" value="지금 연결">
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2 pt-2">
+                                <input type="checkbox" id="top-popup-hide" class="w-4 h-4 rounded bg-white/5 border-white/10 accent-purple-500">
+                                <label for="top-popup-hide" class="text-xs text-red-400 font-bold">상단 팝업 숨기기 (삭제 효과)</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h3 class="text-xs font-black text-purple-400 uppercase tracking-widest">환급액 테스트 거래소 목록</h3>
+                        <div class="space-y-3">
+                            <label class="text-[11px] text-white/50">계산기에 표시될 거래소 (콤마로 구분)</label>
+                            <textarea id="calc-exchanges" class="input-dark h-24">Binance, Bitget, Bybit, OKX, Deepcoin, Mexc</textarea>
+                            <p class="text-[10px] text-white/30 italic">* 입력하신 순서대로 메인 홈 계산기에 노출됩니다.</p>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="saveSettings('home')" class="btn-save w-full md:w-auto px-10">설정 저장하기</button>
+            </section>
+
+            <!-- [2] 배너 및 카드 관리 -->
+            <section class="admin-section p-8 space-y-8 border-cyan-500/30 bg-cyan-500/5">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-cyan-500 flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.5)]"><i class="fas fa-image text-white"></i></div>
+                    <h2 class="text-xl font-bold">배너 및 플로팅 카드 설정</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <!-- Skyblue Banner -->
+                    <div class="space-y-4">
+                        <h3 class="text-xs font-black text-cyan-400 uppercase tracking-widest">스카이블루 배너 (Bitget)</h3>
+                        <div class="space-y-3">
+                            <label class="text-[11px] text-white/50">배너 제목</label>
+                            <input type="text" id="banner-title" class="input-dark" value="Bitget 수수료 81% 역대 최고 페이백">
+                            <label class="text-[11px] text-white/50">배지 텍스트</label>
+                            <input type="text" id="banner-badge" class="input-dark" value="리나닷컴 한정 이벤트">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="text-[11px] text-white/50">배경색 (Hex)</label>
+                                    <input type="text" id="banner-bg" class="input-dark" value="#67e8f9">
+                                </div>
+                                <div>
+                                    <label class="text-[11px] text-white/50">우측 아이콘 (FA class)</label>
+                                    <input type="text" id="banner-icon" class="input-dark" value="fa-bolt">
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2 pt-2">
+                                <input type="checkbox" id="banner-hide" class="w-4 h-4 rounded accent-cyan-500">
+                                <label for="banner-hide" class="text-xs text-red-400 font-bold">이 배너 삭제하기</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Floating Card -->
+                    <div class="space-y-4">
+                        <h3 class="text-xs font-black text-purple-400 uppercase tracking-widest">필수 페이백 카드 (섹션1 우측)</h3>
+                        <div class="space-y-3">
+                            <label class="text-[11px] text-white/50">카드 제목</label>
+                            <input type="text" id="card-title" class="input-dark" value="리나닷컴 필수 페이백">
+                            <label class="text-[11px] text-white/50">설명 문구</label>
+                            <input type="text" id="card-desc" class="input-dark" value="매수와 매도 수수료 돌려받기">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="text-[11px] text-white/50">중앙 로고 텍스트</label>
+                                    <input type="text" id="card-logo" class="input-dark" value="b">
+                                </div>
+                                <div>
+                                    <label class="text-[11px] text-white/50">애니메이션 속도</label>
+                                    <select id="card-anim" class="input-dark">
+                                        <option value="6s">천천히 (6s)</option>
+                                        <option value="4s" selected>보통 (4s)</option>
+                                        <option value="2s">빠름 (2s)</option>
+                                        <option value="none">없음</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="saveSettings('banner')" class="btn-save w-full md:w-auto px-10 bg-cyan-600">배너 설정 업데이트</button>
+            </section>
+
+            <!-- [3] 제휴 거래소 목록 상세 관리 -->
+            <section id="admin-exchange" class="glass-card p-8 space-y-8">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center shadow-[0_0_15px_rgba(99,102,241,0.5)]"><i class="fas fa-university text-white"></i></div>
+                        <h2 class="text-xl font-bold">제휴 거래소 상세 관리</h2>
+                    </div>
+                    <button onclick="addExchangeRow()" class="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-xs font-bold hover:bg-white/10 transition-all">+ 거래소 추가</button>
+                </div>
+
+                <div id="exchange-list" class="space-y-6">
+                    <!-- Exchange items will be injected here via JS -->
+                </div>
+                <button onclick="saveSettings('exchange')" class="btn-save w-full">전체 거래소 목록 저장 및 동기화</button>
+            </section>
+
+            <!-- [4] 하단 팝업 및 기타 설정 -->
+            <section class="admin-section p-8 space-y-8 border-yellow-500/30 bg-yellow-500/5">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center shadow-[0_0_15px_rgba(234,179,8,0.5)]"><i class="fas fa-comment-dots text-white"></i></div>
+                    <h2 class="text-xl font-bold">하단 고정 미니 팝업 관리</h2>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-4">
+                        <h3 class="text-xs font-black text-yellow-400 uppercase tracking-widest">팝업 텍스트</h3>
+                        <div class="space-y-3">
+                            <label class="text-[11px] text-white/50">메인 텍스트</label>
+                            <input type="text" id="mini-main-text" class="input-dark" value="환급액 1분 확인">
+                            <label class="text-[11px] text-white/50">서브 텍스트 (상단)</label>
+                            <input type="text" id="mini-sub-text" class="input-dark" value="Check My Payback">
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <h3 class="text-xs font-black text-yellow-400 uppercase tracking-widest">버튼 및 상태</h3>
+                        <div class="space-y-3">
+                            <label class="text-[11px] text-white/50">버튼 텍스트</label>
+                            <input type="text" id="mini-btn-text" class="input-dark" value="시작">
+                            <div class="flex items-center space-x-2 pt-6">
+                                <input type="checkbox" id="mini-hide" class="w-4 h-4 rounded accent-yellow-500">
+                                <label for="mini-hide" class="text-xs text-red-400 font-bold">이 팝업 비활성화 (삭제)</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="saveSettings('mini')" class="btn-save w-full md:w-auto px-10 bg-yellow-600">미니 팝업 설정 저장</button>
+            </section>
+
+        </div>
+
+        <footer class="mt-auto py-10 px-6 border-t border-white/5 text-center">
+            <p class="text-[10px] text-white/20 uppercase tracking-[0.2em] font-medium">LinaDotCom Admin Control System © 2025</p>
+        </footer>
+    </main>
+
+    <script>
+        // --- Core Logic & State Management ---
+
+        // Initial Data for Exchanges
+        let exchanges = [
+            { id: 1, name: '비트겟 (Bitget)', rate: 81, color: 'from-[#00f0ff]/20', logo: 'https://cdn.worldvectorlogo.com/logos/bitget-logo.svg', link: 'https://partner.bitget.com/bg/LINA' },
+            { id: 2, name: '바이낸스 (Binance)', rate: 30, color: 'from-[#f3ba2f]/20', logo: 'https://upload.wikimedia.org/wikipedia/commons/e/e8/Binance_Logo.svg', link: 'https://accounts.binance.com/register?ref=LINA' }
+        ];
+
+        // 1. Initialize Dashboard on Load
+        window.onload = function() {
+            loadAllData();
+            renderExchanges();
+        };
+
+        function toggleSidebar() {
+            const sb = document.getElementById('sidebar');
+            sb.classList.toggle('open');
+        }
+
+        // 2. Render Exchange Rows
+        function renderExchanges() {
+            const container = document.getElementById('exchange-list');
+            container.innerHTML = '';
+            
+            exchanges.forEach((ex, index) => {
+                const row = document.createElement('div');
+                row.className = "p-6 bg-white/2 border border-white/5 rounded-2xl space-y-6 relative group hover:border-indigo-500/30 transition-all";
+                row.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-white/10 rounded p-2 flex items-center justify-center">
+                                <img src="${ex.logo}" onerror="this.src='https://via.placeholder.com/40?text=?'" class="max-h-full">
+                            </div>
+                            <input type="text" class="bg-transparent border-none text-white font-bold text-lg outline-none focus:ring-1 focus:ring-indigo-500 rounded px-1" value="${ex.name}" onchange="updateExData(${index}, 'name', this.value)">
+                        </div>
+                        <button onclick="deleteExchange(${index})" class="text-red-400 text-xs font-bold hover:text-red-300 transition-colors"><i class="fas fa-trash-alt mr-1"></i> 삭제</button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="text-[10px] text-white/40 block mb-1 uppercase font-bold">페이백 요율 (%)</label>
+                            <input type="number" class="input-dark" value="${ex.rate}" onchange="updateExData(${index}, 'rate', this.value)">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-white/40 block mb-1 uppercase font-bold">카드 배경색 (Tailwind)</label>
+                            <input type="text" class="input-dark" value="${ex.color}" onchange="updateExData(${index}, 'color', this.value)">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-white/40 block mb-1 uppercase font-bold">로고 이미지 URL</label>
+                            <input type="text" class="input-dark" value="${ex.logo}" onchange="updateExData(${index}, 'logo', this.value)">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-white/40 block mb-1 uppercase font-bold">연결하기 링크 (가입 링크)</label>
+                        <input type="text" class="input-dark" value="${ex.link}" onchange="updateExData(${index}, 'link', this.value)">
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function updateExData(index, key, value) {
+            exchanges[index][key] = value;
+        }
+
+        function addExchangeRow() {
+            exchanges.push({
+                id: Date.now(),
+                name: '새 거래소',
+                rate: 50,
+                color: 'from-purple-500/20',
+                logo: '',
+                link: '#'
+            });
+            renderExchanges();
+            showToast("새 거래소 항목이 추가되었습니다.");
+        }
+
+        function deleteExchange(index) {
+            if(confirm('정말로 이 거래소 정보를 삭제하시겠습니까?')) {
+                exchanges.splice(index, 1);
+                renderExchanges();
+                showToast("거래소가 삭제되었습니다.");
+            }
+        }
+
+        // 3. Save Logic
+        function saveSettings(section) {
+            let data = {};
+            
+            if (section === 'home') {
+                data = {
+                    topText: document.getElementById('top-popup-text').value,
+                    topExchange: document.getElementById('top-popup-exchange').value,
+                    topAction: document.getElementById('top-popup-action').value,
+                    topHide: document.getElementById('top-popup-hide').checked,
+                    calcExchanges: document.getElementById('calc-exchanges').value
+                };
+                localStorage.setItem('lina_home_settings', JSON.stringify(data));
+            } 
+            else if (section === 'banner') {
+                data = {
+                    bannerTitle: document.getElementById('banner-title').value,
+                    bannerBadge: document.getElementById('banner-badge').value,
+                    bannerBg: document.getElementById('banner-bg').value,
+                    bannerIcon: document.getElementById('banner-icon').value,
+                    bannerHide: document.getElementById('banner-hide').checked,
+                    cardTitle: document.getElementById('card-title').value,
+                    cardDesc: document.getElementById('card-desc').value,
+                    cardLogo: document.getElementById('card-logo').value,
+                    cardAnim: document.getElementById('card-anim').value
+                };
+                localStorage.setItem('lina_banner_settings', JSON.stringify(data));
+            }
+            else if (section === 'exchange') {
+                localStorage.setItem('lina_exchange_list', JSON.stringify(exchanges));
+            }
+            else if (section === 'mini') {
+                data = {
+                    miniMain: document.getElementById('mini-main-text').value,
+                    miniSub: document.getElementById('mini-sub-text').value,
+                    miniBtn: document.getElementById('mini-btn-text').value,
+                    miniHide: document.getElementById('mini-hide').checked
+                };
+                localStorage.setItem('lina_mini_settings', JSON.stringify(data));
+            }
+
+            showToast("설정값이 성공적으로 저장되었습니다!");
+        }
+
+        function loadAllData() {
+            // Load Home
+            const home = JSON.parse(localStorage.getItem('lina_home_settings'));
+            if(home) {
+                document.getElementById('top-popup-text').value = home.topText;
+                document.getElementById('top-popup-exchange').value = home.topExchange;
+                document.getElementById('top-popup-action').value = home.topAction;
+                document.getElementById('top-popup-hide').checked = home.topHide;
+                document.getElementById('calc-exchanges').value = home.calcExchanges;
+            }
+
+            // Load Banners
+            const banner = JSON.parse(localStorage.getItem('lina_banner_settings'));
+            if(banner) {
+                document.getElementById('banner-title').value = banner.bannerTitle;
+                document.getElementById('banner-badge').value = banner.bannerBadge;
+                document.getElementById('banner-bg').value = banner.bannerBg;
+                document.getElementById('banner-icon').value = banner.bannerIcon;
+                document.getElementById('banner-hide').checked = banner.bannerHide;
+                document.getElementById('card-title').value = banner.cardTitle;
+                document.getElementById('card-desc').value = banner.cardDesc;
+                document.getElementById('card-logo').value = banner.cardLogo;
+                document.getElementById('card-anim').value = banner.cardAnim;
+            }
+
+            // Load Exchanges
+            const savedEx = JSON.parse(localStorage.getItem('lina_exchange_list'));
+            if(savedEx) exchanges = savedEx;
+
+            // Load Mini
+            const mini = JSON.parse(localStorage.getItem('lina_mini_settings'));
+            if(mini) {
+                document.getElementById('mini-main-text').value = mini.miniMain;
+                document.getElementById('mini-sub-text').value = mini.miniSub;
+                document.getElementById('mini-btn-text').value = mini.miniBtn;
+                document.getElementById('mini-hide').checked = mini.miniHide;
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById("toast");
+            toast.innerText = msg;
+            toast.className = "show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+
+        // Side navigation focus effect
+        document.querySelectorAll('.sidebar-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                if (window.innerWidth < 1024) toggleSidebar();
+            });
+        });
+    </script>
+</body>
+</html>
