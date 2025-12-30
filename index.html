@@ -1,410 +1,578 @@
-<!DOCTYPE html>
+
 <html lang="ko">
 <head>
-  <style>
-    .exchange-row{position:relative;}
-    .exchange-row::before{
-      content:'';
-      position:absolute;
-      inset:-1px;
-      border-radius:0.75rem;
-      background:linear-gradient(90deg,#38bdf8,#6366f1,#38bdf8);
-      opacity:0;
-      transition:opacity .25s ease;
-      z-index:-1;
-    }
-    .exchange-row:hover::before{opacity:1;}
-    .exchange-logo{
-      transition:transform .25s ease, filter .25s ease;
-    }
-    .exchange-row:hover .exchange-logo{
-      transform:scale(1.08);
-      filter:drop-shadow(0 0 6px rgba(56,189,248,.6));
-    }
-    .light-mode .exchange-logo{
-      filter:none;
-    }
-    .neon-border{
-      box-shadow: 0 0 8px rgba(0,255,255,0.4), 0 0 16px rgba(0,255,255,0.25);
-      animation: neonPulse 2.5s ease-in-out infinite;
-    }
-    @keyframes neonPulse{
-      0%,100%{box-shadow:0 0 8px rgba(56,189,248,.4),0 0 16px rgba(99,102,241,.4),0 0 32px rgba(56,189,248,.6)}
-      50%{box-shadow:0 0 16px rgba(56,189,248,.9),0 0 32px rgba(99,102,241,.9),0 0 48px rgba(56,189,248,1)}
-    }
-    @media (max-width:640px){
-      /* 로고 */
-      .exchange-logo{width:2rem;height:2rem;}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>리나닷컴 | 테더 페이백 솔루션</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Inter:wght@400;700&family=JetBrains_Mono:wght@400;700&display=swap');
 
-      /* 헤더 */
-      header .max-w-7xl{padding-left:1rem;padding-right:1rem;}
-      header nav{display:none;}
-
-      /* Hero */
-      section.relative.py-28{padding-top:6rem;padding-bottom:6rem;}
-      h1{font-size:1.75rem;line-height:1.4;}
-
-      /* UID 입력 */
-      input{font-size:0.875rem;}
-
-      /* 혜택 카드 */
-      section .grid{grid-template-columns:1fr;}
-
-      /* 제휴 거래소 목록은 모바일에서도 PC와 동일한 테이블 유지 */
-      .exchange-row{
-        grid-template-columns: repeat(5, minmax(0,1fr));
-        gap:1rem;
-      }
-      .exchange-row > div{justify-content:flex-start;}
-      .exchange-row button{width:auto;}
-      .exchange-row button{width:100%;}
-
-      /* 하단 네온 팝업 */
-      footer .fixed{bottom:0;padding:0;}
-      footer .neon-border{border-radius:0;}
-    }
-    }
-  </style>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>리나닷컴 | 공식 사이트</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const exchangeRows = Array.from(document.querySelectorAll('.exchange-row'));
-    if (exchangeRows.length === 0) return;
-
-    const container = exchangeRows[0].parentElement;
-
-    // 선택 테두리 효과
-    exchangeRows.forEach(row => {
-      row.addEventListener('click', () => {
-        exchangeRows.forEach(r => r.classList.remove('border','border-sky-400'));
-        row.classList.add('border','border-sky-400');
-      });
-    });
-
-    // 버튼
-    const buttons = document.querySelectorAll('[data-sort]');
-
-    buttons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        buttons.forEach(b => b.classList.remove('bg-sky-500','text-black'));
-        btn.classList.add('bg-sky-500','text-black');
-
-        let sorted;
-        const type = btn.dataset.sort;
-
-        if (type === 'all') {
-          sorted = exchangeRows;
-        } else if (type === 'score') {
-          sorted = [...exchangeRows].sort((a,b)=>{
-            return parseFloat(b.children[2].textContent) - parseFloat(a.children[2].textContent);
-          });
-        } else if (type === 'payback') {
-          sorted = [...exchangeRows].sort((a,b)=>{
-            return parseFloat(b.children[3].textContent) - parseFloat(a.children[3].textContent);
-          });
+        :root {
+            --bg-deep: #0f0a1e;
+            --brand-primary: #a855f7;
+            --text-main: #f5f3ff;
+            --banner-skyblue: #67e8f9;
         }
 
-        sorted.forEach(row => container.appendChild(row));
-      });
-    });
-  });
-</script>
-
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            tmblack: '#0b0b0e',
-            tmdark: '#111217',
-            tmyellow: '#f5c400',
-            tmyellowSoft: '#ffdd55'
-          }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+            padding-top: 160px; /* Space for fixed header/banner */
         }
-      }
-    }
-  </script>
+
+        /* Background Mesh Gradient */
+        .bg-mesh {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                radial-gradient(circle at 15% 15%, rgba(168, 85, 247, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(139, 92, 246, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(15, 10, 30, 1) 0%, rgba(5, 2, 15, 1) 100%);
+            z-index: -1;
+        }
+
+        .text-neon {
+            background: linear-gradient(135deg, #ffffff 30%, #a855f7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.4));
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 200;
+        }
+
+        #top-exchange-popup {
+            background: rgba(168, 85, 247, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.4s ease;
+        }
+
+        #navbar {
+            background: rgba(15, 10, 30, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 0.75rem 1.25rem;
+        }
+
+        /* Premium Floating Card */
+        .card-premium-banner {
+            width: 100%;
+            max-width: 320px;
+            aspect-ratio: 1/1.15;
+            background: radial-gradient(circle at top left, #2b2b2b, #111);
+            border-radius: 24px;
+            padding: 24px;
+            box-sizing: border-box;
+            position: relative;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            transition: transform 0.3s ease;
+            margin: 0 auto;
+        }
+        
+        .card-premium-banner .title { font-size: 22px; font-weight: 800; margin-bottom: 10px; letter-spacing: -0.02em; }
+        .card-premium-banner .subtitle { font-size: 15px; font-weight: 600; margin-bottom: 4px; opacity: 0.9; }
+        .card-premium-banner .desc { font-size: 13px; opacity: 0.7; }
+        .card-premium-banner .logo {
+            position: absolute;
+            right: 24px;
+            bottom: 24px;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(145deg, #ffb066, #ff7a2f);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+        .card-premium-banner .logo span {
+            font-size: 60px;
+            font-weight: 900;
+            color: #fff;
+            transform: rotate(-8deg);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(1deg); }
+        }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+
+        @keyframes border-glow {
+            0%, 100% { border-color: rgba(168, 85, 247, 0.5); box-shadow: 0 0 10px rgba(168, 85, 247, 0.2); }
+            50% { border-color: rgba(168, 85, 247, 1); box-shadow: 0 0 20px rgba(168, 85, 247, 0.5); }
+        }
+        .btn-highlight {
+            animation: border-glow 2s infinite ease-in-out;
+            border-width: 2px;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            transition: all 0.4s ease;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .filter-btn.active {
+            background: #a855f7;
+            color: white;
+            border-color: #a855f7;
+        }
+
+        .modal-backdrop {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(15px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .modal-backdrop.active { display: flex; animation: fadeIn 0.3s ease; }
+
+        .modal-content {
+            width: 100%;
+            max-width: 420px;
+            background: #16112a;
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            border-radius: 28px;
+            overflow: hidden;
+        }
+
+        /* Range Input Styling */
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%; height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px; height: 22px;
+            background: #a855f7;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+        }
+
+        #miniPopup {
+            position: fixed;
+            bottom: 20px; left: 50%;
+            transform: translateX(-50%) translateY(150%);
+            width: calc(100% - 32px);
+            max-width: 380px;
+            z-index: 100;
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        #miniPopup.show { transform: translateX(-50%) translateY(0); }
+
+        /* Bitget Skyblue Banner Layout */
+        .bitget-banner-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+        .bitget-banner {
+            position: relative;
+            width: 100%;
+            min-height: 140px;
+            background: #67e8f9;
+            border-radius: 28px;
+            padding: 24px;
+            box-sizing: border-box;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .banner-title { 
+            font-size: clamp(20px, 6vw, 28px);
+            font-weight: 800; 
+            color: #111827; 
+            line-height: 1.2; 
+            position: relative;
+            z-index: 2;
+        }
+        .banner-badge { 
+            display: inline-flex; 
+            align-items: center; 
+            align-self: flex-start; 
+            margin-top: 12px; 
+            padding: 4px 12px; 
+            background: rgba(255, 255, 255, 0.85); 
+            border-radius: 999px; 
+            font-size: 11px; 
+            font-weight: 800; 
+            color: #111827; 
+            position: relative;
+            z-index: 2;
+        }
+        /* Recovered Background Logo Icon */
+        .bitget-banner-logo {
+            position: absolute;
+            right: -20px;
+            top: 50%;
+            transform: translateY(-50%) rotate(-15deg);
+            font-size: 120px;
+            color: rgba(17, 24, 39, 0.07);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Mobile Optimization */
+        @media (max-width: 640px) {
+            body { padding-top: 155px; }
+            .bitget-banner { padding: 24px 20px; text-align: left; }
+            .bitget-banner-logo { font-size: 80px; right: 10px; }
+            #home { padding-top: 20px; padding-bottom: 40px; text-align: center; }
+            #home h1 { font-size: clamp(42px, 12vw, 56px); margin-left: auto; margin-right: auto; }
+            #home p { margin-left: auto; margin-right: auto; font-size: 15px; }
+            #home .flex-wrap { justify-content: center; }
+            .card-premium-banner { margin-top: 40px; }
+            #exchangeContainer { grid-template-cols: 1fr; }
+            .filter-btn { flex: 1; text-align: center; padding: 8px 10px; font-size: 11px; }
+        }
+
+        /* Hide Scrollbar for filter row */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
 </head>
-<body class="bg-tmblack text-white transition-colors duration-300" id="appBody">
+<body>
+    <div class="bg-mesh"></div>
 
-  <!-- Header -->
-<header id="mainHeader" class="w-full sticky top-0 z-50 backdrop-blur-md bg-gradient-to-b from-[#141a24] to-[#0b0b0e] border-b border-[#1f2a3a]">
-  <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col gap-4">
-
-    <!-- Top Row -->
-    <div class="flex items-center justify-between">
-      <!-- Logo -->
-      <div class="flex items-center space-x-2">
-        <div class="w-7 h-7 rounded-full bg-gradient-to-r from-sky-400 to-blue-600"></div>
-        <span class="text-xl font-bold text-sky-400">리나닷컴</span>
-      </div>
-
-      <!-- Nav -->
-      <nav class="hidden md:flex items-center space-x-3 text-sm text-gray-300">
-        <a href="#" class="nav-item px-4 py-2 rounded-lg border border-transparent hover:text-white hover:border-sky-400 transition">제휴 거래소</a>
-        <a href="#" class="nav-item px-4 py-2 rounded-lg border border-transparent hover:text-white hover:border-sky-400 transition">혜택</a>
-        <a href="#" class="nav-item px-4 py-2 rounded-lg border border-transparent hover:text-white hover:border-sky-400 transition">페이백 테스트</a>
-        <a href="#" class="nav-item px-4 py-2 rounded-lg border border-transparent hover:text-white hover:border-sky-400 transition">서비스 소개</a>
-      </nav>
-
-      <!-- Actions -->
-      <div class="flex items-center space-x-3">
-        <button class="px-4 py-2 text-sm rounded-lg border border-sky-500 text-sky-400 hover:bg-sky-500 hover:text-black transition">로그인</button>
-        <button class="px-4 py-2 text-sm rounded-lg bg-sky-500 text-black font-semibold hover:bg-sky-400 transition">회원가입</button>
-        <button id="themeToggle" class="w-9 h-9 flex items-center justify-center rounded-full border border-gray-600 text-gray-300 hover:border-sky-400 transition">🌙</button>
-      </div>
-    </div>
-
-    <!-- Hero -->
-<section class="relative overflow-hidden py-28 bg-gradient-to-b from-[#141a24] to-[#0b0b0e]">
-  <!-- floating orbs -->
-  <div class="absolute inset-0 pointer-events-none">
-    <div class="absolute left-16 top-40 w-20 h-20 rounded-full bg-cyan-400/30 blur-2xl"></div>
-    <div class="absolute right-24 top-48 w-24 h-24 rounded-full bg-blue-500/30 blur-2xl"></div>
-    <div class="absolute right-40 bottom-40 w-16 h-16 rounded-full bg-blue-400/30 blur-2xl"></div>
-  </div>
-
-  <div class="relative max-w-7xl mx-auto px-6 text-center">
-    <h1 class="text-4xl md:text-5xl font-extrabold leading-tight mb-6">
-      거래소 <span class="text-sky-400">공식계약</span><br />
-      실시간 <span class="text-sky-400">API 자동출금</span>은<br />
-      오직 리나닷컴
-    </h1>
-
-    <!-- UID input -->
-    <div class="flex justify-center mt-10">
-      <div class="flex items-center w-full max-w-xl bg-[#6b6f78] rounded-full px-4 py-3">
-        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-cyan-400 mr-3">
-          <span class="text-black font-bold">S</span>
+    <header>
+        <!-- Dynamic Top Bar -->
+        <div id="top-exchange-popup" class="py-2.5 px-4 shadow-xl">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4 relative">
+                <div class="flex items-center space-x-2">
+                    <span class="bg-white text-purple-600 font-black px-1.5 py-0.5 rounded text-[9px] animate-bounce">지금알림</span>
+                    <p class="text-white font-bold text-xs md:text-sm tracking-tight">지금 <span class="text-yellow-300">바이낸스</span> 페이백 원해?</p>
+                </div>
+                <div class="flex items-center space-x-2 w-full md:w-auto justify-center">
+                    <div class="flex items-center bg-white/10 rounded-lg px-3 py-1.5 text-white">
+                        <i class="fab fa-bitcoin text-yellow-400 mr-2 text-[10px]"></i>
+                        <span class="text-[11px] font-bold tracking-tight">바이낸스</span>
+                    </div>
+                    <button onclick="toggleModal('testerModal', true)" class="whitespace-nowrap bg-white text-purple-700 font-black px-4 py-1.5 rounded-lg text-[11px] hover:bg-gray-100 transition shadow-lg">지금 연결</button>
+                </div>
+                <button onclick="closeTopPopup()" class="absolute right-[-8px] top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition p-2"><i class="fas fa-times text-sm"></i></button>
+            </div>
         </div>
-        <input class="flex-1 bg-transparent text-white placeholder-gray-200 outline-none text-sm" placeholder="UID를 입력해주세요" />
-      </div>
-    </div>
 
-    <!-- promo card -->
-    <div class="flex justify-center mt-8">
-      <div class="relative w-full max-w-xl rounded-2xl bg-gradient-to-r from-cyan-300 to-cyan-400 p-5 text-left shadow-xl">
-        <div class="text-black font-bold text-lg">Bitget 수수료 81%</div>
-        <div class="text-black font-semibold">역대 최고 페이백</div>
-        <div class="flex items-center text-black/70 text-sm mt-2">
-          <span class="mr-1">⏰</span> 기간 한정 이벤트
+        <!-- Sticky Navbar -->
+        <nav id="navbar" class="w-full transition-all duration-300">
+            <div class="max-w-7xl mx-auto flex justify-between items-center">
+                <div class="flex items-center space-x-2.5 group cursor-pointer" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+                    <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-purple-500 to-purple-800 flex items-center justify-center shadow-lg group-hover:rotate-12 transition">
+                        <i class="fas fa-infinity text-white text-sm"></i>
+                    </div>
+                    <span class="text-lg font-bold italic tracking-tighter text-white">리나<span class="text-purple-500">닷컴</span></span>
+                </div>
+                
+                <button onclick="toggleModal('testerModal', true)" class="btn-highlight px-5 py-2 rounded-full bg-purple-600 text-[11px] font-black text-white uppercase tracking-tight hover:bg-purple-500 transition-all duration-300 shadow-xl">
+                    페이백 시작
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="min-h-[70vh] flex items-center px-4 md:px-8">
+        <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center w-full">
+            <div class="space-y-6">
+                <div class="inline-flex items-center px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/25 text-purple-400 text-[9px] font-bold tracking-[0.1em] uppercase">
+                    거래소 공식 파트너
+                </div>
+                <h1 class="text-5xl md:text-8xl font-bold leading-[1.1] text-neon tracking-tight">
+                    당신의 거래를<br>자산으로
+                </h1>
+                <p class="text-base md:text-lg text-purple-200/40 leading-relaxed max-w-sm font-light">
+                    매일 발생하는 수수료, 리나닷컴에서 실시간 자동 환급받으세요. 업계 최고 수준을 보장합니다.
+                </p>
+                <div class="flex flex-wrap gap-4 pt-2">
+                    <button onclick="toggleModal('testerModal', true)" class="flex-1 md:flex-none px-8 py-3.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl text-base transition shadow-xl shadow-purple-500/20">환급액 테스트</button>
+                    <button onclick="toggleModal('statusModal', true)" class="flex-1 md:flex-none px-8 py-3.5 glass-panel text-white font-bold rounded-xl text-base hover:bg-white/5 transition">실시간 현황</button>
+                </div>
+            </div>
+            
+            <!-- Animated Card Visual -->
+            <div class="flex justify-center items-center">
+                <div class="card-premium-banner animate-float">
+                    <div class="title">리나닷컴 필수 페이백</div>
+                    <div class="subtitle">놓치면 손해!</div>
+                    <div class="desc">매수와 매도 수수료 돌려받기</div>
+                    <div class="logo"><span>b</span></div>
+                </div>
+            </div>
         </div>
-        <div class="absolute -right-6 -top-6 w-16 h-16 rounded-xl bg-cyan-200 flex items-center justify-center shadow-lg">
-          <span class="text-black font-extrabold text-xl">S</span>
+    </section>
+
+    <!-- Bitget Special Banner -->
+    <section class="py-8">
+        <div class="bitget-banner-container">
+            <div class="bitget-banner shadow-xl border border-white/20">
+                <div class="banner-title">
+                    Bitget 수수료 81%<br/>
+                    <span class="text-cyan-700">역대 최고 페이백</span>
+                </div>
+                <div class="banner-badge">
+                    리나닷컴 한정 이벤트
+                </div>
+                <!-- Recovered background logo icon -->
+                <div class="bitget-banner-logo">
+                    <i class="fas fa-bolt"></i>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  </div>
-</section>
+    </section>
 
-<!-- Benefits Section -->
-<section class="max-w-7xl mx-auto px-6 py-20">
-  <h2 class="text-3xl font-extrabold mb-12">
-    리나닷컴의 <span class="text-sky-400">주목할 혜택!</span>
-  </h2>
+    <!-- Exchange List Section -->
+    <section id="featured" class="py-12 px-4 md:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-8 space-y-2">
+                <h2 class="text-3xl md:text-5xl font-bold text-white text-neon">제휴 거래소</h2>
+                <p class="text-[9px] text-purple-200/30 uppercase tracking-[0.3em] font-bold">Official Certified Partners</p>
+            </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-    <!-- Card 1 -->
-    <div class="relative rounded-2xl border-2 border-transparent hover:border-cyan-300 transition transform hover:-translate-y-2 duration-300 bg-gradient-to-b from-[#0dd6e8] to-[#0b7fa3] p-6 min-h-[360px] overflow-hidden">
-      <div class="absolute top-4 right-4 w-8 h-8 rounded-lg bg-cyan-300 flex items-center justify-center font-bold text-black">S</div>
-      <div class="mt-20">
-        <p class="text-white/80 text-sm">비트겟 지금 가입하고</p>
-        <p class="text-xl font-bold mt-2">최대 81% 페이백 받기</p>
-      </div>
-    </div>
+            <!-- Filter Buttons -->
+            <div class="flex flex-row justify-center gap-2 mb-10 overflow-x-auto pb-2 no-scrollbar">
+                <button onclick="sortExchanges('default', this)" class="filter-btn active">기본순</button>
+                <button onclick="sortExchanges('popular', this)" class="filter-btn">인기순</button>
+                <button onclick="sortExchanges('payback', this)" class="filter-btn">페이백 높은순</button>
+            </div>
 
-    <!-- Card 2 -->
-    <div class="relative rounded-2xl border-2 border-transparent hover:border-cyan-300 transition transform hover:-translate-y-2 duration-300 bg-gradient-to-b from-[#1b1f2a] to-[#0b0b0e] p-6 min-h-[360px] overflow-hidden">
-      <div class="absolute top-4 right-4 w-8 h-8 rounded-lg bg-cyan-300 flex items-center justify-center font-bold text-black">S</div>
-      <div class="mt-20">
-        <p class="text-white/80 text-sm">매일 매일 코인뽑기</p>
-        <p class="text-xl font-bold mt-2">최대 1 BTC 뽑기</p>
-      </div>
-    </div>
-
-    <!-- Card 3 -->
-    <div class="relative rounded-2xl border-2 border-transparent hover:border-cyan-300 transition transform hover:-translate-y-2 duration-300 bg-gradient-to-b from-[#2b4cff] to-[#1b2fb8] p-6 min-h-[360px] overflow-hidden">
-      <div class="absolute top-4 right-4 w-8 h-8 rounded-lg bg-cyan-300 flex items-center justify-center font-bold text-black">S</div>
-      <div class="mt-20">
-        <p class="text-white/80 text-sm">비트코인 가격 맞추고</p>
-        <p class="text-xl font-bold mt-2">최대 $1,000 받기</p>
-      </div>
-    </div>
-
-    <!-- Card 4 -->
-    <div class="relative rounded-2xl border-2 border-transparent hover:border-cyan-300 transition transform hover:-translate-y-2 duration-300 bg-gradient-to-b from-[#6a3cff] to-[#4b1fb8] p-6 min-h-[360px] overflow-hidden">
-      <div class="absolute top-4 right-4 w-8 h-8 rounded-lg bg-cyan-300 flex items-center justify-center font-bold text-black">S</div>
-      <div class="mt-20">
-        <p class="text-white/80 text-sm">페이백 쌓고</p>
-        <p class="text-xl font-bold mt-2">추가 USDT 받기</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Affiliate Exchanges -->
-<section class="px-6 py-16 max-w-7xl">
-  <h2 class="text-2xl font-bold mb-6">제휴 거래소</h2>
-
-  <!-- Filter Tabs -->
-  <div class="flex flex-wrap gap-2 mb-6 text-sm">
-    <button class="px-4 py-2 rounded-full bg-sky-500 text-black font-semibold">전체</button>
-    <button class="px-4 py-2 rounded-full bg-[#1b1f2a] text-gray-300">점수 높은순</button>
-    <button class="px-4 py-2 rounded-full bg-[#1b1f2a] text-gray-300">페이백 높은순</button>
-  </div>
-
-  <!-- Table Header -->
-  <div class="grid grid-cols-5 gap-4 text-xs text-gray-400 px-4 py-3 border-b border-gray-800">
-    <div class="col-span-2">거래소명</div>
-    <div>점수</div>
-    <div>페이백%</div>
-    <div>가입</div>
-  </div>
-
-  <!-- Row : Bitget -->
-  <div class="exchange-row grid grid-cols-5 gap-4 items-center px-4 py-5 mt-3 rounded-xl hover:bg-[#141a24] transition">
-    <div class="col-span-2 flex items-center gap-3">
-      <img src="https://cryptologos.cc/logos/bitget-token-bgb-logo.png" class="exchange-logo w-10 h-10 rounded-full" alt="Bitget" loading="lazy" />
-      <span class="font-semibold">Bitget</span>
-    </div>
-    <div>9.6</div>
-    <div class="text-red-400 font-bold">81%</div>
-    <div class="flex justify-start">
-      <button class="px-4 py-2 rounded-lg bg-sky-500 text-black text-xs font-semibold hover:bg-sky-400 transition">가입하기</button>
-    </div>
-  </div>
-
-  <!-- Row : Binance -->
-  <div class="exchange-row grid grid-cols-5 gap-4 items-center px-4 py-5 mt-2 rounded-xl hover:bg-[#141a24] transition">
-    <div class="col-span-2 flex items-center gap-3">
-      <img src="https://cryptologos.cc/logos/binance-coin-bnb-logo.png" class="exchange-logo w-10 h-10 rounded-full" alt="Binance" loading="lazy" />
-      <span class="font-semibold">Binance</span>
-    </div>
-    <div>9.7</div>
-    <div class="text-sky-400 font-bold">20%</div>
-    <div class="flex justify-start">
-      <button class="px-4 py-2 rounded-lg bg-sky-500 text-black text-xs font-semibold hover:bg-sky-400 transition">가입하기</button>
-    </div>
-  </div>
-
-  <!-- Row : Gate -->
-  <div class="exchange-row grid grid-cols-5 gap-4 items-center px-4 py-5 mt-2 rounded-xl hover:bg-[#141a24] transition">
-    <div class="col-span-2 flex items-center gap-3">
-      <img src="https://cryptologos.cc/logos/gatechain-token-gt-logo.png" class="exchange-logo w-10 h-10 rounded-full" alt="Gate" loading="lazy" />
-      <span class="font-semibold">Gate</span>
-    </div>
-    <div>9.2</div>
-    <div class="text-sky-400 font-bold">80%</div>
-    <div class="flex justify-start">
-      <button class="px-4 py-2 rounded-lg bg-sky-500 text-black text-xs font-semibold hover:bg-sky-400 transition">가입하기</button>
-    </div>
-  </div>
-
-  <!-- Row : MEXC -->
-  <div class="exchange-row grid grid-cols-5 gap-4 items-center px-4 py-5 mt-2 rounded-xl hover:bg-[#141a24] transition">
-    <div class="col-span-2 flex items-center gap-3">
-      <img src="https://cryptologos.cc/logos/mexc-token-mexc-logo.png" class="exchange-logo w-10 h-10 rounded-full" alt="MEXC" loading="lazy" />
-      <span class="font-semibold">MEXC</span>
-    </div>
-    <div>9.1</div>
-    <div class="text-sky-400 font-bold">50%</div>
-    <div class="flex justify-start">
-      <button class="px-4 py-2 rounded-lg bg-sky-500 text-black text-xs font-semibold hover:bg-sky-400 transition">가입하기</button>
-    </div>
-  </div>
-
-  <!-- Row : OKX -->
-  <div class="exchange-row grid grid-cols-5 gap-4 items-center px-4 py-5 mt-2 rounded-xl hover:bg-[#141a24] transition">
-    <div class="col-span-2 flex items-center gap-3">
-      <img src="https://cryptologos.cc/logos/okb-okb-logo.png" class="exchange-logo w-10 h-10 rounded-full" alt="OKX" loading="lazy" />
-      <span class="font-semibold">OKX</span>
-    </div>
-    <div>9.5</div>
-    <div class="text-sky-400 font-bold">54%</div>
-    <div class="flex justify-start">
-      <button class="px-4 py-2 rounded-lg bg-sky-500 text-black text-xs font-semibold hover:bg-sky-400 transition">가입하기</button>
-    </div>
-  </div>
-</section>
-
-<!-- Footer -->
-<footer class="bg-gradient-to-b from-[#141a24] to-[#0b0b0e] border-t border-[#1f2a3a] text-gray-400">
-  <div class="max-w-7xl mx-auto px-6 py-12">
-    <div class="text-sm leading-relaxed mb-8">
-      <p>고객센터 : 채팅 상담 (00:00 - 24:00)</p>
-      
-      <p class="mt-4">copyright 2022 | rina.com | All Right Reserved.</p>
-      <div class="mt-2 space-x-3">
-        <a href="#" class="text-sky-400 hover:underline">공지사항</a>
-        <span>|</span>
-        <a href="#" class="text-sky-400 hover:underline">제휴 파트너 문의</a>
-        <span>|</span>
-        <a href="#" class="text-sky-400 hover:underline">이용약관</a>
-        <span>|</span>
-        <a href="#" class="text-sky-400 hover:underline">개인정보처리방침</a>
-      </div>
-    </div>
-
-    
-  </div>
-
-  <!-- Bottom Promo Bar -->
-  <div class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-7xl px-6">
-    <div class="relative flex flex-col md:flex-row items-center justify-between gap-4 rounded-2xl px-6 py-5 bg-gradient-to-r from-[#0b1220] to-[#0b1f3a] neon-border">
-      <div class="flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-sky-500 flex items-center justify-center text-black font-bold">S</div>
-        <div>
-          <p class="text-white font-semibold">리나닷컴가 처음이라면?</p>
-          <p class="text-sky-400 text-sm">한 달 평균 페이백 497,500원</p>
+            <!-- Dynamic Exchange Cards -->
+            <div id="exchangeContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Injected via JavaScript -->
+            </div>
         </div>
-      </div>
-      <button class="px-6 py-3 rounded-xl bg-sky-500 text-black font-bold hover:bg-sky-400 transition">내가 받을 돈 확인하기</button>
+    </section>
+
+    <footer class="py-16 border-t border-white/5 text-center pb-32">
+        <span class="text-lg font-bold italic text-white/20">리나<span class="text-purple-500/20">닷컴</span></span>
+        <p class="mt-3 text-[8px] text-white/10 uppercase tracking-[0.4em]">Premium Payback Solution © 2025</p>
+    </footer>
+
+    <!-- Modals -->
+    <div id="statusModal" class="modal-backdrop" onclick="toggleModal('statusModal', false)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="px-6 py-5 border-b border-white/10 flex justify-between items-center">
+                <h3 class="font-bold text-white text-sm">최근 환급 리스트</h3>
+                <button onclick="toggleModal('statusModal', false)" class="text-white/20 hover:text-white p-2"><i class="fas fa-times text-lg"></i></button>
+            </div>
+            <div id="statusList" class="max-h-[400px] overflow-y-auto"></div>
+        </div>
     </div>
-  </div>
-</footer>
 
-  <script>
-    const navItems = document.querySelectorAll('.nav-item');
-    navItems.forEach(item => {
-      item.addEventListener('click', () => {
-        navItems.forEach(i => i.classList.remove('border-sky-400','text-white'));
-        item.classList.add('border-sky-400','text-white');
-      });
-    });
-  </script>
+    <div id="testerModal" class="modal-backdrop" onclick="toggleModal('testerModal', false)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="px-6 py-5 border-b border-white/10 flex justify-between items-center">
+                <h3 class="font-bold text-white text-sm">페이백 예상 금액 테스트</h3>
+                <button onclick="toggleModal('testerModal', false)" class="text-white/20 hover:text-white p-2"><i class="fas fa-times text-lg"></i></button>
+            </div>
+            <div class="p-6 space-y-6">
+                <div class="space-y-2.5">
+                    <label class="text-[9px] font-bold text-purple-400 uppercase tracking-widest">거래소 선택</label>
+                    <select id="calc-ex" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white text-sm outline-none focus:border-purple-500 transition" onchange="calc()">
+                        <option value="30">Binance (30%)</option>
+                        <option value="81">Bitget (81%)</option>
+                        <option value="25">Bybit (25%)</option>
+                        <option value="30">OKX (30%)</option>
+                        <option value="50">Deepcoin (50%)</option>
+                    </select>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex justify-between text-[10px] font-bold">
+                        <span class="text-white/40">시드 머니 (USDT)</span>
+                        <span class="text-white"><span id="val-seed">1,000</span> USDT</span>
+                    </div>
+                    <input type="range" id="in-seed" min="100" max="50000" step="100" value="1000" oninput="calc()">
+                </div>
+                <div class="space-y-3">
+                    <div class="flex justify-between text-[10px] font-bold">
+                        <span class="text-white/40">평균 레버리지</span>
+                        <span class="text-white" id="val-lev">20x</span>
+                    </div>
+                    <input type="range" id="in-lev" min="1" max="125" step="1" value="20" oninput="calc()">
+                </div>
+                <div class="pt-6 border-t border-white/5 text-center space-y-5">
+                    <div>
+                        <p class="text-[9px] text-purple-300 font-bold uppercase tracking-widest mb-1">나의 예상 월 환급액</p>
+                        <p class="text-3xl font-['JetBrains_Mono'] font-bold text-white tracking-tighter"><span id="res-monthly">0.00</span> <span class="text-[10px] text-purple-400">USDT</span></p>
+                    </div>
+                    <button onclick="goToFeatured()" class="w-full py-4 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 text-white font-bold rounded-2xl text-sm transition-all shadow-xl shadow-purple-900/40 flex items-center justify-center gap-2">
+                        <i class="fas fa-link text-[10px]"></i>
+                        페이백 연결하기
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-  <script>
-    const toggleBtn = document.getElementById('themeToggle');
-    const body = document.getElementById('appBody');
-    let darkMode = true;
+    <!-- Scroll Triggered Mini Popup -->
+    <div id="miniPopup">
+        <div class="p-3.5 bg-[#16112a]/95 border border-purple-500/30 rounded-2xl flex justify-between items-center shadow-2xl backdrop-blur-xl">
+             <div class="flex items-center space-x-3">
+                 <div class="w-7 h-7 bg-purple-600 rounded-full flex items-center justify-center animate-pulse"><i class="fas fa-coins text-white text-[9px]"></i></div>
+                 <div class="flex flex-col">
+                     <span class="text-[9px] text-purple-400 font-bold uppercase leading-none mb-1">Check My Payback</span>
+                     <span class="text-[11px] font-bold text-white leading-none">환급액 1분 확인</span>
+                 </div>
+             </div>
+             <button onclick="toggleModal('testerModal', true)" class="px-4 py-2 bg-purple-600 rounded-xl text-[10px] font-extrabold text-white">시작</button>
+        </div>
+    </div>
 
-    toggleBtn.addEventListener('click', () => {
-      darkMode = !darkMode;
+    <script>
+        // Exchange Data State
+        let exchanges = [
+            { id: 1, name: '바이낸스', code: 'BINANCE', payback: 30, popularity: 95, color: 'from-[#f3ba2f]/20', logo: 'https://upload.wikimedia.org/wikipedia/commons/e/e8/Binance_Logo.svg' },
+            { id: 2, name: '바이비트', code: 'BYBIT', payback: 25, popularity: 90, color: 'from-zinc-100/10', logo: 'https://cdn.iconscout.com/icon/free/png-256/free-bybit-logo-icon-download-in-svg-png-gif-formats--blockchain-crypto-brand-logos-pack-icons-4680415.png' },
+            { id: 3, name: '비트겟', code: 'BITGET', payback: 81, popularity: 100, color: 'from-[#00f0ff]/20', logo: 'https://cdn.worldvectorlogo.com/logos/bitget-logo.svg' },
+            { id: 4, name: 'OKX', code: 'OKX', payback: 30, popularity: 85, color: 'from-white/5', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/OKX_logo.svg/2560px-OKX_logo.svg.png' },
+            { id: 5, name: '딥코인', code: 'DEEPCOIN', payback: 50, popularity: 70, color: 'from-[#0052ff]/20', logo: 'https://s2.coinmarketcap.com/static/img/exchanges/64x64/1109.png' }
+        ];
 
-      if (darkMode) {
-        body.classList.remove('light-mode');
-        body.classList.add('bg-tmblack','text-white');
-        toggleBtn.textContent = '🌙';
-      } else {
-        body.classList.add('light-mode');
-        body.classList.remove('bg-tmblack','text-white');
-        toggleBtn.textContent = '☀️';
-      }
-    });
-  </script>
+        // Render Cards
+        function renderCards() {
+            const container = document.getElementById('exchangeContainer');
+            container.innerHTML = '';
+            exchanges.forEach(ex => {
+                container.innerHTML += `
+                    <div class="glass-panel p-6 group transition-all active:scale-[0.98]">
+                        <div class="aspect-[1.586/1] rounded-2xl bg-gradient-to-br ${ex.color} to-black/60 border border-white/10 mb-5 p-5 flex flex-col justify-between overflow-hidden">
+                            <div class="flex justify-between items-start">
+                                <div class="w-9 h-9 bg-white/10 rounded-lg p-2 flex items-center justify-center">
+                                    <img src="${ex.logo}" class="object-contain w-full h-full" onerror="this.src='https://cdn-icons-png.flaticon.com/512/121/121111.png'">
+                                </div>
+                                <span class="text-[8px] text-white/30 font-bold uppercase tracking-widest">${ex.code}</span>
+                            </div>
+                            <div>
+                                <p class="text-[9px] text-purple-400 font-bold uppercase mb-0.5">Official Payback</p>
+                                <p class="text-2xl font-bold text-white">${ex.payback}%</p>
+                            </div>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">${ex.name}</h3>
+                        <button onclick="toggleModal('testerModal', true)" class="w-full py-3.5 bg-white/5 hover:bg-purple-600 rounded-xl text-[11px] font-bold text-white transition-all">연결하기</button>
+                    </div>
+                `;
+            });
+        }
 
-  <script>
-    const header = document.getElementById('mainHeader');
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 20) {
-        header.classList.add('bg-[#0b0b0e]/70','backdrop-blur-lg');
-      } else {
-        header.classList.remove('bg-[#0b0b0e]/70','backdrop-blur-lg');
-      }
-    });
-  </script>
+        // Filtering Logic
+        function sortExchanges(type, btn) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            if (type === 'default') exchanges.sort((a, b) => a.id - b.id);
+            else if (type === 'popular') exchanges.sort((a, b) => b.popularity - a.popularity);
+            else if (type === 'payback') exchanges.sort((a, b) => b.payback - a.payback);
+            renderCards();
+        }
+
+        // UI Helpers
+        function closeTopPopup() {
+            document.getElementById('top-exchange-popup').style.display='none';
+            document.body.style.paddingTop = '80px'; 
+        }
+
+        function goToFeatured() {
+            toggleModal('testerModal', false);
+            document.getElementById('featured').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function toggleModal(id, show) {
+            const m = document.getElementById(id);
+            if(show) { 
+                if(id === 'statusModal') generateStatus();
+                m.classList.add('active'); 
+                document.body.style.overflow = 'hidden'; 
+            }
+            else { 
+                m.classList.remove('active'); 
+                document.body.style.overflow = 'auto'; 
+            }
+        }
+
+        // Mock Real-time Data
+        function generateStatus() {
+            const list = document.getElementById('statusList');
+            const names = ['바이낸스', '바이비트', '비트겟', 'OKX', '딥코인'];
+            list.innerHTML = '';
+            for(let i=0; i<10; i++) {
+                list.innerHTML += `
+                    <div class="flex justify-between items-center p-4 border-b border-white/5 hover:bg-white/5 transition">
+                        <div class="flex flex-col gap-1">
+                            <p class="text-xs font-bold text-white">${Math.floor(Math.random()*900+100)}*** (${names[Math.floor(Math.random()*5)]})</p>
+                            <span class="inline-block px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400 text-[8px] font-bold w-fit">환급완료</span>
+                        </div>
+                        <p class="text-sm font-['JetBrains_Mono'] font-bold text-white">${(Math.random()*500+20).toFixed(2)} USDT</p>
+                    </div>`;
+            }
+        }
+
+        // Calculation
+        function calc() {
+            const seed = parseInt(document.getElementById('in-seed').value);
+            const lev = parseInt(document.getElementById('in-lev').value);
+            const rate = parseInt(document.getElementById('calc-ex').value) / 100;
+            document.getElementById('val-seed').innerText = seed.toLocaleString();
+            document.getElementById('val-lev').innerText = lev + 'x';
+            
+            // Logic: Seed * Leverage * 2 (In/Out) * Trades Per Day (5) * Days (30) * Avg Fee (0.04%) * Payback Rate
+            const monthlyPayback = (seed * lev * 2 * 5 * 30) * 0.0004 * rate;
+            document.getElementById('res-monthly').innerText = monthlyPayback.toLocaleString(undefined, {minimumFractionDigits: 2});
+        }
+
+        // Event Listeners
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            const pop = document.getElementById('miniPopup');
+            if(window.scrollY > 40) nav.classList.add('bg-[#0f0a1e]/95', 'py-1.5');
+            else nav.classList.remove('bg-[#0f0a1e]/95', 'py-1.5');
+            
+            if(window.scrollY > 350) pop.classList.add('show');
+            else pop.classList.remove('show');
+        });
+
+        // Init
+        window.onload = () => { 
+            renderCards(); 
+            calc(); 
+        };
+    </script>
 </body>
 </html>
