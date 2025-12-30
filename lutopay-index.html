@@ -22,7 +22,6 @@
             overflow-x: hidden;
             word-break: keep-all;
             scroll-behavior: smooth;
-            /* 드래그 및 텍스트 선택 방지 */
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
@@ -84,6 +83,15 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .toast-notification {
+            animation: toastIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
         #live-purchase-container::-webkit-scrollbar {
             width: 4px;
         }
@@ -96,7 +104,6 @@
             border-radius: 10px;
         }
 
-        /* Modal Backdrop */
         .modal-backdrop {
             background: rgba(15, 10, 30, 0.85);
             backdrop-filter: blur(12px);
@@ -104,7 +111,6 @@
             transition: all 0.3s ease;
         }
 
-        /* Modal Content Animation */
         .modal-content {
             animation: modalPop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -129,7 +135,6 @@
             box-shadow: 0 0 15px rgba(168, 85, 247, 0.2);
         }
 
-        /* 드래그 방지 커서 설정 */
         * {
             -webkit-user-drag: none;
         }
@@ -148,6 +153,7 @@
                 <span class="text-lg md:text-xl font-bold italic tracking-tighter cursor-pointer" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">루투<span class="text-purple-500">페이</span></span>
             </div>
 
+            <!-- 상단 알림창 -->
             <div id="top-notice-container" class="hidden md:flex justify-center">
                 <div class="bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-2 rounded-2xl shadow-xl border border-white/10 flex items-center space-x-3 max-w-[280px]">
                     <div class="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -193,13 +199,14 @@
                     <button onclick="document.getElementById('giftcards').scrollIntoView({behavior: 'smooth'})" class="px-10 py-5 bg-purple-600 rounded-2xl font-black text-lg shadow-[0_15px_30px_rgba(168,85,247,0.3)] hover:scale-105 active:scale-95 transition-all">
                         쇼핑 시작하기
                     </button>
-                    <div class="flex items-center space-x-4 px-6 py-5 bg-white/5 border border-white/10 rounded-2xl">
+                    <!-- 현황 보기 버튼 -->
+                    <div onclick="openStatusModal()" class="flex items-center space-x-4 px-6 py-5 bg-white/5 border border-white/10 rounded-2xl cursor-pointer hover:bg-white/10 transition-all group">
                         <div class="flex -space-x-3">
                             <div class="w-8 h-8 rounded-full border-2 border-[#0f0a1e] bg-orange-500 flex items-center justify-center text-[10px] font-bold text-white">N</div>
                             <div class="w-8 h-8 rounded-full border-2 border-[#0f0a1e] bg-yellow-400 flex items-center justify-center text-[10px] font-bold text-black">K</div>
                             <div class="w-8 h-8 rounded-full border-2 border-[#0f0a1e] bg-green-600 flex items-center justify-center text-[10px] font-bold text-white">S</div>
                         </div>
-                        <span class="text-xs font-bold text-white/60">오늘 542개 상품 판매됨</span>
+                        <span class="text-xs font-bold text-white/60 group-hover:text-purple-400 transition-colors">오늘 <span id="main-sales-count">542</span>개 상품 판매됨 <i class="fas fa-external-link-alt ml-1 opacity-50"></i></span>
                     </div>
                 </div>
             </div>
@@ -299,9 +306,13 @@
         </div>
     </footer>
 
-    <!-- 무통장 입금 결제 팝업 -->
-    <div id="payment-modal" class="modal-backdrop fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-6" onclick="closePaymentModal(event)">
+    <!-- 하단 오른쪽 알림 -->
+    <div id="bottom-toast-container" class="fixed bottom-6 right-6 z-[100] flex flex-col items-end space-y-3 pointer-events-none"></div>
+
+    <!-- Payment Modal (결제창) -->
+    <div id="payment-modal" class="modal-backdrop fixed inset-0 z-[200] items-center justify-center p-4 md:p-6" onclick="closePaymentModal(event)">
         <div class="modal-content w-full max-w-[840px] bg-[#140e29] border border-white/10 rounded-[40px] shadow-[0_30px_100px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col md:flex-row" onclick="event.stopPropagation()">
+            <!-- 결제창 내용 동일 -->
             <div class="w-full md:w-[320px] bg-gradient-to-b from-purple-900/40 to-[#140e29] p-8 md:p-10 flex flex-col justify-between border-b md:border-b-0 md:border-r border-white/5">
                 <div>
                     <div id="modal-item-icon-bg" class="w-16 h-16 rounded-3xl mb-8 flex items-center justify-center shadow-2xl transition-all">
@@ -326,7 +337,6 @@
                     <p id="modal-item-price" class="text-3xl font-black text-white stat-font">0원</p>
                 </div>
             </div>
-
             <div class="flex-1 p-8 md:p-10 bg-[#1a142e] relative">
                 <button onclick="closePaymentModal()" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
                     <i class="fas fa-times text-white/40"></i>
@@ -354,14 +364,6 @@
                         <label class="text-[10px] font-black text-purple-400 uppercase tracking-widest ml-1">입금자 성함</label>
                         <input type="text" placeholder="실제 입금하시는 분의 이름을 입력하세요" class="w-full p-5 custom-input rounded-2xl text-sm focus:outline-none font-medium">
                     </div>
-                    <div class="p-4 bg-amber-500/5 rounded-2xl border border-amber-500/10 flex space-x-3">
-                        <div class="w-5 h-5 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                            <i class="fas fa-exclamation text-[10px] text-amber-500"></i>
-                        </div>
-                        <p class="text-[10px] text-amber-200/50 leading-relaxed">
-                            입금자명이 다를 경우 확인이 지연될 수 있습니다. <br>입금 확인은 영업시간 내 평균 5분 이내에 완료됩니다.
-                        </p>
-                    </div>
                     <button onclick="handleCompletePayment()" class="w-full py-5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl font-black text-lg shadow-[0_15px_30px_rgba(168,85,247,0.3)] hover:scale-[1.02] transition-all active:scale-95 mt-4">
                         입금 완료 요청하기
                     </button>
@@ -370,59 +372,104 @@
         </div>
     </div>
 
-    <!-- Security Blocking Script -->
-    <script>
-        // 1. Disable Right Click
-        document.addEventListener('contextmenu', e => e.preventDefault());
+    <!-- Status Modal (판매 현황 팝업) -->
+    <div id="status-modal" class="modal-backdrop fixed inset-0 z-[200] items-center justify-center p-4 md:p-6" onclick="closeStatusModal(event)">
+        <div class="modal-content w-full max-w-[500px] bg-[#1a142e] border border-white/10 rounded-[40px] shadow-[0_30px_100px_rgba(0,0,0,0.8)] overflow-hidden" onclick="event.stopPropagation()">
+            <div class="p-8 md:p-10 relative">
+                <button onclick="closeStatusModal()" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
+                    <i class="fas fa-times text-white/40"></i>
+                </button>
+                <div class="text-center mb-10">
+                    <div class="w-16 h-16 bg-purple-600/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-chart-line text-purple-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-black">오늘의 판매 리포트</h3>
+                    <p class="text-xs text-white/40 mt-1 uppercase tracking-widest">Today's Real-time Sales Status</p>
+                </div>
 
-        // 2. Disable Keyboard Shortcuts
+                <div class="space-y-8">
+                    <!-- Total Count -->
+                    <div class="bg-white/5 rounded-3xl p-6 text-center border border-white/5">
+                        <p class="text-[10px] font-black text-purple-400 uppercase tracking-[0.2em] mb-2">Total Sales Today</p>
+                        <p id="modal-sales-count" class="text-5xl font-black stat-font text-white">542</p>
+                        <p class="text-[11px] text-white/30 mt-2">전일 동시간 대비 <span class="text-emerald-400">+12% 상승</span></p>
+                    </div>
+
+                    <!-- Brand Stats -->
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between text-[10px] font-black text-white/40 uppercase">
+                            <span>브랜드별 판매 비중</span>
+                            <span>수량</span>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="space-y-1.5">
+                                <div class="flex justify-between text-xs font-bold px-1">
+                                    <span class="text-white/60">신세계/이마트</span>
+                                    <span class="text-white">189개</span>
+                                </div>
+                                <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                                    <div class="h-full bg-orange-500 w-[35%]"></div>
+                                </div>
+                            </div>
+                            <div class="space-y-1.5">
+                                <div class="flex justify-between text-xs font-bold px-1">
+                                    <span class="text-white/60">구글 기프트</span>
+                                    <span class="text-white">142개</span>
+                                </div>
+                                <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                                    <div class="h-full bg-blue-500 w-[26%]"></div>
+                                </div>
+                            </div>
+                            <div class="space-y-1.5">
+                                <div class="flex justify-between text-xs font-bold px-1">
+                                    <span class="text-white/60">배달의민족</span>
+                                    <span class="text-white">98개</span>
+                                </div>
+                                <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                                    <div class="h-full bg-cyan-400 w-[18%]"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="closeStatusModal()" class="w-full py-4 bg-purple-600 rounded-2xl font-black text-sm mt-10 hover:bg-purple-500 transition-all shadow-lg active:scale-95">
+                    확인 완료
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security Blocking -->
+    <script>
+        document.addEventListener('contextmenu', e => e.preventDefault());
         document.onkeydown = function(e) {
-            // F12 차단
             if(event.keyCode == 123) return false;
-            // Ctrl+Shift+I (개발자 도구)
             if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false;
-            // Ctrl+Shift+J (개발자 도구 콘솔)
             if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false;
-            // Ctrl+Shift+C (요소 검사)
             if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) return false;
-            // Ctrl+U (소스 보기)
             if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
-            // Ctrl+S (저장)
             if(e.ctrlKey && e.keyCode == 'S'.charCodeAt(0)) return false;
         };
-
-        // 3. Developer Tools Anti-Debugger (열리면 무한 루프 발생)
-        setInterval(function() {
-            checkDebugger();
-        }, 1000);
-
-        function checkDebugger() {
-            const startTime = new Date();
-            debugger; // 개발자 도구가 열려있으면 여기서 멈춤
-            const endTime = new Date();
-            if (endTime - startTime > 100) {
-                // 개발자 도구가 열린 것으로 간주하고 경고 또는 페이지 리다이렉트 가능
-                console.clear();
-            }
-        }
-
-        // 4. Console Log Blocking (콘솔 내용 숨기기)
-        console.log = function() {};
-        console.warn = function() {};
-        console.error = function() {};
-        console.info = function() {};
     </script>
 
     <script>
         const purchaseContainer = document.getElementById('live-purchase-container');
+        const toastContainer = document.getElementById('bottom-toast-container');
         const names = ["김*수", "Lee****", "박*지", "Choi**", "James", "유*나", "Aiden", "정*혁", "최*영", "Kang**"];
         const cards = ["신세계 상품권", "구글 기프트", "배민 쿠폰", "스타벅스", "네이버페이", "올리브영 기프트"];
         const amounts = ["50,000원", "10,000원", "100,000원", "30,000원", "5,000원"];
+        
+        let todaySalesCount = 542;
 
         function createPurchaseItem() {
             const name = names[Math.floor(Math.random() * names.length)];
             const card = cards[Math.floor(Math.random() * cards.length)];
             const amount = amounts[Math.floor(Math.random() * amounts.length)];
+            
+            todaySalesCount++;
+            updateSalesDisplay();
+
             const div = document.createElement('div');
             div.className = "live-feed-item flex items-center justify-between p-3 bg-white/5 border border-white/5 rounded-xl mb-3";
             div.innerHTML = `
@@ -442,6 +489,33 @@
             `;
             purchaseContainer.prepend(div);
             if (purchaseContainer.children.length > 50) purchaseContainer.removeChild(purchaseContainer.lastChild);
+
+            showToast(name, card, amount);
+        }
+
+        function updateSalesDisplay() {
+            document.getElementById('main-sales-count').innerText = todaySalesCount;
+            document.getElementById('modal-sales-count').innerText = todaySalesCount;
+        }
+
+        function showToast(name, card, amount) {
+            const toast = document.createElement('div');
+            toast.className = "toast-notification flex items-center space-x-4 p-4 bg-[#1a142e]/90 backdrop-blur-md border border-purple-500/30 rounded-2xl shadow-2xl pointer-events-auto min-w-[240px]";
+            toast.innerHTML = `
+                <div class="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-check text-white text-xs"></i>
+                </div>
+                <div>
+                    <p class="text-[11px] font-bold text-white">${name}님 구매 완료</p>
+                    <p class="text-[10px] text-white/50">${card} ${amount}</p>
+                </div>
+            `;
+            toastContainer.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(20px)';
+                setTimeout(() => toast.remove(), 500);
+            }, 3500);
         }
 
         const giftCards = [
@@ -477,6 +551,7 @@
             });
         }
 
+        // 팝업 제어 함수
         function openPaymentModal(name, price, icon, color) {
             document.getElementById('modal-item-name').innerText = name + ' 5만원권';
             document.getElementById('modal-item-price').innerText = price + '원';
@@ -486,12 +561,25 @@
             iconBg.className = `w-16 h-16 rounded-3xl mb-8 flex items-center justify-center shadow-2xl bg-gradient-to-br ${color}`;
             const finalPrice = parseInt(price.replace(',', ''));
             document.getElementById('modal-discount').innerText = '-' + (50000 - finalPrice).toLocaleString() + '원';
-            document.getElementById('payment-modal').style.display = 'flex';
+            
+            const modal = document.getElementById('payment-modal');
+            modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
         }
 
-        function closePaymentModal(e) {
+        function closePaymentModal() {
             document.getElementById('payment-modal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function openStatusModal() {
+            const modal = document.getElementById('status-modal');
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeStatusModal() {
+            document.getElementById('status-modal').style.display = 'none';
             document.body.style.overflow = 'auto';
         }
 
@@ -522,16 +610,9 @@
         }
 
         window.onload = function() {
-            for(let i=0; i<5; i++) createPurchaseItem();
-            setInterval(createPurchaseItem, 4000);
             renderGiftCards();
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const target = document.querySelector(this.getAttribute('href'));
-                    if (target) target.scrollIntoView({ behavior: 'smooth' });
-                });
-            });
+            for(let i=0; i<3; i++) createPurchaseItem();
+            setInterval(createPurchaseItem, 7000);
         };
     </script>
 </body>
