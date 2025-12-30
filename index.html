@@ -1,578 +1,365 @@
-
+<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>리나닷컴 | 테더 페이백 솔루션</title>
+    <title>리나닷컴 | 프리미엄 테더 페이백</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Inter:wght@400;700&family=JetBrains_Mono:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains_Mono:wght@400;700&display=swap');
 
         :root {
             --bg-deep: #0f0a1e;
             --brand-primary: #a855f7;
-            --text-main: #f5f3ff;
-            --banner-skyblue: #67e8f9;
+            --brand-secondary: #00f0ff;
         }
 
         body {
             font-family: 'Noto Sans KR', sans-serif;
             background-color: var(--bg-deep);
-            color: var(--text-main);
-            scroll-behavior: smooth;
+            color: #f5f3ff;
             overflow-x: hidden;
-            padding-top: 160px; /* Space for fixed header/banner */
+            word-break: keep-all;
         }
 
-        /* Background Mesh Gradient */
         .bg-mesh {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: 
-                radial-gradient(circle at 15% 15%, rgba(168, 85, 247, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 85% 85%, rgba(139, 92, 246, 0.12) 0%, transparent 40%),
-                radial-gradient(circle at 50% 50%, rgba(15, 10, 30, 1) 0%, rgba(5, 2, 15, 1) 100%);
+                radial-gradient(circle at 10% 10%, rgba(168, 85, 247, 0.15) 0%, transparent 45%),
+                radial-gradient(circle at 90% 90%, rgba(0, 240, 255, 0.1) 0%, transparent 45%);
             z-index: -1;
         }
 
-        .text-neon {
-            background: linear-gradient(135deg, #ffffff 30%, #a855f7 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.4));
-        }
-
-        header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 200;
-        }
-
-        #top-exchange-popup {
-            background: rgba(168, 85, 247, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.4s ease;
-        }
-
-        #navbar {
-            background: rgba(15, 10, 30, 0.8);
+        .glass-header {
+            background: rgba(15, 10, 30, 0.7);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 0.75rem 1.25rem;
         }
 
-        /* Premium Floating Card */
-        .card-premium-banner {
-            width: 100%;
-            max-width: 320px;
-            aspect-ratio: 1/1.15;
-            background: radial-gradient(circle at top left, #2b2b2b, #111);
-            border-radius: 24px;
-            padding: 24px;
-            box-sizing: border-box;
-            position: relative;
-            color: #fff;
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
-            transition: transform 0.3s ease;
-            margin: 0 auto;
-        }
-        
-        .card-premium-banner .title { font-size: 22px; font-weight: 800; margin-bottom: 10px; letter-spacing: -0.02em; }
-        .card-premium-banner .subtitle { font-size: 15px; font-weight: 600; margin-bottom: 4px; opacity: 0.9; }
-        .card-premium-banner .desc { font-size: 13px; opacity: 0.7; }
-        .card-premium-banner .logo {
-            position: absolute;
-            right: 24px;
-            bottom: 24px;
-            width: 100px;
-            height: 100px;
-            background: linear-gradient(145deg, #ffb066, #ff7a2f);
-            border-radius: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
-        }
-        .card-premium-banner .logo span {
-            font-size: 60px;
+        .hero-title {
             font-weight: 900;
-            color: #fff;
-            transform: rotate(-8deg);
+            line-height: 1.2;
+            letter-spacing: -0.05em;
+        }
+
+        .stat-font { font-family: 'JetBrains_Mono', monospace; }
+
+        .exchange-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .exchange-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(168, 85, 247, 0.4);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .floating-card {
+            animation: float 4s ease-in-out infinite;
         }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-15px) rotate(1deg); }
-        }
-        .animate-float { animation: float 6s ease-in-out infinite; }
-
-        @keyframes border-glow {
-            0%, 100% { border-color: rgba(168, 85, 247, 0.5); box-shadow: 0 0 10px rgba(168, 85, 247, 0.2); }
-            50% { border-color: rgba(168, 85, 247, 1); box-shadow: 0 0 20px rgba(168, 85, 247, 0.5); }
-        }
-        .btn-highlight {
-            animation: border-glow 2s infinite ease-in-out;
-            border-width: 2px;
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
         }
 
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.02);
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 24px;
-            transition: all 0.4s ease;
-        }
+        .hidden-element { display: none !important; }
 
-        .filter-btn {
-            padding: 8px 16px;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 12px;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-        .filter-btn.active {
-            background: #a855f7;
-            color: white;
-            border-color: #a855f7;
-        }
-
-        .modal-backdrop {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 1000;
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(15px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-        }
-        .modal-backdrop.active { display: flex; animation: fadeIn 0.3s ease; }
-
-        .modal-content {
-            width: 100%;
-            max-width: 420px;
-            background: #16112a;
-            border: 1px solid rgba(168, 85, 247, 0.2);
-            border-radius: 28px;
-            overflow: hidden;
-        }
-
-        /* Range Input Styling */
-        input[type="range"] {
-            -webkit-appearance: none;
-            width: 100%; height: 6px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 5px;
-            outline: none;
-        }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 22px; height: 22px;
-            background: #a855f7;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
-        }
-
-        #miniPopup {
-            position: fixed;
-            bottom: 20px; left: 50%;
-            transform: translateX(-50%) translateY(150%);
-            width: calc(100% - 32px);
-            max-width: 380px;
-            z-index: 100;
-            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        #miniPopup.show { transform: translateX(-50%) translateY(0); }
-
-        /* Bitget Skyblue Banner Layout */
-        .bitget-banner-container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 0 16px;
-        }
-        .bitget-banner {
-            position: relative;
-            width: 100%;
-            min-height: 140px;
-            background: #67e8f9;
-            border-radius: 28px;
-            padding: 24px;
-            box-sizing: border-box;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .banner-title { 
-            font-size: clamp(20px, 6vw, 28px);
-            font-weight: 800; 
-            color: #111827; 
-            line-height: 1.2; 
-            position: relative;
-            z-index: 2;
-        }
-        .banner-badge { 
-            display: inline-flex; 
-            align-items: center; 
-            align-self: flex-start; 
-            margin-top: 12px; 
-            padding: 4px 12px; 
-            background: rgba(255, 255, 255, 0.85); 
-            border-radius: 999px; 
-            font-size: 11px; 
-            font-weight: 800; 
-            color: #111827; 
-            position: relative;
-            z-index: 2;
-        }
-        /* Recovered Background Logo Icon */
-        .bitget-banner-logo {
-            position: absolute;
-            right: -20px;
-            top: 50%;
-            transform: translateY(-50%) rotate(-15deg);
-            font-size: 120px;
-            color: rgba(17, 24, 39, 0.07);
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        /* Mobile Optimization */
+        /* Mobile Adjustments */
         @media (max-width: 640px) {
-            body { padding-top: 155px; }
-            .bitget-banner { padding: 24px 20px; text-align: left; }
-            .bitget-banner-logo { font-size: 80px; right: 10px; }
-            #home { padding-top: 20px; padding-bottom: 40px; text-align: center; }
-            #home h1 { font-size: clamp(42px, 12vw, 56px); margin-left: auto; margin-right: auto; }
-            #home p { margin-left: auto; margin-right: auto; font-size: 15px; }
-            #home .flex-wrap { justify-content: center; }
-            .card-premium-banner { margin-top: 40px; }
-            #exchangeContainer { grid-template-cols: 1fr; }
-            .filter-btn { flex: 1; text-align: center; padding: 8px 10px; font-size: 11px; }
+            .hero-title { font-size: 2.25rem; }
         }
-
-        /* Hide Scrollbar for filter row */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body>
+<body class="min-h-screen">
     <div class="bg-mesh"></div>
 
-    <header>
-        <!-- Dynamic Top Bar -->
-        <div id="top-exchange-popup" class="py-2.5 px-4 shadow-xl">
-            <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4 relative">
-                <div class="flex items-center space-x-2">
-                    <span class="bg-white text-purple-600 font-black px-1.5 py-0.5 rounded text-[9px] animate-bounce">지금알림</span>
-                    <p class="text-white font-bold text-xs md:text-sm tracking-tight">지금 <span class="text-yellow-300">바이낸스</span> 페이백 원해?</p>
-                </div>
-                <div class="flex items-center space-x-2 w-full md:w-auto justify-center">
-                    <div class="flex items-center bg-white/10 rounded-lg px-3 py-1.5 text-white">
-                        <i class="fab fa-bitcoin text-yellow-400 mr-2 text-[10px]"></i>
-                        <span class="text-[11px] font-bold tracking-tight">바이낸스</span>
-                    </div>
-                    <button onclick="toggleModal('testerModal', true)" class="whitespace-nowrap bg-white text-purple-700 font-black px-4 py-1.5 rounded-lg text-[11px] hover:bg-gray-100 transition shadow-lg">지금 연결</button>
-                </div>
-                <button onclick="closeTopPopup()" class="absolute right-[-8px] top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition p-2"><i class="fas fa-times text-sm"></i></button>
-            </div>
+    <!-- Top Notice Popup (Controlled by Dashboard) -->
+    <div id="top-notice-container" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 py-2.5 px-4 sticky top-0 z-[60] text-center">
+        <div class="max-w-7xl mx-auto flex items-center justify-center space-x-3">
+            <span class="text-[10px] font-black bg-white/20 px-1.5 py-0.5 rounded uppercase tracking-tighter">Event</span>
+            <p id="top-notice-text" class="text-xs sm:text-sm font-bold text-white tracking-tight">지금 바이낸스 페이백 원해?</p>
+            <a id="top-notice-link" href="#" class="bg-white text-purple-600 text-[10px] sm:text-xs font-black px-3 py-1 rounded-full shadow-lg hover:scale-105 transition-transform">
+                <span id="top-notice-exchange">바이낸스</span> <span id="top-notice-action">지금 연결</span>
+            </a>
         </div>
+    </div>
 
-        <!-- Sticky Navbar -->
-        <nav id="navbar" class="w-full transition-all duration-300">
-            <div class="max-w-7xl mx-auto flex justify-between items-center">
-                <div class="flex items-center space-x-2.5 group cursor-pointer" onclick="window.scrollTo({top:0, behavior:'smooth'})">
-                    <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-purple-500 to-purple-800 flex items-center justify-center shadow-lg group-hover:rotate-12 transition">
-                        <i class="fas fa-infinity text-white text-sm"></i>
-                    </div>
-                    <span class="text-lg font-bold italic tracking-tighter text-white">리나<span class="text-purple-500">닷컴</span></span>
+    <!-- Header -->
+    <header class="glass-header h-20 flex items-center px-6 lg:px-12 sticky top-[44px] z-50">
+        <div class="max-w-7xl mx-auto w-full flex justify-between items-center">
+            <div class="flex items-center space-x-2.5">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-purple-800 flex items-center justify-center shadow-lg">
+                    <i class="fas fa-infinity text-white text-sm"></i>
                 </div>
-                
-                <button onclick="toggleModal('testerModal', true)" class="btn-highlight px-5 py-2 rounded-full bg-purple-600 text-[11px] font-black text-white uppercase tracking-tight hover:bg-purple-500 transition-all duration-300 shadow-xl">
-                    페이백 시작
-                </button>
+                <span class="text-xl font-bold italic tracking-tighter">리나<span class="text-purple-500">닷컴</span></span>
             </div>
-        </nav>
+            <!-- 상단 메뉴 3개 숨김 처리 (hidden 클래스 적용) -->
+            <nav class="hidden items-center space-x-8 text-sm font-bold text-white/60">
+                <a href="#" class="hover:text-white transition-colors">홈</a>
+                <a href="#exchanges" class="hover:text-white transition-colors">제휴 거래소</a>
+                <a href="dashboard.html" class="text-purple-400 hover:text-purple-300">관리자 대시보드</a>
+            </nav>
+            <button class="px-5 py-2.5 bg-white/5 border border-white/10 rounded-full text-xs font-black hover:bg-white/10 transition-all">
+                UID 조회하기
+            </button>
+        </div>
     </header>
 
     <!-- Hero Section -->
-    <section id="home" class="min-h-[70vh] flex items-center px-4 md:px-8">
-        <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center w-full">
-            <div class="space-y-6">
-                <div class="inline-flex items-center px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/25 text-purple-400 text-[9px] font-bold tracking-[0.1em] uppercase">
-                    거래소 공식 파트너
+    <section class="relative pt-20 pb-32 px-6 overflow-hidden">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div class="space-y-8 relative z-10">
+                <div class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20">
+                    <span class="flex h-2 w-2 rounded-full bg-purple-500 animate-pulse"></span>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-purple-400">Trusted Payback Service</span>
                 </div>
-                <h1 class="text-5xl md:text-8xl font-bold leading-[1.1] text-neon tracking-tight">
-                    당신의 거래를<br>자산으로
-                </h1>
-                <p class="text-base md:text-lg text-purple-200/40 leading-relaxed max-w-sm font-light">
-                    매일 발생하는 수수료, 리나닷컴에서 실시간 자동 환급받으세요. 업계 최고 수준을 보장합니다.
+                <h1 class="hero-title text-5xl md:text-7xl">더 이상<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">수수료 낭비</span><br>하지 마세요.</h1>
+                <p class="text-lg text-white/50 max-w-md font-medium leading-relaxed">
+                    리나닷컴은 공식 파트너십을 통해 업계 최고 요율의 페이백을 보장합니다. 클릭 한 번으로 숨은 돈을 찾으세요.
                 </p>
-                <div class="flex flex-wrap gap-4 pt-2">
-                    <button onclick="toggleModal('testerModal', true)" class="flex-1 md:flex-none px-8 py-3.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl text-base transition shadow-xl shadow-purple-500/20">환급액 테스트</button>
-                    <button onclick="toggleModal('statusModal', true)" class="flex-1 md:flex-none px-8 py-3.5 glass-panel text-white font-bold rounded-xl text-base hover:bg-white/5 transition">실시간 현황</button>
+                <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                    <button class="px-10 py-5 bg-purple-600 rounded-2xl font-black text-lg shadow-[0_15px_30px_rgba(168,85,247,0.3)] hover:scale-105 active:scale-95 transition-all">
+                        페이백 시작하기
+                    </button>
+                    <div class="flex items-center space-x-4 px-6 py-5 bg-white/5 border border-white/10 rounded-2xl">
+                        <div class="flex -space-x-3">
+                            <div class="w-8 h-8 rounded-full border-2 border-[#0f0a1e] bg-purple-500 flex items-center justify-center text-[10px] font-bold">L</div>
+                            <div class="w-8 h-8 rounded-full border-2 border-[#0f0a1e] bg-cyan-500 flex items-center justify-center text-[10px] font-bold">R</div>
+                            <div class="w-8 h-8 rounded-full border-2 border-[#0f0a1e] bg-indigo-500 flex items-center justify-center text-[10px] font-bold">N</div>
+                        </div>
+                        <span class="text-xs font-bold text-white/60">현재 1,200+명 이용 중</span>
+                    </div>
                 </div>
             </div>
-            
-            <!-- Animated Card Visual -->
-            <div class="flex justify-center items-center">
-                <div class="card-premium-banner animate-float">
-                    <div class="title">리나닷컴 필수 페이백</div>
-                    <div class="subtitle">놓치면 손해!</div>
-                    <div class="desc">매수와 매도 수수료 돌려받기</div>
-                    <div class="logo"><span>b</span></div>
+
+            <!-- Right Visual (Controlled by Dashboard) -->
+            <div class="relative">
+                <div id="main-floating-card" class="floating-card glass-card p-8 rounded-[40px] bg-white/5 border border-white/10 backdrop-blur-xl relative z-20">
+                    <div class="flex justify-between items-start mb-12">
+                        <div>
+                            <h3 id="card-title" class="text-xl font-bold mb-1">리나닷컴 필수 페이백</h3>
+                            <p id="card-desc" class="text-xs text-white/40">매수와 매도 수수료 돌려받기</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                    </div>
+                    <div class="flex justify-center py-10">
+                        <div id="card-logo-container" class="w-24 h-24 rounded-full border-4 border-purple-500/30 flex items-center justify-center animate-[spin_4s_linear_infinite]">
+                            <span id="card-logo-text" class="text-4xl font-black italic">b</span>
+                        </div>
+                    </div>
+                    <div class="mt-12 p-5 bg-white/5 rounded-2xl border border-white/5">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-[10px] font-bold text-white/40 uppercase">Total Payback</span>
+                            <span class="text-xs font-bold text-purple-400">LIVE</span>
+                        </div>
+                        <div class="text-2xl font-bold stat-font tracking-tighter">12,450.50 <span class="text-sm font-normal text-white/30 ml-1">USDT</span></div>
+                    </div>
                 </div>
+                <!-- Decoration -->
+                <div class="absolute -top-10 -right-10 w-64 h-64 bg-purple-600/20 rounded-full blur-[100px] -z-10"></div>
+                <div class="absolute -bottom-10 -left-10 w-64 h-64 bg-cyan-600/10 rounded-full blur-[100px] -z-10"></div>
             </div>
         </div>
     </section>
 
-    <!-- Bitget Special Banner -->
-    <section class="py-8">
-        <div class="bitget-banner-container">
-            <div class="bitget-banner shadow-xl border border-white/20">
-                <div class="banner-title">
-                    Bitget 수수료 81%<br/>
-                    <span class="text-cyan-700">역대 최고 페이백</span>
-                </div>
-                <div class="banner-badge">
-                    리나닷컴 한정 이벤트
-                </div>
-                <!-- Recovered background logo icon -->
-                <div class="bitget-banner-logo">
-                    <i class="fas fa-bolt"></i>
+    <!-- Custom Banner (Controlled by Dashboard) -->
+    <section id="custom-banner-section" class="max-w-7xl mx-auto px-6 mb-24">
+        <div id="custom-banner-bg" class="w-full p-8 rounded-[32px] flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden relative" style="background-color: #67e8f9;">
+            <div class="relative z-10">
+                <span id="banner-badge" class="px-3 py-1 bg-black/10 rounded-full text-[10px] font-black uppercase mb-3 inline-block">리나닷컴 한정 이벤트</span>
+                <h2 id="banner-title" class="text-2xl md:text-3xl font-black text-black leading-tight">Bitget 수수료 81%<br>역대 최고 페이백</h2>
+            </div>
+            <div class="flex items-center space-x-4 relative z-10">
+                <button class="px-8 py-4 bg-black text-white rounded-2xl font-bold hover:scale-105 transition-transform">지금 확인</button>
+                <div class="w-16 h-16 bg-white/30 rounded-full flex items-center justify-center text-2xl text-black">
+                    <i id="banner-icon" class="fas fa-bolt"></i>
                 </div>
             </div>
+            <!-- Decorative Icon -->
+            <i class="fas fa-coins absolute -bottom-10 -right-10 text-[180px] text-black/5 rotate-12"></i>
         </div>
     </section>
 
-    <!-- Exchange List Section -->
-    <section id="featured" class="py-12 px-4 md:px-8">
+    <!-- Exchange Grid (Controlled by Dashboard) -->
+    <section id="exchanges" class="max-w-7xl mx-auto px-6 py-20">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+            <div class="space-y-4">
+                <h2 class="text-4xl font-bold tracking-tight">제휴 거래소</h2>
+                <p class="text-white/40 max-w-sm font-medium">리나닷컴이 엄선한 신뢰할 수 있는 글로벌 거래소 리스트입니다.</p>
+            </div>
+            <div class="flex space-x-2">
+                <button class="p-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all"><i class="fas fa-arrow-left"></i></button>
+                <button class="p-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all"><i class="fas fa-arrow-right text-purple-400"></i></button>
+            </div>
+        </div>
+
+        <div id="exchange-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Exchanges will be injected here via JavaScript -->
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/5 pt-20 pb-10 px-6">
         <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-8 space-y-2">
-                <h2 class="text-3xl md:text-5xl font-bold text-white text-neon">제휴 거래소</h2>
-                <p class="text-[9px] text-purple-200/30 uppercase tracking-[0.3em] font-bold">Official Certified Partners</p>
+            <div class="flex flex-col md:flex-row justify-between items-start gap-12 mb-20">
+                <div class="space-y-6">
+                    <div class="flex items-center space-x-2.5">
+                        <div class="w-8 h-8 rounded-xl bg-purple-500 flex items-center justify-center"><i class="fas fa-infinity text-white text-xs"></i></div>
+                        <span class="text-lg font-bold italic tracking-tighter">리나<span class="text-purple-500">닷컴</span></span>
+                    </div>
+                    <p class="text-white/30 text-xs max-w-xs leading-relaxed font-medium">리나닷컴은 사용자가 지불한 거래 수수료를 투명하게 돌려드리는 테더 페이백 전문 플랫폼입니다.</p>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-12 sm:gap-24">
+                    <div class="space-y-4">
+                        <h4 class="text-xs font-black uppercase tracking-widest text-purple-400">Service</h4>
+                        <ul class="text-xs space-y-3 font-bold text-white/50">
+                            <li><a href="#" class="hover:text-white">이용 안내</a></li>
+                            <li><a href="#" class="hover:text-white">페이백 계산기</a></li>
+                            <li><a href="#" class="hover:text-white">고객센터</a></li>
+                        </ul>
+                    </div>
+                    <div class="space-y-4">
+                        <h4 class="text-xs font-black uppercase tracking-widest text-purple-400">Legal</h4>
+                        <ul class="text-xs space-y-3 font-bold text-white/50">
+                            <li><a href="#" class="hover:text-white">이용약관</a></li>
+                            <li><a href="#" class="hover:text-white">개인정보처리방침</a></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
-
-            <!-- Filter Buttons -->
-            <div class="flex flex-row justify-center gap-2 mb-10 overflow-x-auto pb-2 no-scrollbar">
-                <button onclick="sortExchanges('default', this)" class="filter-btn active">기본순</button>
-                <button onclick="sortExchanges('popular', this)" class="filter-btn">인기순</button>
-                <button onclick="sortExchanges('payback', this)" class="filter-btn">페이백 높은순</button>
-            </div>
-
-            <!-- Dynamic Exchange Cards -->
-            <div id="exchangeContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Injected via JavaScript -->
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-bold text-white/20 uppercase tracking-[0.2em]">
+                <p>© 2025 LinaDotCom. All Rights Reserved.</p>
+                <div class="flex space-x-6">
+                    <a href="#"><i class="fab fa-telegram-plane text-sm"></i></a>
+                    <a href="#"><i class="fab fa-twitter text-sm"></i></a>
+                </div>
             </div>
         </div>
-    </section>
-
-    <footer class="py-16 border-t border-white/5 text-center pb-32">
-        <span class="text-lg font-bold italic text-white/20">리나<span class="text-purple-500/20">닷컴</span></span>
-        <p class="mt-3 text-[8px] text-white/10 uppercase tracking-[0.4em]">Premium Payback Solution © 2025</p>
     </footer>
 
-    <!-- Modals -->
-    <div id="statusModal" class="modal-backdrop" onclick="toggleModal('statusModal', false)">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <div class="px-6 py-5 border-b border-white/10 flex justify-between items-center">
-                <h3 class="font-bold text-white text-sm">최근 환급 리스트</h3>
-                <button onclick="toggleModal('statusModal', false)" class="text-white/20 hover:text-white p-2"><i class="fas fa-times text-lg"></i></button>
+    <!-- Mini Bottom Popup (Controlled by Dashboard) -->
+    <div id="mini-popup" class="fixed bottom-6 right-6 z-[100] group">
+        <div class="bg-white rounded-3xl p-4 pl-6 shadow-2xl flex items-center space-x-6 transform transition-all hover:scale-105 active:scale-95 border-4 border-purple-500/20">
+            <div class="text-left">
+                <p id="mini-sub-text" class="text-[9px] font-black text-purple-500 uppercase tracking-tighter">Check My Payback</p>
+                <p id="mini-main-text" class="text-sm font-black text-gray-900 leading-none mt-0.5">환급액 1분 확인</p>
             </div>
-            <div id="statusList" class="max-h-[400px] overflow-y-auto"></div>
-        </div>
-    </div>
-
-    <div id="testerModal" class="modal-backdrop" onclick="toggleModal('testerModal', false)">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <div class="px-6 py-5 border-b border-white/10 flex justify-between items-center">
-                <h3 class="font-bold text-white text-sm">페이백 예상 금액 테스트</h3>
-                <button onclick="toggleModal('testerModal', false)" class="text-white/20 hover:text-white p-2"><i class="fas fa-times text-lg"></i></button>
-            </div>
-            <div class="p-6 space-y-6">
-                <div class="space-y-2.5">
-                    <label class="text-[9px] font-bold text-purple-400 uppercase tracking-widest">거래소 선택</label>
-                    <select id="calc-ex" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white text-sm outline-none focus:border-purple-500 transition" onchange="calc()">
-                        <option value="30">Binance (30%)</option>
-                        <option value="81">Bitget (81%)</option>
-                        <option value="25">Bybit (25%)</option>
-                        <option value="30">OKX (30%)</option>
-                        <option value="50">Deepcoin (50%)</option>
-                    </select>
-                </div>
-                <div class="space-y-3">
-                    <div class="flex justify-between text-[10px] font-bold">
-                        <span class="text-white/40">시드 머니 (USDT)</span>
-                        <span class="text-white"><span id="val-seed">1,000</span> USDT</span>
-                    </div>
-                    <input type="range" id="in-seed" min="100" max="50000" step="100" value="1000" oninput="calc()">
-                </div>
-                <div class="space-y-3">
-                    <div class="flex justify-between text-[10px] font-bold">
-                        <span class="text-white/40">평균 레버리지</span>
-                        <span class="text-white" id="val-lev">20x</span>
-                    </div>
-                    <input type="range" id="in-lev" min="1" max="125" step="1" value="20" oninput="calc()">
-                </div>
-                <div class="pt-6 border-t border-white/5 text-center space-y-5">
-                    <div>
-                        <p class="text-[9px] text-purple-300 font-bold uppercase tracking-widest mb-1">나의 예상 월 환급액</p>
-                        <p class="text-3xl font-['JetBrains_Mono'] font-bold text-white tracking-tighter"><span id="res-monthly">0.00</span> <span class="text-[10px] text-purple-400">USDT</span></p>
-                    </div>
-                    <button onclick="goToFeatured()" class="w-full py-4 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 text-white font-bold rounded-2xl text-sm transition-all shadow-xl shadow-purple-900/40 flex items-center justify-center gap-2">
-                        <i class="fas fa-link text-[10px]"></i>
-                        페이백 연결하기
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Scroll Triggered Mini Popup -->
-    <div id="miniPopup">
-        <div class="p-3.5 bg-[#16112a]/95 border border-purple-500/30 rounded-2xl flex justify-between items-center shadow-2xl backdrop-blur-xl">
-             <div class="flex items-center space-x-3">
-                 <div class="w-7 h-7 bg-purple-600 rounded-full flex items-center justify-center animate-pulse"><i class="fas fa-coins text-white text-[9px]"></i></div>
-                 <div class="flex flex-col">
-                     <span class="text-[9px] text-purple-400 font-bold uppercase leading-none mb-1">Check My Payback</span>
-                     <span class="text-[11px] font-bold text-white leading-none">환급액 1분 확인</span>
-                 </div>
-             </div>
-             <button onclick="toggleModal('testerModal', true)" class="px-4 py-2 bg-purple-600 rounded-xl text-[10px] font-extrabold text-white">시작</button>
+            <button id="mini-btn-text" class="bg-gray-900 text-white px-5 py-3 rounded-2xl text-xs font-black shadow-lg">시작</button>
         </div>
     </div>
 
     <script>
-        // Exchange Data State
-        let exchanges = [
-            { id: 1, name: '바이낸스', code: 'BINANCE', payback: 30, popularity: 95, color: 'from-[#f3ba2f]/20', logo: 'https://upload.wikimedia.org/wikipedia/commons/e/e8/Binance_Logo.svg' },
-            { id: 2, name: '바이비트', code: 'BYBIT', payback: 25, popularity: 90, color: 'from-zinc-100/10', logo: 'https://cdn.iconscout.com/icon/free/png-256/free-bybit-logo-icon-download-in-svg-png-gif-formats--blockchain-crypto-brand-logos-pack-icons-4680415.png' },
-            { id: 3, name: '비트겟', code: 'BITGET', payback: 81, popularity: 100, color: 'from-[#00f0ff]/20', logo: 'https://cdn.worldvectorlogo.com/logos/bitget-logo.svg' },
-            { id: 4, name: 'OKX', code: 'OKX', payback: 30, popularity: 85, color: 'from-white/5', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/OKX_logo.svg/2560px-OKX_logo.svg.png' },
-            { id: 5, name: '딥코인', code: 'DEEPCOIN', payback: 50, popularity: 70, color: 'from-[#0052ff]/20', logo: 'https://s2.coinmarketcap.com/static/img/exchanges/64x64/1109.png' }
-        ];
+        // --- Data Integration Logic ---
 
-        // Render Cards
-        function renderCards() {
-            const container = document.getElementById('exchangeContainer');
+        function initHome() {
+            // 1. Top Notice Sync
+            const homeData = JSON.parse(localStorage.getItem('lina_home_settings'));
+            if (homeData) {
+                const container = document.getElementById('top-notice-container');
+                if (homeData.topHide) {
+                    container.classList.add('hidden-element');
+                } else {
+                    container.classList.remove('hidden-element');
+                    document.getElementById('top-notice-text').innerText = homeData.topText;
+                    document.getElementById('top-notice-exchange').innerText = homeData.topExchange;
+                    document.getElementById('top-notice-action').innerText = homeData.topAction;
+                }
+            }
+
+            // 2. Banner & Floating Card Sync
+            const bannerData = JSON.parse(localStorage.getItem('lina_banner_settings'));
+            if (bannerData) {
+                // Custom Banner
+                const bannerSection = document.getElementById('custom-banner-section');
+                if (bannerData.bannerHide) {
+                    bannerSection.classList.add('hidden-element');
+                } else {
+                    bannerSection.classList.remove('hidden-element');
+                    document.getElementById('banner-title').innerHTML = bannerData.bannerTitle.replace('\n', '<br>');
+                    document.getElementById('banner-badge').innerText = bannerData.bannerBadge;
+                    document.getElementById('custom-banner-bg').style.backgroundColor = bannerData.bannerBg;
+                    document.getElementById('banner-icon').className = `fas ${bannerData.bannerIcon}`;
+                }
+
+                // Floating Card
+                document.getElementById('card-title').innerText = bannerData.cardTitle;
+                document.getElementById('card-desc').innerText = bannerData.cardDesc;
+                document.getElementById('card-logo-text').innerText = bannerData.cardLogo;
+                document.getElementById('card-logo-container').style.animationDuration = bannerData.cardAnim;
+                if(bannerData.cardAnim === 'none') {
+                    document.getElementById('card-logo-container').style.animation = 'none';
+                }
+            }
+
+            // 3. Mini Popup Sync
+            const miniData = JSON.parse(localStorage.getItem('lina_mini_settings'));
+            if (miniData) {
+                const mini = document.getElementById('mini-popup');
+                if (miniData.miniHide) {
+                    mini.classList.add('hidden-element');
+                } else {
+                    mini.classList.remove('hidden-element');
+                    document.getElementById('mini-main-text').innerText = miniData.miniMain;
+                    document.getElementById('mini-sub-text').innerText = miniData.miniSub;
+                    document.getElementById('mini-btn-text').innerText = miniData.miniBtn;
+                }
+            }
+
+            // 4. Exchange Grid Render
+            renderExchanges();
+        }
+
+        function renderExchanges() {
+            const container = document.getElementById('exchange-grid');
+            const savedEx = JSON.parse(localStorage.getItem('lina_exchange_list'));
+            
+            // 기본값 (설정이 없을 경우 대비)
+            const defaultEx = [
+                { id: 1, name: 'Bitget', rate: 81, color: 'from-[#00f0ff]/20', logo: 'https://cdn.worldvectorlogo.com/logos/bitget-logo.svg', link: '#' },
+                { id: 2, name: 'Binance', rate: 30, color: 'from-[#f3ba2f]/20', logo: 'https://upload.wikimedia.org/wikipedia/commons/e/e8/Binance_Logo.svg', link: '#' },
+                { id: 3, name: 'Bybit', rate: 25, color: 'from-[#f0b90b]/20', logo: 'https://cdn.worldvectorlogo.com/logos/bybit-logo.svg', link: '#' }
+            ];
+
+            const list = savedEx || defaultEx;
             container.innerHTML = '';
-            exchanges.forEach(ex => {
-                container.innerHTML += `
-                    <div class="glass-panel p-6 group transition-all active:scale-[0.98]">
-                        <div class="aspect-[1.586/1] rounded-2xl bg-gradient-to-br ${ex.color} to-black/60 border border-white/10 mb-5 p-5 flex flex-col justify-between overflow-hidden">
-                            <div class="flex justify-between items-start">
-                                <div class="w-9 h-9 bg-white/10 rounded-lg p-2 flex items-center justify-center">
-                                    <img src="${ex.logo}" class="object-contain w-full h-full" onerror="this.src='https://cdn-icons-png.flaticon.com/512/121/121111.png'">
-                                </div>
-                                <span class="text-[8px] text-white/30 font-bold uppercase tracking-widest">${ex.code}</span>
-                            </div>
-                            <div>
-                                <p class="text-[9px] text-purple-400 font-bold uppercase mb-0.5">Official Payback</p>
-                                <p class="text-2xl font-bold text-white">${ex.payback}%</p>
-                            </div>
-                        </div>
-                        <h3 class="text-lg font-bold text-white mb-2">${ex.name}</h3>
-                        <button onclick="toggleModal('testerModal', true)" class="w-full py-3.5 bg-white/5 hover:bg-purple-600 rounded-xl text-[11px] font-bold text-white transition-all">연결하기</button>
+
+            list.forEach(ex => {
+                const card = document.createElement('div');
+                card.className = "exchange-card p-8 flex flex-col items-center text-center relative overflow-hidden group";
+                card.innerHTML = `
+                    <div class="absolute inset-0 bg-gradient-to-b ${ex.color} to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <div class="w-20 h-20 bg-white/5 rounded-3xl p-4 mb-8 flex items-center justify-center relative z-10">
+                        <img src="${ex.logo}" onerror="this.src='https://via.placeholder.com/60?text=${ex.name}'" class="max-h-full">
                     </div>
+                    <h3 class="text-2xl font-black mb-2 relative z-10">${ex.name}</h3>
+                    <div class="flex items-center space-x-2 mb-8 relative z-10">
+                        <span class="text-[10px] font-black text-white/30 uppercase tracking-widest">Payback Rate</span>
+                        <span class="text-xl font-black text-purple-400 stat-font">${ex.rate}%</span>
+                    </div>
+                    <a href="${ex.link}" class="w-full py-4 bg-white/5 border border-white/10 rounded-2xl font-bold hover:bg-white text-gray-400 hover:text-gray-900 transition-all relative z-10">
+                        연결하기
+                    </a>
                 `;
+                container.appendChild(card);
             });
         }
 
-        // Filtering Logic
-        function sortExchanges(type, btn) {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            if (type === 'default') exchanges.sort((a, b) => a.id - b.id);
-            else if (type === 'popular') exchanges.sort((a, b) => b.popularity - a.popularity);
-            else if (type === 'payback') exchanges.sort((a, b) => b.payback - a.payback);
-            renderCards();
-        }
+        // Initialize on Load
+        window.onload = initHome;
 
-        // UI Helpers
-        function closeTopPopup() {
-            document.getElementById('top-exchange-popup').style.display='none';
-            document.body.style.paddingTop = '80px'; 
-        }
-
-        function goToFeatured() {
-            toggleModal('testerModal', false);
-            document.getElementById('featured').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function toggleModal(id, show) {
-            const m = document.getElementById(id);
-            if(show) { 
-                if(id === 'statusModal') generateStatus();
-                m.classList.add('active'); 
-                document.body.style.overflow = 'hidden'; 
-            }
-            else { 
-                m.classList.remove('active'); 
-                document.body.style.overflow = 'auto'; 
-            }
-        }
-
-        // Mock Real-time Data
-        function generateStatus() {
-            const list = document.getElementById('statusList');
-            const names = ['바이낸스', '바이비트', '비트겟', 'OKX', '딥코인'];
-            list.innerHTML = '';
-            for(let i=0; i<10; i++) {
-                list.innerHTML += `
-                    <div class="flex justify-between items-center p-4 border-b border-white/5 hover:bg-white/5 transition">
-                        <div class="flex flex-col gap-1">
-                            <p class="text-xs font-bold text-white">${Math.floor(Math.random()*900+100)}*** (${names[Math.floor(Math.random()*5)]})</p>
-                            <span class="inline-block px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400 text-[8px] font-bold w-fit">환급완료</span>
-                        </div>
-                        <p class="text-sm font-['JetBrains_Mono'] font-bold text-white">${(Math.random()*500+20).toFixed(2)} USDT</p>
-                    </div>`;
-            }
-        }
-
-        // Calculation
-        function calc() {
-            const seed = parseInt(document.getElementById('in-seed').value);
-            const lev = parseInt(document.getElementById('in-lev').value);
-            const rate = parseInt(document.getElementById('calc-ex').value) / 100;
-            document.getElementById('val-seed').innerText = seed.toLocaleString();
-            document.getElementById('val-lev').innerText = lev + 'x';
-            
-            // Logic: Seed * Leverage * 2 (In/Out) * Trades Per Day (5) * Days (30) * Avg Fee (0.04%) * Payback Rate
-            const monthlyPayback = (seed * lev * 2 * 5 * 30) * 0.0004 * rate;
-            document.getElementById('res-monthly').innerText = monthlyPayback.toLocaleString(undefined, {minimumFractionDigits: 2});
-        }
-
-        // Event Listeners
-        window.addEventListener('scroll', () => {
-            const nav = document.getElementById('navbar');
-            const pop = document.getElementById('miniPopup');
-            if(window.scrollY > 40) nav.classList.add('bg-[#0f0a1e]/95', 'py-1.5');
-            else nav.classList.remove('bg-[#0f0a1e]/95', 'py-1.5');
-            
-            if(window.scrollY > 350) pop.classList.add('show');
-            else pop.classList.remove('show');
+        // Listen for storage changes (다른 탭에서 대시보드 조작 시 실시간 반영)
+        window.addEventListener('storage', (e) => {
+            initHome();
         });
-
-        // Init
-        window.onload = () => { 
-            renderCards(); 
-            calc(); 
-        };
     </script>
 </body>
 </html>
