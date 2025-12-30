@@ -1,0 +1,35 @@
+{
+    "home": {
+        "topText": "지금 바이낸스 페이백 원해?",
+        "topExchange": "바이낸스",
+        "topAction": "지금 연결",
+        "topHide": false,
+        "calcExchanges": "Binance, Bitget, Bybit, OKX, Deepcoin, Mexc"
+    },
+    "exchanges": [
+        {
+            "id": 1,
+            "name": "비트겟 (Bitget)",
+            "rate": 81,
+            "color": "from-[#00f0ff]/20",
+            "logo": "https://raw.githubusercontent.com/talmobottle1-boop/newtank26/main/assets/images/bitget.jpeg",
+            "link": "https://partner.bitget.com/bg/LINA"
+        },
+        {
+            "id": 2,
+            "name": "바이낸스 (Binance)",
+            "rate": 30,
+            "color": "from-[#f3ba2f]/20",
+            "logo": "https://raw.githubusercontent.com/talmobottle1-boop/newtank26/main/assets/images/binance.jpeg",
+            "link": "https://accounts.binance.com/register?ref=LINA"
+        },
+        {
+            "id": 1767078829017,
+            "name": "OKX",
+            "rate": 50,
+            "color": "from-purple-500/20",
+            "logo": "https://raw.githubusercontent.com/talmobottle1-boop/newtank26/main/assets/images/IMG_0205.png",
+            "link": "#"
+        }
+    ]
+}
