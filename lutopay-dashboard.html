@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>루투페이 컨트롤러</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+        
+        :root {
+            --bg-deep: #0f0a1e;
+            --sidebar-bg: #160f29;
+            --brand-primary: #a855f7;
+        }
+
+        body { 
+            font-family: 'Noto Sans KR', sans-serif; 
+            background-color: var(--bg-deep); 
+            color: #f5f3ff;
+        }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .input-field { 
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            width: 100%;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+        .input-field:focus {
+            border-color: var(--brand-primary);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.2);
+        }
+
+        .nav-btn {
+            transition: all 0.3s;
+            position: relative;
+        }
+        .nav-btn.active {
+            background: linear-gradient(to right, rgba(168, 85, 247, 0.2), transparent);
+            color: white;
+            border-left: 4px solid var(--brand-primary);
+        }
+
+        .status-badge {
+            padding: 2px 8px;
+            border-radius: 99px;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+    </style>
+</head>
+<body class="min-h-screen flex">
+
+    <!-- Sidebar -->
+    <aside class="w-72 bg-[#160f29] border-r border-white/5 flex-shrink-0 flex flex-col">
+        <div class="p-8">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/20">
+                    <i class="fas fa-shield-alt text-white"></i>
+                </div>
+                <div>
+                    <span class="text-xl font-black italic tracking-tighter"루투<span class="text-purple-500">CMS</span></span>
+                    <p class="text-[9px] text-white/30 font-bold uppercase tracking-widest">Master Dashboard</p>
+                </div>
+            </div>
+        </div>
+
+        <nav class="flex-1 px-4 space-y-1">
+            <button onclick="switchTab('home')" class="nav-btn active w-full flex items-center space-x-3 px-6 py-4 rounded-xl text-white/50 hover:text-white" data-tab="home">
+                <i class="fas fa-th-large w-5"></i><span class="font-bold text-sm">홈 공지/팝업 제어</span>
+            </button>
+            <button onclick="switchTab('giftcards')" class="nav-btn w-full flex items-center space-x-3 px-6 py-4 rounded-xl text-white/50 hover:text-white" data-tab="giftcards">
+                <i class="fas fa-gift w-5"></i><span class="font-bold text-sm">기프트카드 관리</span>
+            </button>
+            <button onclick="switchTab('live')" class="nav-btn w-full flex items-center space-x-3 px-6 py-4 rounded-xl text-white/50 hover:text-white" data-tab="live">
+                <i class="fas fa-broadcast-tower w-5"></i><span class="font-bold text-sm">실시간 피드 설정</span>
+            </button>
+            <button onclick="switchTab('orders')" class="nav-btn w-full flex items-center space-x-3 px-6 py-4 rounded-xl text-white/50 hover:text-white" data-tab="orders">
+                <i class="fas fa-wallet w-5"></i><span class="font-bold text-sm">입금 고객 관리</span>
+            </button>
+            <button onclick="switchTab('api')" class="nav-btn w-full flex items-center space-x-3 px-6 py-4 rounded-xl text-white/50 hover:text-white" data-tab="api">
+                <i class="fas fa-key w-5"></i><span class="font-bold text-sm">결제 API 설정</span>
+            </button>
+        </nav>
+
+        <div class="p-8 border-t border-white/5">
+            <a href="index.html" target="_blank" class="flex items-center justify-center space-x-2 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-white/60 transition-all text-xs font-bold">
+                <i class="fas fa-external-link-alt text-[10px]"></i><span>사용자 페이지 보기</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+        <header class="h-24 flex items-center justify-between px-10 border-b border-white/5 bg-[#0f0a1e]/80 backdrop-blur-md z-20">
+            <div>
+                <h2 id="tab-title" class="text-2xl font-black">홈 공지/팝업 제어</h2>
+                <p class="text-xs text-white/30 font-medium mt-1">실시간으로 사이트의 주요 콘텐츠를 변경합니다.</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="text-right mr-4 hidden md:block">
+                    <p class="text-xs font-bold">Admin Manager</p>
+                    <p class="text-[10px] text-emerald-400 font-mono">System Online</p>
+                </div>
+                <button onclick="saveAll()" class="px-8 py-3.5 bg-purple-600 hover:bg-purple-500 text-white rounded-2xl font-black text-sm shadow-xl shadow-purple-900/20 transition-all active:scale-95">
+                    변경사항 즉시 적용
+                </button>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-10">
+            <!-- TAB: HOME SETTINGS -->
+            <div id="tab-home" class="tab-content active space-y-8">
+                <!-- 상단 긴급 공지 -->
+                <div class="glass-panel rounded-[32px] p-8 space-y-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center"><i class="fas fa-bullhorn text-purple-400"></i></div>
+                            <h3 class="text-lg font-bold">상단 긴급 공지 바 (Top Bar)</h3>
+                        </div>
+                        <input type="checkbox" id="topHide" class="w-12 h-6 rounded-full appearance-none bg-white/10 checked:bg-purple-600 relative transition-all cursor-pointer before:content-[''] before:absolute before:w-4 before:h-4 before:bg-white before:rounded-full before:top-1 before:left-1 checked:before:left-7 before:transition-all">
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-[11px] font-black text-white/40 uppercase tracking-widest ml-1">공지 텍스트</label>
+                            <input type="text" id="topText" class="input-field" placeholder="지금 신세계 상품권 한정 이벤트!">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[11px] font-black text-white/40 uppercase tracking-widest ml-1">이동 섹션 명칭</label>
+                            <input type="text" id="topExchange" class="input-field" placeholder="쇼핑하기">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[11px] font-black text-white/40 uppercase tracking-widest ml-1">버튼 이름</label>
+                            <input type="text" id="topAction" class="input-field" placeholder="지금 구매">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 스카이블루 배너 -->
+                <div class="glass-panel rounded-[32px] p-8 space-y-6">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-cyan-500/20 flex items-center justify-center"><i class="fas fa-ad text-cyan-400"></i></div>
+                        <h3 class="text-lg font-bold">메인 와이드 배너 설정 (Sky Blue)</h3>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-[11px] font-black text-white/40 uppercase tracking-widest ml-1">배너 메인 타이틀 (HTML 가능)</label>
+                            <textarea id="bannerTitle" class="input-field h-24" placeholder="배달의민족 기프트카드<br>포인트 결제 시 12% 즉시할인"></textarea>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label class="text-[11px] font-black text-white/40 uppercase tracking-widest ml-1">배경색</label>
+                                <input type="color" id="bannerBg" value="#67e8f9" class="input-field h-12 p-1">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[11px] font-black text-white/40 uppercase tracking-widest ml-1">로고 아이콘 (FA)</label>
+                                <input type="text" id="bannerIcon" class="input-field" placeholder="fas fa-motorcycle">
+                            </div>
+                            <div class="space-y-2 col-span-2">
+                                <label class="text-[11px] font-black text-white/40 uppercase tracking-widest ml-1">뱃지 텍스트</label>
+                                <input type="text" id="bannerBadge" class="input-field" placeholder="루투페이 회원 특가">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: GIFT CARD MANAGEMENT -->
+            <div id="tab-giftcards" class="tab-content space-y-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold">기프트카드 상품 목록</h3>
+                    <button onclick="addGiftCard()" class="px-5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs font-black hover:bg-white/10 transition-all">+ 상품 추가</button>
+                </div>
+                <div id="giftcard-list" class="grid grid-cols-1 gap-4">
+                    <!-- Cards will be injected here -->
+                </div>
+            </div>
+
+            <!-- TAB: LIVE FEED SETTINGS -->
+            <div id="tab-live" class="tab-content space-y-6">
+                <div class="glass-panel rounded-[32px] p-8">
+                    <div class="flex items-center justify-between mb-8">
+                        <h3 class="text-xl font-bold italic">Live Feed <span class="text-purple-400 font-black">Manual Input</span></h3>
+                        <p class="text-xs text-white/30">가상 또는 실제 구매 내역을 피드에 노출합니다.</p>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-4 gap-4 bg-white/5 p-4 rounded-2xl">
+                            <input type="text" id="live-name" class="input-field" placeholder="이름 (예: 김*수)">
+                            <input type="text" id="live-item" class="input-field" placeholder="상품명">
+                            <input type="text" id="live-price" class="input-field" placeholder="금액">
+                            <button onclick="addLiveFeed()" class="bg-purple-600 rounded-xl font-bold text-xs">피드 즉시 추가</button>
+                        </div>
+                        <div id="live-feed-manage" class="space-y-2 max-h-[400px] overflow-y-auto pr-2">
+                            <!-- Live list -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: ORDER MANAGEMENT -->
+            <div id="tab-orders" class="tab-content space-y-6">
+                <div class="glass-panel rounded-[32px] overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-white/5 border-b border-white/5">
+                                <th class="p-6 text-[10px] font-black text-white/40 uppercase tracking-widest">신청 일시</th>
+                                <th class="p-6 text-[10px] font-black text-white/40 uppercase tracking-widest">입금자명</th>
+                                <th class="p-6 text-[10px] font-black text-white/40 uppercase tracking-widest">주문 상품</th>
+                                <th class="p-6 text-[10px] font-black text-white/40 uppercase tracking-widest">실결제금액</th>
+                                <th class="p-6 text-[10px] font-black text-white/40 uppercase tracking-widest">상태</th>
+                                <th class="p-6 text-[10px] font-black text-white/40 uppercase tracking-widest">관리</th>
+                            </tr>
+                        </thead>
+                        <tbody id="order-list">
+                            <tr class="border-b border-white/5 hover:bg-white/20 transition-colors">
+                                <td class="p-6 text-xs font-medium">2025-12-30 14:22</td>
+                                <td class="p-6 text-sm font-bold">홍길동</td>
+                                <td class="p-6 text-xs text-white/60 font-bold">신세계 상품권 5만원권</td>
+                                <td class="p-6 text-sm font-black text-purple-400">47,500원</td>
+                                <td class="p-6"><span class="status-badge bg-yellow-500/20 text-yellow-400">입금 대기</span></td>
+                                <td class="p-6">
+                                    <div class="flex space-x-2">
+                                        <button class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/40 flex items-center justify-center transition-all"><i class="fas fa-check"></i></button>
+                                        <button class="w-8 h-8 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/40 flex items-center justify-center transition-all"><i class="fas fa-times"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: API SETTINGS -->
+            <div id="tab-api" class="tab-content space-y-8">
+                <div class="glass-panel rounded-[32px] p-8 space-y-8">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-yellow-400/20 flex items-center justify-center"><i class="fas fa-comment text-yellow-400"></i></div>
+                        <h3 class="text-lg font-bold">카카오페이(KakaoPay) API 연동</h3>
+                    </div>
+                    <div class="grid grid-cols-1 gap-6 max-w-2xl">
+                        <div class="space-y-2">
+                            <label class="text-[11px] font-black text-white/40 uppercase tracking-widest ml-1">가맹점 코드 (CID)</label>
+                            <input type="text" id="kakaoCid" class="input-field font-mono" placeholder="TC0ONETIME">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[11px] font-black text-white/40 uppercase tracking-widest ml-1">Admin Key</label>
+                            <input type="password" id="kakaoKey" class="input-field font-mono" placeholder="••••••••••••••••••••••••">
+                        </div>
+                        <div class="p-4 rounded-2xl bg-white/5 border border-white/5">
+                            <p class="text-xs text-white/40 leading-relaxed">
+                                <i class="fas fa-info-circle mr-2"></i>카카오페이 API 활성화 시 결제 팝업창에서 '카카오페이' 버튼이 자동으로 노출됩니다. 테스트 시에는 CID에 TC0ONETIME을 입력하세요.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const STORAGE_KEY = 'rootopay_settings';
+        let currentData = {
+            home: { topHide: false, topText: '', topExchange: '', topAction: '' },
+            banner: { title: '', badge: '', bg: '#67e8f9', icon: 'fas fa-motorcycle' },
+            giftcards: [],
+            liveFeeds: [],
+            api: { kakaoCid: '', kakaoKey: '' }
+        };
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+            
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+            
+            const titles = { 
+                home: '홈 공지/팝업 제어', 
+                giftcards: '기프트카드 관리', 
+                live: '실시간 피드 설정', 
+                orders: '입금 고객 관리', 
+                api: '결제 API 설정' 
+            };
+            document.getElementById('tab-title').innerText = titles[tabId];
+        }
+
+        // Gift Card Functions
+        function renderGiftCards() {
+            const container = document.getElementById('giftcard-list');
+            container.innerHTML = '';
+            currentData.giftcards.forEach((card, idx) => {
+                const div = document.createElement('div');
+                div.className = "glass-panel p-6 rounded-2xl flex items-center space-x-6";
+                div.innerHTML = `
+                    <div class="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center text-2xl overflow-hidden">
+                        ${card.img ? `<img src="${card.img}" class="w-full h-full object-cover">` : `<i class="${card.icon || 'fas fa-gift'}"></i>`}
+                    </div>
+                    <div class="flex-1 grid grid-cols-4 gap-4">
+                        <input type="text" class="input-field !text-xs" value="${card.name}" onchange="updateCard(${idx}, 'name', this.value)" placeholder="상품명">
+                        <input type="text" class="input-field !text-xs" value="${card.price}" onchange="updateCard(${idx}, 'price', this.value)" placeholder="가격 (숫자만)">
+                        <input type="text" class="input-field !text-xs" value="${card.rate}" onchange="updateCard(${idx}, 'rate', this.value)" placeholder="할인율 (%)">
+                        <input type="text" class="input-field !text-xs col-span-1" value="${card.img || ''}" onchange="updateCard(${idx}, 'img', this.value)" placeholder="이미지 URL (선택)">
+                    </div>
+                    <button onclick="deleteCard(${idx})" class="text-red-400 hover:text-red-600 px-4"><i class="fas fa-trash-alt"></i></button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function addGiftCard() {
+            currentData.giftcards.push({ name: '신규 상품권', price: '50,000', rate: '5', icon: 'fas fa-gift', img: '' });
+            renderGiftCards();
+        }
+
+        function updateCard(idx, field, val) {
+            currentData.giftcards[idx][field] = val;
+        }
+
+        function deleteCard(idx) {
+            currentData.giftcards.splice(idx, 1);
+            renderGiftCards();
+        }
+
+        // Live Feed Functions
+        function addLiveFeed() {
+            const name = document.getElementById('live-name').value;
+            const item = document.getElementById('live-item').value;
+            const price = document.getElementById('live-price').value;
+            if(!name || !item) return;
+            
+            currentData.liveFeeds.unshift({ name, item, price, time: '방금 전' });
+            renderLiveFeeds();
+            document.getElementById('live-name').value = '';
+            document.getElementById('live-item').value = '';
+            document.getElementById('live-price').value = '';
+        }
+
+        function renderLiveFeeds() {
+            const container = document.getElementById('live-feed-manage');
+            container.innerHTML = '';
+            currentData.liveFeeds.forEach((feed, idx) => {
+                const div = document.createElement('div');
+                div.className = "flex items-center justify-between p-3 bg-white/5 border border-white/5 rounded-xl text-xs";
+                div.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="font-bold text-white">${feed.name}</span>
+                        <span class="text-white/40">${feed.item}</span>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-purple-400 font-black">${feed.price}원</span>
+                        <button onclick="deleteFeed(${idx})" class="text-white/20 hover:text-red-400"><i class="fas fa-times"></i></button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function deleteFeed(idx) {
+            currentData.liveFeeds.splice(idx, 1);
+            renderLiveFeeds();
+        }
+
+        // Core Save/Load
+        function saveAll() {
+            // Collect other fields
+            currentData.home = {
+                topHide: document.getElementById('topHide').checked,
+                topText: document.getElementById('topText').value,
+                topExchange: document.getElementById('topExchange').value,
+                topAction: document.getElementById('topAction').value
+            };
+            currentData.banner = {
+                title: document.getElementById('bannerTitle').value,
+                badge: document.getElementById('bannerBadge').value,
+                bg: document.getElementById('bannerBg').value,
+                icon: document.getElementById('bannerIcon').value
+            };
+            currentData.api = {
+                kakaoCid: document.getElementById('kakaoCid').value,
+                kakaoKey: document.getElementById('kakaoKey').value
+            };
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(currentData));
+            showToast();
+            window.dispatchEvent(new Event('storage'));
+        }
+
+        function loadAll() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if(saved) {
+                currentData = JSON.parse(saved);
+                // Fill Home
+                document.getElementById('topHide').checked = currentData.home.topHide;
+                document.getElementById('topText').value = currentData.home.topText || '';
+                document.getElementById('topExchange').value = currentData.home.topExchange || '';
+                document.getElementById('topAction').value = currentData.home.topAction || '';
+                // Fill Banner
+                document.getElementById('bannerTitle').value = currentData.banner.title || '';
+                document.getElementById('bannerBadge').value = currentData.banner.badge || '';
+                document.getElementById('bannerBg').value = currentData.banner.bg || '#67e8f9';
+                document.getElementById('bannerIcon').value = currentData.banner.icon || '';
+                // Fill API
+                document.getElementById('kakaoCid').value = currentData.api.kakaoCid || '';
+                document.getElementById('kakaoKey').value = currentData.api.kakaoKey || '';
+                
+                renderGiftCards();
+                renderLiveFeeds();
+            } else {
+                // Initial Default
+                currentData.giftcards = [
+                    { name: '신세계 상품권', price: '47,500', rate: '5', icon: 'fas fa-store' },
+                    { name: '구글 기프트카드', price: '45,000', rate: '10', icon: 'fab fa-google-play' }
+                ];
+                renderGiftCards();
+            }
+        }
+
+        function showToast() {
+            const toast = document.createElement('div');
+            toast.className = "fixed bottom-10 left-1/2 -translate-x-1/2 bg-white text-black px-8 py-4 rounded-2xl font-black text-sm z-[100] shadow-2xl animate-bounce";
+            toast.innerText = "설정이 즉시 저장되었습니다!";
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2500);
+        }
+
+        window.onload = loadAll;
+    </script>
+</body>
+</html>
