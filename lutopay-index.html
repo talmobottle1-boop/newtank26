@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -21,6 +21,12 @@
             color: #f5f3ff;
             overflow-x: hidden;
             word-break: keep-all;
+            scroll-behavior: smooth;
+            /* 드래그 및 텍스트 선택 방지 */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
 
         .bg-mesh {
@@ -69,8 +75,6 @@
             50% { transform: translateY(-15px); }
         }
 
-        .hidden-element { display: none !important; }
-
         .live-feed-item {
             animation: slideUpFade 0.5s ease-out forwards;
         }
@@ -92,35 +96,67 @@
             border-radius: 10px;
         }
 
+        /* Modal Backdrop */
+        .modal-backdrop {
+            background: rgba(15, 10, 30, 0.85);
+            backdrop-filter: blur(12px);
+            display: none;
+            transition: all 0.3s ease;
+        }
+
+        /* Modal Content Animation */
+        .modal-content {
+            animation: modalPop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes modalPop {
+            from { opacity: 0; transform: scale(0.95) translateY(30px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
         @media (max-width: 640px) {
             .hero-title { font-size: 2.25rem; }
         }
+
+        .custom-input {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        .custom-input:focus {
+            border-color: #a855f7;
+            background: rgba(168, 85, 247, 0.05);
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.2);
+        }
+
+        /* 드래그 방지 커서 설정 */
+        * {
+            -webkit-user-drag: none;
+        }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen" oncontextmenu="return false" onselectstart="return false" ondragstart="return false">
     <div class="bg-mesh"></div>
 
-    <!-- Header (Menu & Event Popup Center) -->
+    <!-- Header -->
     <header class="glass-header h-20 md:h-24 flex items-center px-4 lg:px-12 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto w-full grid grid-cols-2 md:grid-cols-3 items-center">
-            <!-- Left: Logo -->
             <div class="flex items-center space-x-2.5">
-                <div class="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-gradient-to-br from-purple-500 to-purple-800 flex items-center justify-center shadow-lg">
+                <div class="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-gradient-to-br from-purple-500 to-purple-800 flex items-center justify-center shadow-lg" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" style="cursor: pointer;">
                     <i class="fas fa-credit-card text-white text-[10px] md:text-sm"></i>
                 </div>
-                <span class="text-lg md:text-xl font-bold italic tracking-tighter">루투<span class="text-purple-500">페이</span></span>
+                <span class="text-lg md:text-xl font-bold italic tracking-tighter cursor-pointer" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">루투<span class="text-purple-500">페이</span></span>
             </div>
 
-            <!-- Center: Event Mini Popup (Maintained) -->
             <div id="top-notice-container" class="hidden md:flex justify-center">
                 <div class="bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-2 rounded-2xl shadow-xl border border-white/10 flex items-center space-x-3 max-w-[280px]">
                     <div class="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
                         <i class="fas fa-gift text-white text-[10px]"></i>
                     </div>
                     <div class="overflow-hidden">
-                        <p id="top-notice-text" class="text-[11px] font-bold text-white truncate">지금 신세계 상품권 한정 이벤트!</p>
-                        <a id="top-notice-link" href="#" class="text-[9px] font-black text-cyan-300 hover:text-white transition-colors">
-                            <span id="top-notice-exchange">쇼핑하기</span> <span id="top-notice-action">지금 구매</span> <i class="fas fa-chevron-right ml-0.5"></i>
+                        <p class="text-[11px] font-bold text-white truncate">지금 신세계 상품권 한정 이벤트!</p>
+                        <a href="#giftcards" class="text-[9px] font-black text-cyan-300 hover:text-white transition-colors">
+                            <span>쇼핑하기</span> <span>지금 구매</span> <i class="fas fa-chevron-right ml-0.5"></i>
                         </a>
                     </div>
                     <button onclick="document.getElementById('top-notice-container').style.display='none'" class="text-white/30 hover:text-white pl-2">
@@ -129,10 +165,9 @@
                 </div>
             </div>
 
-            <!-- Right: Nav -->
             <div class="flex items-center justify-end space-x-4">
                 <nav class="hidden lg:flex items-center space-x-6 text-xs font-bold text-white/60 mr-4">
-                    <a href="#" class="hover:text-white transition-colors">홈</a>
+                    <a href="javascript:void(0)" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="hover:text-white transition-colors">홈</a>
                     <a href="#giftcards" class="hover:text-white transition-colors">기프트카드</a>
                 </nav>
                 <button class="px-4 py-2 md:px-5 md:py-2.5 bg-white/5 border border-white/10 rounded-full text-[10px] md:text-xs font-black hover:bg-white/10 transition-all">
@@ -155,7 +190,7 @@
                     쌓여있는 페이백 포인트를 국내 최고의 인기 기프트카드로 즉시 교환하세요. 번거로운 출금 절차 없이 바로 사용 가능합니다.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 pt-4">
-                    <button class="px-10 py-5 bg-purple-600 rounded-2xl font-black text-lg shadow-[0_15px_30px_rgba(168,85,247,0.3)] hover:scale-105 active:scale-95 transition-all">
+                    <button onclick="document.getElementById('giftcards').scrollIntoView({behavior: 'smooth'})" class="px-10 py-5 bg-purple-600 rounded-2xl font-black text-lg shadow-[0_15px_30px_rgba(168,85,247,0.3)] hover:scale-105 active:scale-95 transition-all">
                         쇼핑 시작하기
                     </button>
                     <div class="flex items-center space-x-4 px-6 py-5 bg-white/5 border border-white/10 rounded-2xl">
@@ -169,13 +204,12 @@
                 </div>
             </div>
 
-            <!-- Right Visual (Live Feed Maintained) -->
             <div class="relative">
-                <div id="main-floating-card" class="floating-card glass-card p-8 rounded-[40px] bg-white/5 border border-white/10 backdrop-blur-xl relative z-20 w-full max-w-[420px] mx-auto lg:ml-auto">
+                <div class="floating-card glass-card p-8 rounded-[40px] bg-white/5 border border-white/10 backdrop-blur-xl relative z-20 w-full max-w-[420px] mx-auto lg:ml-auto">
                     <div class="flex justify-between items-start mb-8">
                         <div>
-                            <h3 id="card-title" class="text-xl font-bold mb-1">기프트카드 실시간 구매 현황</h3>
-                            <p id="card-desc" class="text-xs text-white/40">루투페이 포인트로 즉시 구매</p>
+                            <h3 class="text-xl font-bold mb-1">기프트카드 실시간 구매 현황</h3>
+                            <p class="text-xs text-white/40">루투페이 포인트로 즉시 구매</p>
                         </div>
                         <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg">
                             <i class="fas fa-shopping-cart text-white"></i>
@@ -190,36 +224,33 @@
                                 <span class="text-[9px] font-bold text-green-500">LIVE FEED</span>
                             </span>
                         </div>
-                        <div id="live-purchase-container" class="space-y-3 h-[310px] overflow-y-auto pr-2">
-                            <!-- JS will inject items here -->
-                        </div>
+                        <div id="live-purchase-container" class="space-y-3 h-[310px] overflow-y-auto pr-2"></div>
                     </div>
                 </div>
                 <div class="absolute -top-10 -right-10 w-64 h-64 bg-purple-600/20 rounded-full blur-[100px] -z-10"></div>
-                <div class="absolute -bottom-10 -left-10 w-64 h-64 bg-cyan-600/10 rounded-full blur-[100px] -z-10"></div>
             </div>
         </div>
     </section>
 
-    <!-- Sky Blue Banner (Updated to Baedal-ui-Minjok Content) -->
-    <section id="custom-banner-section" class="max-w-7xl mx-auto px-6 mb-24">
-        <div id="custom-banner-bg" class="w-full p-8 rounded-[32px] flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden relative" style="background-color: #67e8f9;">
+    <!-- Sky Blue Banner -->
+    <section class="max-w-7xl mx-auto px-6 mb-24">
+        <div class="w-full p-8 rounded-[32px] flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden relative" style="background-color: #67e8f9;">
             <div class="relative z-10">
-                <span id="banner-badge" class="px-3 py-1 bg-black/10 rounded-full text-[10px] font-black uppercase mb-3 inline-block">루투페이 회원 특가</span>
-                <h2 id="banner-title" class="text-2xl md:text-3xl font-black text-black leading-tight">배달의민족 기프트카드<br>포인트 결제 시 12% 즉시할인</h2>
+                <span class="px-3 py-1 bg-black/10 rounded-full text-[10px] font-black uppercase mb-3 inline-block">루투페이 회원 특가</span>
+                <h2 class="text-2xl md:text-3xl font-black text-black leading-tight">배달의민족 기프트카드<br>포인트 결제 시 12% 즉시할인</h2>
             </div>
             <div class="flex items-center space-x-4 relative z-10">
-                <button class="px-8 py-4 bg-black text-white rounded-2xl font-bold hover:scale-105 transition-transform">지금 주문하기</button>
+                <button onclick="openPaymentModal('배달의민족', '44,000', 'fas fa-motorcycle', 'from-cyan-400 to-blue-500')" class="px-8 py-4 bg-black text-white rounded-2xl font-bold hover:scale-105 transition-transform">지금 주문하기</button>
                 <div class="w-16 h-16 bg-white/30 rounded-full flex items-center justify-center text-2xl text-black">
-                    <i id="banner-icon" class="fas fa-motorcycle"></i>
+                    <i class="fas fa-motorcycle"></i>
                 </div>
             </div>
             <i class="fas fa-utensils absolute -bottom-10 -right-10 text-[180px] text-black/5 rotate-12"></i>
         </div>
     </section>
 
-    <!-- Gift Card Grid (Maintained) -->
-    <section id="giftcards" class="max-w-7xl mx-auto px-6 py-20">
+    <!-- Gift Card Grid -->
+    <section id="giftcards" class="max-w-7xl mx-auto px-6 py-20 scroll-mt-24">
         <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
             <div class="space-y-4">
                 <h2 class="text-4xl font-bold tracking-tight">다사자! 기프트카드 지금 골라보기</h2>
@@ -230,10 +261,7 @@
                 <button class="p-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all"><i class="fas fa-arrow-right text-purple-400"></i></button>
             </div>
         </div>
-
-        <div id="giftcard-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- Gift Cards injected here via JS -->
-        </div>
+        <div id="giftcard-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
     </section>
 
     <!-- Footer -->
@@ -251,7 +279,7 @@
                     <div class="space-y-4">
                         <h4 class="text-xs font-black uppercase tracking-widest text-purple-400">Mall</h4>
                         <ul class="text-xs space-y-3 font-bold text-white/50">
-                            <li><a href="#" class="hover:text-white">기프트카드 목록</a></li>
+                            <li><a href="#giftcards" class="hover:text-white">기프트카드 목록</a></li>
                             <li><a href="#" class="hover:text-white">포인트 구매 안내</a></li>
                             <li><a href="#" class="hover:text-white">대량 구매 문의</a></li>
                         </ul>
@@ -267,30 +295,126 @@
             </div>
             <div class="flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-bold text-white/20 uppercase tracking-[0.2em]">
                 <p>© 2025 RootooPay. All Rights Reserved.</p>
-                <div class="flex space-x-6">
-                    <a href="#"><i class="fab fa-instagram text-sm"></i></a>
-                    <a href="#"><i class="fab fa-facebook text-sm"></i></a>
-                </div>
             </div>
         </div>
     </footer>
 
-    <!-- Fixed Bottom Widget -->
-    <div class="fixed bottom-6 right-6 z-[100]">
-        <div id="mini-popup" class="group">
-            <div class="bg-white rounded-3xl p-4 pl-6 shadow-2xl flex items-center space-x-6 transform transition-all hover:scale-105 active:scale-95 border-4 border-purple-500/20">
-                <div class="text-left">
-                    <p id="mini-sub-text" class="text-[9px] font-black text-purple-500 uppercase tracking-tighter">My Point Balance</p>
-                    <p id="mini-main-text" class="text-sm font-black text-gray-900 leading-none mt-0.5">남은 포인트 확인</p>
+    <!-- 무통장 입금 결제 팝업 -->
+    <div id="payment-modal" class="modal-backdrop fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-6" onclick="closePaymentModal(event)">
+        <div class="modal-content w-full max-w-[840px] bg-[#140e29] border border-white/10 rounded-[40px] shadow-[0_30px_100px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col md:flex-row" onclick="event.stopPropagation()">
+            <div class="w-full md:w-[320px] bg-gradient-to-b from-purple-900/40 to-[#140e29] p-8 md:p-10 flex flex-col justify-between border-b md:border-b-0 md:border-r border-white/5">
+                <div>
+                    <div id="modal-item-icon-bg" class="w-16 h-16 rounded-3xl mb-8 flex items-center justify-center shadow-2xl transition-all">
+                        <i id="modal-item-icon" class="text-3xl text-white"></i>
+                    </div>
+                    <h4 class="text-white/40 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Order Summary</h4>
+                    <h3 id="modal-item-name" class="text-2xl font-black mb-1">상품권 명칭</h3>
+                    <p class="text-xs text-white/30 font-medium mb-6">구매 즉시 핀번호가 발송됩니다.</p>
+                    <div class="space-y-4 py-6 border-y border-white/5">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-white/40">상품 금액</span>
+                            <span class="text-xs font-bold">50,000원</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-white/40">할인 금액</span>
+                            <span id="modal-discount" class="text-xs font-bold text-cyan-400">-6,000원</span>
+                        </div>
+                    </div>
                 </div>
-                <button id="mini-btn-text" class="bg-gray-900 text-white px-5 py-3 rounded-2xl text-xs font-black shadow-lg">확인</button>
+                <div class="mt-8 md:mt-0">
+                    <p class="text-[10px] font-black text-purple-400 uppercase tracking-widest mb-1">Total Payment</p>
+                    <p id="modal-item-price" class="text-3xl font-black text-white stat-font">0원</p>
+                </div>
+            </div>
+
+            <div class="flex-1 p-8 md:p-10 bg-[#1a142e] relative">
+                <button onclick="closePaymentModal()" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
+                    <i class="fas fa-times text-white/40"></i>
+                </button>
+                <div class="mb-10">
+                    <h3 class="text-xl font-black">무통장 입금결제</h3>
+                    <p class="text-xs text-white/40 mt-1 uppercase tracking-widest">Bank Transfer Payment</p>
+                </div>
+                <div class="space-y-6">
+                    <div class="space-y-3">
+                        <label class="text-[10px] font-black text-purple-400 uppercase tracking-widest ml-1">입금 계좌 정보</label>
+                        <div class="p-5 custom-input rounded-2xl flex items-center justify-between">
+                            <div>
+                                <div class="flex items-center space-x-2 mb-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                                    <p class="text-xs text-white/40 font-bold">신한은행</p>
+                                </div>
+                                <p class="text-lg font-bold tracking-tight stat-font">110-123-456789</p>
+                                <p class="text-xs text-white/60 mt-0.5 font-medium">예금주: 루투페이(주)</p>
+                            </div>
+                            <button onclick="copyToClipboard('110-123-456789')" class="px-5 py-2.5 bg-purple-600 rounded-xl text-[10px] font-black hover:bg-purple-500 transition-all shadow-lg active:scale-95">복사</button>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <label class="text-[10px] font-black text-purple-400 uppercase tracking-widest ml-1">입금자 성함</label>
+                        <input type="text" placeholder="실제 입금하시는 분의 이름을 입력하세요" class="w-full p-5 custom-input rounded-2xl text-sm focus:outline-none font-medium">
+                    </div>
+                    <div class="p-4 bg-amber-500/5 rounded-2xl border border-amber-500/10 flex space-x-3">
+                        <div class="w-5 h-5 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i class="fas fa-exclamation text-[10px] text-amber-500"></i>
+                        </div>
+                        <p class="text-[10px] text-amber-200/50 leading-relaxed">
+                            입금자명이 다를 경우 확인이 지연될 수 있습니다. <br>입금 확인은 영업시간 내 평균 5분 이내에 완료됩니다.
+                        </p>
+                    </div>
+                    <button onclick="handleCompletePayment()" class="w-full py-5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl font-black text-lg shadow-[0_15px_30px_rgba(168,85,247,0.3)] hover:scale-[1.02] transition-all active:scale-95 mt-4">
+                        입금 완료 요청하기
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Security Blocking Script -->
+    <script>
+        // 1. Disable Right Click
+        document.addEventListener('contextmenu', e => e.preventDefault());
+
+        // 2. Disable Keyboard Shortcuts
+        document.onkeydown = function(e) {
+            // F12 차단
+            if(event.keyCode == 123) return false;
+            // Ctrl+Shift+I (개발자 도구)
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false;
+            // Ctrl+Shift+J (개발자 도구 콘솔)
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false;
+            // Ctrl+Shift+C (요소 검사)
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) return false;
+            // Ctrl+U (소스 보기)
+            if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
+            // Ctrl+S (저장)
+            if(e.ctrlKey && e.keyCode == 'S'.charCodeAt(0)) return false;
+        };
+
+        // 3. Developer Tools Anti-Debugger (열리면 무한 루프 발생)
+        setInterval(function() {
+            checkDebugger();
+        }, 1000);
+
+        function checkDebugger() {
+            const startTime = new Date();
+            debugger; // 개발자 도구가 열려있으면 여기서 멈춤
+            const endTime = new Date();
+            if (endTime - startTime > 100) {
+                // 개발자 도구가 열린 것으로 간주하고 경고 또는 페이지 리다이렉트 가능
+                console.clear();
+            }
+        }
+
+        // 4. Console Log Blocking (콘솔 내용 숨기기)
+        console.log = function() {};
+        console.warn = function() {};
+        console.error = function() {};
+        console.info = function() {};
+    </script>
+
     <script>
         const purchaseContainer = document.getElementById('live-purchase-container');
-        
         const names = ["김*수", "Lee****", "박*지", "Choi**", "James", "유*나", "Aiden", "정*혁", "최*영", "Kang**"];
         const cards = ["신세계 상품권", "구글 기프트", "배민 쿠폰", "스타벅스", "네이버페이", "올리브영 기프트"];
         const amounts = ["50,000원", "10,000원", "100,000원", "30,000원", "5,000원"];
@@ -299,7 +423,6 @@
             const name = names[Math.floor(Math.random() * names.length)];
             const card = cards[Math.floor(Math.random() * cards.length)];
             const amount = amounts[Math.floor(Math.random() * amounts.length)];
-            
             const div = document.createElement('div');
             div.className = "live-feed-item flex items-center justify-between p-3 bg-white/5 border border-white/5 rounded-xl mb-3";
             div.innerHTML = `
@@ -318,29 +441,27 @@
                 </div>
             `;
             purchaseContainer.prepend(div);
-            if (purchaseContainer.children.length > 50) {
-                purchaseContainer.removeChild(purchaseContainer.lastChild);
-            }
+            if (purchaseContainer.children.length > 50) purchaseContainer.removeChild(purchaseContainer.lastChild);
         }
+
+        const giftCards = [
+            { name: '신세계 상품권', rate: 5, icon: 'fas fa-store', color: 'from-orange-400 to-red-500', price: '47,500' },
+            { name: '올리브영 기프트', rate: 7, icon: 'fas fa-leaf', color: 'from-green-400 to-green-600', price: '46,500' },
+            { name: '네이버페이', rate: 3, icon: 'fas fa-p', color: 'from-green-500 to-emerald-700', price: '48,500' },
+            { name: '구글 기프트카드', rate: 10, icon: 'fab fa-google-play', color: 'from-blue-400 to-indigo-600', price: '45,000' },
+            { name: '스타벅스 쿠폰', rate: 8, icon: 'fas fa-coffee', color: 'from-green-800 to-emerald-900', price: '9,200' },
+            { name: '배달의민족', rate: 12, icon: 'fas fa-motorcycle', color: 'from-cyan-400 to-blue-500', price: '44,000' }
+        ];
 
         function renderGiftCards() {
             const container = document.getElementById('giftcard-grid');
-            const giftCards = [
-                { name: '신세계 상품권', rate: 5, icon: 'fas fa-store', color: 'from-orange-400 to-red-500', link: '#' },
-                { name: '올리브영 기프트', rate: 7, icon: 'fas fa-leaf', color: 'from-green-400 to-green-600', link: '#' },
-                { name: '네이버페이', rate: 3, icon: 'fas fa-p', color: 'from-green-500 to-emerald-700', link: '#' },
-                { name: '구글 기프트카드', rate: 10, icon: 'fab fa-google-play', color: 'from-blue-400 to-indigo-600', link: '#' },
-                { name: '스타벅스 쿠폰', rate: 8, icon: 'fas fa-coffee', color: 'from-green-800 to-emerald-900', link: '#' },
-                { name: '배달의민족', rate: 12, icon: 'fas fa-motorcycle', color: 'from-cyan-400 to-blue-500', link: '#' }
-            ];
-            
             container.innerHTML = '';
             giftCards.forEach(card => {
                 const el = document.createElement('div');
                 el.className = "exchange-card p-8 flex flex-col items-center text-center relative overflow-hidden group";
                 el.innerHTML = `
                     <div class="absolute inset-0 bg-gradient-to-b from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    <div class="w-20 h-20 bg-gradient-to-br ${card.color} rounded-3xl mb-8 flex items-center justify-center relative z-10 shadow-lg">
+                    <div class="w-20 h-20 bg-gradient-to-br ${card.color} rounded-3xl mb-8 flex items-center justify-center relative z-10 shadow-lg group-hover:scale-110 transition-transform">
                         <i class="${card.icon} text-3xl text-white"></i>
                     </div>
                     <h3 class="text-2xl font-black mb-2 relative z-10">${card.name}</h3>
@@ -348,18 +469,69 @@
                         <span class="text-[10px] font-black text-white/30 uppercase tracking-widest">Discount Rate</span>
                         <span class="text-xl font-black text-purple-400 stat-font">${card.rate}% 할인</span>
                     </div>
-                    <a href="${card.link}" class="w-full py-4 bg-white/5 border border-white/10 rounded-2xl font-bold hover:bg-white text-gray-400 hover:text-gray-900 transition-all relative z-10">
+                    <button onclick="openPaymentModal('${card.name}', '${card.price}', '${card.icon}', '${card.color}')" class="w-full py-4 bg-white/5 border border-white/10 rounded-2xl font-bold hover:bg-white text-gray-400 hover:text-gray-900 transition-all relative z-10">
                         구매하기
-                    </a>
+                    </button>
                 `;
                 container.appendChild(el);
             });
+        }
+
+        function openPaymentModal(name, price, icon, color) {
+            document.getElementById('modal-item-name').innerText = name + ' 5만원권';
+            document.getElementById('modal-item-price').innerText = price + '원';
+            const iconEl = document.getElementById('modal-item-icon');
+            const iconBg = document.getElementById('modal-item-icon-bg');
+            iconEl.className = `${icon} text-3xl text-white`;
+            iconBg.className = `w-16 h-16 rounded-3xl mb-8 flex items-center justify-center shadow-2xl bg-gradient-to-br ${color}`;
+            const finalPrice = parseInt(price.replace(',', ''));
+            document.getElementById('modal-discount').innerText = '-' + (50000 - finalPrice).toLocaleString() + '원';
+            document.getElementById('payment-modal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePaymentModal(e) {
+            document.getElementById('payment-modal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function copyToClipboard(text) {
+            const tempInput = document.createElement("input");
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+            const btn = event.target;
+            btn.innerText = "복사됨";
+            setTimeout(() => btn.innerText = "복사", 2000);
+        }
+
+        function handleCompletePayment() {
+            const modalBox = document.querySelector('.modal-content');
+            modalBox.innerHTML = `
+                <div class="w-full p-20 flex flex-col items-center text-center space-y-6">
+                    <div class="w-20 h-20 bg-emerald-500 rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.4)] mb-4">
+                        <i class="fas fa-check text-3xl text-white"></i>
+                    </div>
+                    <h3 class="text-3xl font-black">확인 요청 완료</h3>
+                    <p class="text-white/40 text-sm leading-relaxed">입금이 확인되는 대로 기프트카드 번호를<br>발송해 드립니다.</p>
+                    <button onclick="location.reload()" class="px-10 py-4 bg-white/5 border border-white/10 rounded-2xl font-bold hover:bg-white/10 transition-all">확인</button>
+                </div>
+            `;
         }
 
         window.onload = function() {
             for(let i=0; i<5; i++) createPurchaseItem();
             setInterval(createPurchaseItem, 4000);
             renderGiftCards();
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) target.scrollIntoView({ behavior: 'smooth' });
+                });
+            });
         };
     </script>
 </body>
